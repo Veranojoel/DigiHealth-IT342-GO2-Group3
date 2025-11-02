@@ -46,8 +46,8 @@ public class Patient {
     @Column(length = 3)
     private String bloodType;
 
-    @ManyToOne
-    @JoinColumn(name = "address_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id", referencedColumnName = "addressId")
     private Address address;
 
     private LocalDate birthDate;

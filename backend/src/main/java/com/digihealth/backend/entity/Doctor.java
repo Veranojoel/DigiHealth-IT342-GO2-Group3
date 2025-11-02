@@ -58,7 +58,7 @@ public class Doctor {
     @Column(length = 200)
     private String hospitalAffiliation;
 
-    @ManyToOne
-    @JoinColumn(name = "address_id")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "address_id", referencedColumnName = "addressId")
     private Address address;
 }
