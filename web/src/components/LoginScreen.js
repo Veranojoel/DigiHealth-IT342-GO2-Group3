@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import './LoginScreen.css';
 
-export default function DigiHealthLoginScreen() {
+export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -34,7 +34,7 @@ export default function DigiHealthLoginScreen() {
         <form className="form-card" onSubmit={handleLogin}>
           <p className="welcome-text">Welcome Back</p>
           <button type="button" className="google-btn">
-            <img alt="Google Icon" src="/assets/doctorlogin.svg" />
+            <img alt="Google Icon" src="/assets/doctor-login.svg" />
             Continue with Google
           </button>
           <div className="divider-container">
@@ -61,7 +61,7 @@ export default function DigiHealthLoginScreen() {
             <button type="submit" className="login-btn">Login</button>
           </div>
           <div className="register-link">
-            <p>Don't have an account? <a href="#">Register as a Doctor</a></p>
+            <p>Don't have an account? <a href="#" onClick={onNavigateToRegister}>Register as a Doctor</a></p>
           </div>
         </form>
         <div className="footer-container">

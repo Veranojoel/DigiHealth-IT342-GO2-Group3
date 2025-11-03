@@ -1,7 +1,7 @@
 import React from 'react';
 import './RegisterScreen.css';
 
-const RegistrationStep1 = ({ onNext, formData, setFormData }) => {
+const RegistrationStep1 = ({ onNext, onNavigateToLogin, formData, setFormData }) => {
   return (
     <div className="form-card">
       <p className="form-title">Basic Information</p>
@@ -26,7 +26,7 @@ const RegistrationStep1 = ({ onNext, formData, setFormData }) => {
         <input type="password" placeholder="Re-enter password" value={formData.confirmPassword || ''} onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })} />
       </div>
       <div className="button-container">
-        <button type="button" className="back-btn">Back to Login</button>
+        <button type="button" className="back-btn" onClick={onNavigateToLogin}>Back to Login</button>
         <button type="button" className="next-btn" onClick={onNext}>Next</button>
       </div>
     </div>

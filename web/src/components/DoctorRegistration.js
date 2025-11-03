@@ -3,9 +3,9 @@ import RegistrationStep1 from './RegistrationStep1';
 import RegistrationStep2 from './RegistrationStep2';
 import RegistrationStep3 from './RegistrationStep3';
 import SuccessModal from './SuccessModal';
-import './RegisterScreen.css'; // Main CSS for the container
+import './DoctorRegistration.css';
 
-const DoctorRegistration = () => {
+const DoctorRegistration = ({ onNavigateToLogin }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [showModal, setShowModal] = useState(false);
@@ -21,15 +21,13 @@ const DoctorRegistration = () => {
 
   const closeModal = () => {
     setShowModal(false);
-    setStep(1); // Reset to first step
-    setFormData({}); // Clear form data
-    // Here you would typically redirect to the login page
+    onNavigateToLogin(); // Navigate back to login
   };
 
   const renderStep = () => {
     switch (step) {
       case 1:
-        return <RegistrationStep1 onNext={nextStep} formData={formData} setFormData={setFormData} />;
+        return <RegistrationStep1 onNext={nextStep} onNavigateToLogin={onNavigateToLogin} formData={formData} setFormData={setFormData} />;
       case 2:
         return <RegistrationStep2 onNext={nextStep} onBack={prevStep} formData={formData} setFormData={setFormData} />;
       case 3:
