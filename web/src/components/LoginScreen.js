@@ -1,9 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 import './LoginScreen.css';
 import icon from '../assets/icon.png';
 import doctorLogin from '../assets/doctor-login.png';
 
 export default function DigiHealthLoginScreen() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    console.log('Attempting to login with:', { email, password });
+    try {
+      const response = await axios.post('http://localhost:8080/api/auth/login', {
+        email,
+        password,
+      });
+      console.log('Login successful:', response.data);
+      // Here you would typically save the token and redirect the user
+    } catch (error) {
+      console.error('Login failed:', error.response ? error.response.data : error.message);
+    }
+  };
+
   return (
     <div className="login-screen-container">
       <div className="login-form-container">
@@ -14,9 +33,9 @@ export default function DigiHealthLoginScreen() {
           <p className="header-title">DigiHealth</p>
           <p className="header-subtitle">Doctor Portal</p>
         </div>
-        <div className="form-card">
+        <form className="form-card" onSubmit={handleLogin}>
           <p className="welcome-text">Welcome Back</p>
-          <button className="google-btn">
+          <button type="button" className="google-btn">
             <img alt="Google Icon" src={doctorLogin} />
             Continue with Google
           </button>
@@ -27,16 +46,26 @@ export default function DigiHealthLoginScreen() {
           </div>
           <div className="form-inputs">
             <label>Email Address</label>
-            <input type="email" placeholder="doctor@digihealth.com" />
+            <input 
+              type="email" 
+              placeholder="doctor@digihealth.com" 
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+            />
             <label>Password</label>
-            <input type="password" placeholder="Enter your password" />
+            <input 
+              type="password" 
+              placeholder="Enter your password" 
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
             <a href="#" className="forgot-password">Forgot Password?</a>
-            <button className="login-btn">Login</button>
+            <button type="submit" className="login-btn">Login</button>
           </div>
           <div className="register-link">
             <p>Don't have an account? <a href="#">Register as a Doctor</a></p>
           </div>
-        </div>
+        </form>
         <div className="footer-container">
           <p>DigiHealth Clinic Management System</p>
           <p>© 2025 DigiHealth. All rights reserved.</p>
