@@ -1,37 +1,83 @@
 package com.digihealth.backend.config;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfiguration;
+
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import org.springframework.web.filter.CorsFilter;
+
+
+
+import java.util.Arrays;
+
+
 
 @Configuration
+
 @EnableWebSecurity
+
 public class SecurityConfig {
 
+
+
     @Bean
+
     public PasswordEncoder passwordEncoder() {
+
         return new BCryptPasswordEncoder();
+
     }
 
+
+
     @Bean
+
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+
         return authenticationConfiguration.getAuthenticationManager();
+
     }
 
+
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        // This configuration provides NO SECURITY and permits all requests.
-        // It is a temporary setup to allow Task #4 (login) to function
-        // before Task #5 (API Security) is implemented.
-        http.csrf().disable()
-            .authorizeRequests()
-            .anyRequest().permitAll();
-        return http.build();
+
+    public CorsFilter corsFilter() {
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
+        CorsConfiguration config = new CorsConfiguration();
+
+        config.setAllowCredentials(true);
+
+        config.addAllowedOrigin("http://localhost:3000");
+
+        config.addAllowedHeader("*");
+
+        config.addAllowedMethod("*");
+
+        source.registerCorsConfiguration("/**", config);
+
+        return new CorsFilter(source);
+
     }
+
+
+
+    @Bean
+
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
+        // This configuration provides NO SECURITY and permits all requests.
+
+        http.cors().and().csrf().disable()
+
+            .authorizeRequests()
+
+            .anyRequest().permitAll();
+
+        return http.build();
+
+    }
+
 }
