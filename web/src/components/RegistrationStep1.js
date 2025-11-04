@@ -7,7 +7,7 @@ const RegistrationStep1 = ({ onNext, onNavigateToLogin, formData, setFormData })
       <p className="form-title">Basic Information</p>
       <p className="form-subtitle">Create your doctor account</p>
       <button type="button" className="google-btn">
-        <img alt="Google Icon" src="/assets/doctor-login.svg" />
+        <img alt="Google Icon" src="/assets/doctorlogin.svg" />
         Continue with Google
       </button>
       <div className="divider-container">

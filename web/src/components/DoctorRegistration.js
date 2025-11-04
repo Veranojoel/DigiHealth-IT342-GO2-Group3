@@ -5,6 +5,8 @@ import RegistrationStep3 from './RegistrationStep3';
 import SuccessModal from './SuccessModal';
 import './DoctorRegistration.css';
 
+import axios from 'axios';
+
 const DoctorRegistration = ({ onNavigateToLogin }) => {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
@@ -13,10 +15,15 @@ const DoctorRegistration = ({ onNavigateToLogin }) => {
   const nextStep = () => setStep(prev => prev + 1);
   const prevStep = () => setStep(prev => prev - 1);
 
-  const handleRegistrationSubmit = () => {
+  const handleRegistrationSubmit = async () => {
     console.log("Submitting Registration Data:", formData);
-    // Here you would make the API call to the backend
-    setShowModal(true);
+    try {
+      await axios.post('http://localhost:8080/api/auth/register', formData);
+      setShowModal(true);
+    } catch (error) {
+      console.error('Registration failed:', error.response ? error.response.data : error.message);
+      // Optionally, show an error message to the user
+    }
   };
 
   const closeModal = () => {
