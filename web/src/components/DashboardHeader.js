@@ -1,4 +1,9 @@
+import React from 'react';
 import './DashboardHeader.css';
+
+const DashboardHeader = () => {
+  return (
+    <header className="dashboard-header">
       <div className="header-logo-container">
         <img src="/assets/header-logo.svg" alt="DigiHealth Logo" />
         <div className="header-title-container">
