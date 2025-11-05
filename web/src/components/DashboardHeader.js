@@ -1,9 +1,4 @@
-import React from 'react';
-
-// This is a simplified, reusable header. In a real app, this would be more robust.
-const DashboardHeader = () => {
-  return (
-    <header className="dashboard-header">
+import './DashboardHeader.css';
       <div className="header-logo-container">
         <img src="/assets/header-logo.svg" alt="DigiHealth Logo" />
         <div className="header-title-container">
