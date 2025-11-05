@@ -8,7 +8,6 @@ const Patients = () => {
 
   return (
     <div className="patients-container">
-      <DashboardHeader />
       <main className="patients-main">
         <div className="patients-header">
           <h2>My Patients</h2>
