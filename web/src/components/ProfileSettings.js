@@ -9,7 +9,7 @@ const ProfileSettings = () => {
         <h2>Profile Settings</h2>
         <p>Manage your account settings and preferences</p>
         <div className="active-account-badge">
-          <img src="/assets/active-account-icon.svg" alt="Active Account" />
+          <img src="/assets/active-account.svg" alt="Active Account" />
           <p>Active Account</p>
         </div>
       </div>
@@ -51,7 +51,9 @@ const ProfileSettings = () => {
       </div>
 
       <div className="profile-content-card">
-        <div className="profile-banner">
+        <div className="profile-banner"></div>
+
+        <div className="profile-header-content">
           <div className="profile-pic-wrapper">
             <img src="/assets/profile-pic.svg" alt="Profile" className="profile-pic" />
             <div className="camera-icon-wrapper">
