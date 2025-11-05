@@ -52,6 +52,7 @@
   flex-direction: column;
   gap: 16px;
   position: relative;
+  min-height: 124px;
 }
 
 .profile-completion-info {
@@ -169,7 +170,7 @@
   border-top-left-radius: 14px;
   border-top-right-radius: 14px;
   position: relative;
-  margin-bottom: 60px; /* Adjust based on profile pic overlap */
+  margin-bottom: 80px; /* Adjust based on profile pic overlap */
 }
 
 .profile-pic-wrapper {
@@ -215,7 +216,7 @@
 
 .doctor-info {
   text-align: center;
-  margin-top: 80px; /* Adjust based on profile pic overlap */
+  margin-top: 60px; /* Adjust based on profile pic overlap */
   padding-bottom: 24px;
 }
 
@@ -258,9 +259,16 @@
   margin: 0;
 }
 
-.personal-info-card, .professional-info-card {
+.personal-info-card {
   border-top: 1px solid #e5e7eb;
   padding: 24px;
+  min-height: 335px;
+}
+
+.professional-info-card {
+  border-top: 1px solid #e5e7eb;
+  padding: 24px;
+  min-height: 614px;
 }
 
 .personal-info-card .card-header, .professional-info-card .card-header {
