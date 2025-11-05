@@ -10,7 +10,10 @@ const ProfileDropdown = () => {
       </div>
       <div className="dropdown-divider"></div>
       <div className="dropdown-section">
-        <Link to="/profile-settings" className="dropdown-item">Profile Settings</Link>
+          <Link to="/profile-settings" className="dropdown-item">
+            <img src="/assets/profile-tab-icon.svg" alt="Profile Settings" />
+            Profile Settings
+          </Link>
         <Link to="/preferences" className="dropdown-item">Preferences</Link>
       </div>
       <div className="dropdown-divider"></div>

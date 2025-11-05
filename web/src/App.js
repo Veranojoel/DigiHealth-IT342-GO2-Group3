@@ -13,8 +13,9 @@ function App() {
         <Route path="/" element={<DashboardLayout />}>
           <Route index element={<Navigate to="/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
-          <Route path="patients" element={<Patients />} />
-          <Route path="appointments" element={<Appointments />} />
+          <Route path="/appointments" element={<Appointments />} />
+          <Route path="/patients" element={<Patients />} />
+          <Route path="/profile-settings" element={<ProfileSettings />} />
         </Route>
       </Routes>
     </Router>
