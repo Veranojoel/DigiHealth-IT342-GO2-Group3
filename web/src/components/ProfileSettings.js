@@ -83,10 +83,8 @@ const ProfileSettings = () => {
         <div className="personal-info-card">
           <div className="card-header">
             <img src="/assets/personal-info-icon.svg" alt="Personal Info" />
-            <div className="card-header-text">
-              <p className="card-title">Personal Information</p>
-              <p className="card-description">Update your personal details and contact information</p>
-            </div>
+            <p className="card-title">Personal Information</p>
+            <p className="card-description">Update your personal details and contact information</p>
           </div>
           <div className="card-content">
             <div className="input-group">
@@ -111,10 +109,8 @@ const ProfileSettings = () => {
         <div className="professional-info-card">
           <div className="card-header">
             <img src="/assets/professional-info-icon.svg" alt="Professional Info" />
-            <div className="card-header-text">
-              <p className="card-title">Professional Information</p>
-              <p className="card-description">Your medical credentials and specialization</p>
-            </div>
+            <p className="card-title">Professional Information</p>
+            <p className="card-description">Your medical credentials and specialization</p>
           </div>
           <div className="card-content">
             <div className="input-group">

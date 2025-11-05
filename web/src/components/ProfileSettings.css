@@ -285,24 +285,33 @@
   align-items: center;
   gap: 8px;
   margin-bottom: 24px;
+  position: relative;
 }
 
-.card-header-text {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+.personal-info-card .card-header img, .professional-info-card .card-header img {
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  left: 0;
+  top: 0;
 }
 
 .personal-info-card .card-header .card-title, .professional-info-card .card-header .card-title {
   font-size: 16px;
   color: #0d1b2a;
   margin: 0;
+  position: absolute;
+  left: 28px;
+  top: 0;
 }
 
 .personal-info-card .card-header .card-description, .professional-info-card .card-header .card-description {
   font-size: 16px;
   color: #606060;
   margin: 0;
+  position: absolute;
+  left: 0;
+  top: 32px;
 }
 
 .card-content {
