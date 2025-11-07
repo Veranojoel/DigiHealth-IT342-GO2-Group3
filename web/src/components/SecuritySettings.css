@@ -11,19 +11,25 @@
 }
 
 .card-header {
+  background-color: #f9fafb;
   border-bottom: 1px solid #e5e7eb;
   padding: 24px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
+  position: relative;
+  min-height: 105px;
 }
 
 .card-header img {
   width: 20px;
   height: 20px;
+  position: absolute;
+  left: 24px;
+  top: 24px;
 }
 
 .card-header-text {
+  position: absolute;
+  left: 52px;
+  top: 24px;
   display: flex;
   flex-direction: column;
   gap: 4px;
@@ -131,7 +137,7 @@
 .update-password-btn {
   background: linear-gradient(180deg, #0093e9 0%, #80d0c7 100%);
   border-radius: 8px;
-  padding: 10px 16px; /* Adjusted padding */
+  padding: 10px 16px;
   display: flex;
   align-items: center;
   gap: 8px;
@@ -139,7 +145,7 @@
   font-size: 14px;
   border: none;
   cursor: pointer;
-  width: auto; /* Removed fixed width */
+  width: 165.844px; /* Adjusted width */
 }
 
 .update-password-btn img {
