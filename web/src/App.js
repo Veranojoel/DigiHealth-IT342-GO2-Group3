@@ -8,6 +8,7 @@ import Dashboard from './components/Dashboard';
 import Patients from './components/Patients';
 import Appointments from './components/Appointments';
 import Notifications from './components/Notifications';
+import Schedule from './components/Schedule';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route path="/patients" element={<Patients />} />
           <Route path="/profile-settings/security" element={<SecuritySettings />} />
           <Route path="/profile-settings/notifications" element={<Notifications />} />
+          <Route path="/profile-settings/schedule" element={<Schedule />} />
           <Route path="/profile-settings" element={<ProfileSettings />} />
         </Route>
       </Routes>
