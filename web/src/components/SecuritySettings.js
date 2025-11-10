@@ -56,10 +56,8 @@ const SecuritySettings = () => {
       <div className="card change-password-card">
         <div className="card-header">
           <img src="/assets/security-tab-icon.svg" alt="Change Password" />
-          <div className="card-header-text">
-            <p className="card-title">Change Password</p>
-            <p className="card-description">Update your password to keep your account secure</p>
-          </div>
+          <p className="card-title">Change Password</p>
+          <p className="card-description">Update your password to keep your account secure</p>
         </div>
         <div className="card-content">
           <div className="input-group">
@@ -99,10 +97,8 @@ const SecuritySettings = () => {
       <div className="card two-factor-auth-card">
         <div className="card-header">
           <img src="/assets/shield.svg" alt="Two-Factor Authentication" />
-          <div className="card-header-text">
-            <p className="card-title">Two-Factor Authentication</p>
-            <p className="card-description">Add an extra layer of security to your account</p>
-          </div>
+          <p className="card-title">Two-Factor Authentication</p>
+          <p className="card-description">Add an extra layer of security to your account</p>
         </div>
         <div className="card-content">
           <div className="two-factor-auth-toggle-card">
