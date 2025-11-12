@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     }
     try {
       // Assuming your API client sets the auth header automatically
-      const userProfile = await apiClient.get('/api/user/profile');
+      const userProfile = await apiClient.get('/api/users/me');
       setCurrentUser(userProfile.data);
     } catch (error) {
       console.error('Failed to fetch user profile:', error);
