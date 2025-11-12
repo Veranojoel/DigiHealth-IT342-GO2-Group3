@@ -23,7 +23,7 @@ public class Patient {
     private UUID patientId;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "userId")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     private Integer age;
@@ -51,4 +51,90 @@ public class Patient {
     private Address address;
 
     private LocalDate birthDate;
+
+    // Explicit getters for Lombok compatibility
+    public UUID getPatientId() {
+        return patientId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public Gender getGender() {
+        return gender;
+    }
+
+    public String getAllergies() {
+        return allergies;
+    }
+
+    public String getMedicalConditions() {
+        return medicalConditions;
+    }
+
+    public String getEmergencyContactName() {
+        return emergencyContactName;
+    }
+
+    public String getEmergencyContactPhone() {
+        return emergencyContactPhone;
+    }
+
+    public String getBloodType() {
+        return bloodType;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    public LocalDate getBirthDate() {
+        return birthDate;
+    }
+
+    // Explicit setters for Lombok compatibility
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setAddress(Address address) {
+        this.address = address;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public void setGender(Gender gender) {
+        this.gender = gender;
+    }
+
+    public void setAllergies(String allergies) {
+        this.allergies = allergies;
+    }
+
+    public void setMedicalConditions(String medicalConditions) {
+        this.medicalConditions = medicalConditions;
+    }
+
+    public void setEmergencyContactName(String emergencyContactName) {
+        this.emergencyContactName = emergencyContactName;
+    }
+
+    public void setEmergencyContactPhone(String emergencyContactPhone) {
+        this.emergencyContactPhone = emergencyContactPhone;
+    }
+
+    public void setBloodType(String bloodType) {
+        this.bloodType = bloodType;
+    }
+
+    public void setBirthDate(LocalDate birthDate) {
+        this.birthDate = birthDate;
+    }
 }

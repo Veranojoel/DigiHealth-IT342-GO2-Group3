@@ -25,7 +25,7 @@ public class Doctor {
     private UUID doctorId;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "userId")
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
     @Column(unique = true, length = 50)
@@ -61,4 +61,62 @@ public class Doctor {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "address_id", referencedColumnName = "addressId")
     private Address address;
+
+    // Explicit getters for Lombok compatibility
+    public UUID getDoctorId() {
+        return doctorId;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public Integer getExperienceYears() {
+        return experienceYears;
+    }
+
+    public String getHospitalAffiliation() {
+        return hospitalAffiliation;
+    }
+
+    public Address getAddress() {
+        return address;
+    }
+
+    // Explicit setters for Lombok compatibility
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
+
+    public void setSpecialization(String specialization) {
+        this.specialization = specialization;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
+    }
+
+    public void setExperienceYears(Integer experienceYears) {
+        this.experienceYears = experienceYears;
+    }
+
+    public void setHospitalAffiliation(String hospitalAffiliation) {
+        this.hospitalAffiliation = hospitalAffiliation;
+    }
 }

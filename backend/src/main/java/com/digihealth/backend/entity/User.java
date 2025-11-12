@@ -6,11 +6,13 @@ import lombok.AllArgsConstructor;
 import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
 @Table(name = "users")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
@@ -22,12 +24,100 @@ public class User {
     @Column(name = "id", updatable = false, nullable = false)
     private UUID id;
 
+    // Basic auth and identity
     private String fullName;
     private String email;
-    private String password;
+
+    /**
+     * Hashed password used by Spring Security.
+     * All authentication logic should store/read from this field.
+     */
+    private String passwordHash;
+
+    // Doctor-specific fields (nullable for non-doctors)
     private String specialization;
     private String licenseNumber;
+
+    // Shared contact fields
     private String phoneNumber;
+
+    // Role for access control
+    @Enumerated(EnumType.STRING)
     private Role role;
 
-    // Getters and Setters...
+    // Soft delete / active flag for profile management
+    private Boolean isActive = true;
+
+    // Manually added getters and setters for Lombok compatibility issues
+    public UUID getId() {
+        return id;
+    }
+
+    public void setId(UUID id) {
+        this.id = id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    public void setSpecialization(String specialization) {
+        this.specialization = specialization;
+    }
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
+
+    public Boolean getIsActive() {
+        return isActive;
+    }
+
+    public void setIsActive(Boolean isActive) {
+        this.isActive = isActive;
+    }
+}

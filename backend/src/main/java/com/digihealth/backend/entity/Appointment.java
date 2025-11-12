@@ -72,4 +72,29 @@ public class Appointment {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+    // Explicit getters for Lombok compatibility
+    public UUID getAppointmentId() {
+        return appointmentId;
+    }
+
+    public Patient getPatient() {
+        return patient;
+    }
+
+    public Doctor getDoctor() {
+        return doctor;
+    }
+
+    public LocalDate getAppointmentDate() {
+        return appointmentDate;
+    }
+
+    public LocalTime getAppointmentTime() {
+        return appointmentTime;
+    }
+
+    public AppointmentStatus getStatus() {
+        return status;
+    }
 }
