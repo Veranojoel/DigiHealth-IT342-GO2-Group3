@@ -78,7 +78,7 @@ const ProfileSettings = () => {
             </div>
             <div className="doctor-info">
               <p className="doctor-name">{currentUser.fullName}</p>
-              <p className="doctor-specialty">{currentUser.specialization || 'N/A'} • Internal Medicine</p>
+              <p className="doctor-specialty">{currentUser.specialization || 'N/A'}</p>
               <div className="doctor-contact-info">
                 <div className="contact-badge">
                   <img src="/assets/email-icon.svg" alt="Email" />
@@ -86,11 +86,11 @@ const ProfileSettings = () => {
                 </div>
                 <div className="contact-badge">
                   <img src="/assets/phone-icon.svg" alt="Phone" />
-                  <p>{currentUser.phoneNumber || 'N/A'}</p>
+                  <p>{currentUser.phone || 'N/A'}</p>
                 </div>
                 <div className="contact-badge">
                   <img src="/assets/license-icon.svg" alt="License" />
-                  <p>{currentUser.licenseNumber || 'N/A'}</p>
+                  <p>{currentUser.medicalLicenseNumber || 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -113,7 +113,7 @@ const ProfileSettings = () => {
               </div>
               <div className="input-group">
                 <label>Phone Number</label>
-                <input type="text" value={currentUser.phoneNumber || ''} readOnly />
+                <input type="text" value={currentUser.phone || ''} readOnly />
               </div>
               <div className="input-group">
                 <label>Role</label>
@@ -131,7 +131,7 @@ const ProfileSettings = () => {
             <div className="card-content">
               <div className="input-group">
                 <label>Department</label>
-                <input type="text" value="Internal Medicine" readOnly />
+                <input type="text" value={currentUser.department || 'N/A'} readOnly />
               </div>
               <div className="input-group">
                 <label>Specialization</label>
@@ -139,16 +139,16 @@ const ProfileSettings = () => {
               </div>
               <div className="input-group">
                 <label>Medical License Number</label>
-                <input type="text" value={currentUser.licenseNumber || ''} readOnly />
+                <input type="text" value={currentUser.medicalLicenseNumber || ''} readOnly />
               </div>
               <div className="input-group">
                 <label>Years of Experience</label>
-                <input type="text" value="12" readOnly />
+                <input type="text" value={currentUser.yearsOfExperience || 'N/A'} readOnly />
               </div>
               <div className="input-group full-width">
                 <label>Professional Bio</label>
-                <textarea readOnly>Brief description of your professional background...</textarea>
-                <p className="char-count">114 / 500 characters</p>
+                <textarea readOnly value={currentUser.professionalBio || 'No bio available'}></textarea>
+                <p className="char-count">{(currentUser.professionalBio || '').length} / 500 characters</p>
               </div>
               <div className="save-changes-section">
                 <button className="save-changes-btn">
