@@ -22,7 +22,7 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
       // Navigate to dashboard on successful login
       navigate('/dashboard');
     } catch (error) {
-      console.error('Login failed:', error);
+      
       const backendMessage =
         error.response?.data?.message ||
         error.response?.data?.error ||
@@ -86,7 +86,7 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
             </button>
           </div>
           <div className="register-link">
-            <p>Don't have an account? <a href="#" onClick={onNavigateToRegister}>Register as a Doctor</a></p>
+            <p>Don't have an account? <a href="#" onClick={(e) => { e.preventDefault(); navigate('/register'); }}>Register as a Doctor</a></p>
           </div>
         </form>
         <div className="footer-container">
