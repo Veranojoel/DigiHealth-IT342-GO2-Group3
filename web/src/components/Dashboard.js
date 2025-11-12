@@ -37,7 +37,7 @@ const Dashboard = () => {
         setTodayAppointments(Array.isArray(appointmentsRes.data) ? appointmentsRes.data : []);
       } catch (err) {
         // Gracefully handle auth/permission issues without crashing UI
-        console.error('Failed to load dashboard data', err);
+        
         setError('Failed to load dashboard data');
       } finally {
         setLoading(false);
