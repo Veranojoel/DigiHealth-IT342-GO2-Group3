@@ -2,9 +2,11 @@ import React, { useState } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 import './DashboardHeader.css';
 import ProfileDropdown from './ProfileDropdown';
+import { useAuth } from '../auth/auth';
 
 const DashboardHeader = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
+  const { currentUser } = useAuth();
 
   const toggleDropdown = () => {
     setDropdownVisible(!isDropdownVisible);
@@ -41,10 +43,10 @@ const DashboardHeader = () => {
           <span className="notification-badge">2</span>
         </div>
         <div className="user-profile" onClick={toggleDropdown}>
-          <img src="/assets/profile-pic.svg" alt="Dr. Sarah Smith" className="profile-pic" />
+          <img src="/assets/profile-pic.svg" alt={currentUser?.fullName || 'User'} className="profile-pic" />
           <div className="user-info">
-            <p className="user-name">Dr. Sarah Smith</p>
-            <p className="user-specialty">General Practitioner</p>
+            <p className="user-name">{currentUser?.fullName || 'Loading...'}</p>
+            <p className="user-specialty">{currentUser?.specialization || currentUser?.role || 'Doctor'}</p>
           </div>
           <img src="/assets/dropdown-icon.svg" alt="Dropdown" className="dropdown-icon" />
           {isDropdownVisible && <ProfileDropdown />}
