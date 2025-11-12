@@ -1,11 +1,16 @@
 package com.digihealth.backend.service;
 
+import com.digihealth.backend.dto.CurrentUserProfileDto;
+import com.digihealth.backend.dto.CurrentUserProfileUpdateRequest;
 import com.digihealth.backend.dto.UserProfileResponse;
 import com.digihealth.backend.dto.UserProfileUpdateRequest;
 import com.digihealth.backend.entity.*;
+import com.digihealth.backend.repository.DoctorRepository;
 import com.digihealth.backend.repository.PatientRepository;
 import com.digihealth.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,18 +25,21 @@ public class UserProfileService {
     @Autowired
     private PatientRepository patientRepository;
 
+    @Autowired
+    private DoctorRepository doctorRepository;
+
     @Transactional(readOnly = true)
     public UserProfileResponse getUserProfile(UUID userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         UserProfileResponse response = new UserProfileResponse();
-        response.setUserId(user.getUserId());
+        response.setUserId(user.getId());
         response.setEmail(user.getEmail());
-        response.setFirstName(user.getFirstName());
-        response.setLastName(user.getLastName());
+        response.setFirstName(user.getFullName()); // or split if needed
+        response.setLastName(null);
         response.setPhoneNumber(user.getPhoneNumber());
-        response.setProfileImageUrl(user.getProfileImageUrl());
+        response.setProfileImageUrl(null);
         response.setRole(user.getRole());
 
         if (user.getRole() == Role.PATIENT) {
@@ -64,10 +72,17 @@ public class UserProfileService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        user.setFirstName(request.getFirstName());
-        user.setLastName(request.getLastName());
+        // For current model, map updated name into fullName
+        if (request.getFirstName() != null || request.getLastName() != null) {
+            String first = request.getFirstName() != null ? request.getFirstName() : "";
+            String last = request.getLastName() != null ? request.getLastName() : "";
+            String combined = (first + " " + last).trim();
+            if (!combined.isEmpty()) {
+                user.setFullName(combined);
+            }
+        }
         user.setPhoneNumber(request.getPhoneNumber());
-        user.setProfileImageUrl(request.getProfileImageUrl());
+        // No dedicated profileImageUrl field on User; ignore or extend entity if needed
 
         if (user.getRole() == Role.PATIENT) {
             Patient patient = patientRepository.findByUser(user)
@@ -109,5 +124,64 @@ public class UserProfileService {
 
         user.setIsActive(false);
         userRepository.save(user);
+    }
+
+    @Transactional(readOnly = true)
+    public CurrentUserProfileDto getCurrentUserProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        CurrentUserProfileDto dto = new CurrentUserProfileDto();
+        dto.setFullName(user.getFullName());
+        dto.setEmail(user.getEmail());
+        dto.setPhone(user.getPhoneNumber());
+        dto.setRole(user.getRole().name());
+
+        if (user.getRole() == Role.DOCTOR) {
+            doctorRepository.findByUser(user).ifPresent(doctor -> {
+                dto.setDepartment(doctor.getHospitalAffiliation());
+                dto.setSpecialization(doctor.getSpecialization());
+                dto.setMedicalLicenseNumber(doctor.getLicenseNumber());
+                dto.setYearsOfExperience(doctor.getExperienceYears());
+                dto.setProfessionalBio(doctor.getBio());
+            });
+        }
+
+        return dto;
+    }
+
+    @Transactional
+    public CurrentUserProfileDto updateCurrentUserProfile(CurrentUserProfileUpdateRequest request) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        user.setFullName(request.getFullName());
+        user.setPhoneNumber(request.getPhone());
+        // email and role are read-only
+
+        if (user.getRole() == Role.DOCTOR) {
+            Doctor doctor = doctorRepository.findByUser(user)
+                    .orElseGet(() -> {
+                        Doctor newDoctor = new Doctor();
+                        newDoctor.setUser(user);
+                        return newDoctor;
+                    });
+
+            doctor.setHospitalAffiliation(request.getDepartment());
+            doctor.setSpecialization(request.getSpecialization());
+            doctor.setLicenseNumber(request.getMedicalLicenseNumber());
+            doctor.setExperienceYears(request.getYearsOfExperience());
+            doctor.setBio(request.getProfessionalBio());
+
+            doctorRepository.save(doctor);
+        }
+
+        userRepository.save(user);
+
+        return getCurrentUserProfile();
     }
 }

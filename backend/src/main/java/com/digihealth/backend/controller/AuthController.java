@@ -1,7 +1,7 @@
 package com.digihealth.backend.controller;
 
-import com.digihealth.backend.dto.AuthResponseDto;
-import com.digihealth.backend.dto.LoginDto;
+import com.digihealth.backend.dto.LoginRequest;
+import com.digihealth.backend.dto.LoginResponse;
 import com.digihealth.backend.dto.RegisterDto;
 import com.digihealth.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +19,9 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<AuthResponseDto> login(@RequestBody LoginDto loginDto) {
-        String token = authService.login(loginDto);
-        return ResponseEntity.ok(new AuthResponseDto(token));
+    public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
+        String token = authService.login(loginRequest);
+        return ResponseEntity.ok(new LoginResponse(token));
     }
 
     @PostMapping("/register")
