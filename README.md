@@ -153,6 +153,8 @@ cp .env.example .env
 
 # 4. Start development server
 npm start
+or
+.\start-app.bat
 ```
 
 #### 3. Verify Web Installation
@@ -250,10 +252,10 @@ npm run eject  # Eject from Create React App (irreversible)
 - Configure production API endpoints
 
 ## Team Members
-- **Jessie Noel Lapure** - Project Manager / Full Stack Developer - jessienoel.lapure@cit.edu
-- **William Bustamante** - Full Stack Developer- william.bustamante@cit.edu
-- **Joel Verano** - Full Stack Developer- joel.verano@cit.edu
-- **Matthew Rimar Martus** - Full Stack Developer - matthewrimar.martus@cit.edu
+- **Jessie Noel Lapure** - Project Manager / Full Stack Developer - jessienoel.lapure@cit.edu | Iamjesssie
+- **William Bustamante** - Full Stack Developer- william.bustamante@cit.edu | yamn24
+- **Joel Verano** - Full Stack Developer- joel.verano@cit.edu | shinjii
+- **Matthew Rimar Martus** - Full Stack Developer - matthewrimar.martus@cit.edu | Mr-cmd-pip
 
 ## Deployed Link
 [Will be added after deployment]
