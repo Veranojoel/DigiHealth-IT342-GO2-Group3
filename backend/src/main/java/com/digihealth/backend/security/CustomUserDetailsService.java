@@ -24,15 +24,26 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email : " + email));
 
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPasswordHash(), new ArrayList<>());
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPasswordHash(),
+                new ArrayList<>()
+        );
     }
 
+    /**
+     * Resolve a user by UUID (used with JWT subject = userId).
+     */
     @Transactional
     public UserDetails loadUserById(UUID id) {
         User user = userRepository.findById(id).orElseThrow(
-            () -> new UsernameNotFoundException("User not found with id : " + id)
+                () -> new UsernameNotFoundException("User not found with id : " + id)
         );
 
-        return new org.springframework.security.core.userdetails.User(user.getEmail(), user.getPasswordHash(), new ArrayList<>());
+        return new org.springframework.security.core.userdetails.User(
+                user.getEmail(),
+                user.getPasswordHash(),
+                new ArrayList<>()
+        );
     }
 }

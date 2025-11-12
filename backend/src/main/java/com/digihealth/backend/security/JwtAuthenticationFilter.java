@@ -37,7 +37,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {
                 String userId = tokenProvider.getUserIdFromJWT(jwt);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userId); // Assuming username is email
+                // Subject is the user ID (UUID). Resolve using loadUserById to align with token contents.
+                UserDetails userDetails;
+                if (userDetailsService instanceof com.digihealth.backend.security.CustomUserDetailsService) {
+                    com.digihealth.backend.security.CustomUserDetailsService custom =
+                            (com.digihealth.backend.security.CustomUserDetailsService) userDetailsService;
+                    userDetails = custom.loadUserById(java.util.UUID.fromString(userId));
+                } else {
+                    // Fallback to existing behavior if a different impl is wired
+                    userDetails = userDetailsService.loadUserByUsername(userId);
+                }
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
