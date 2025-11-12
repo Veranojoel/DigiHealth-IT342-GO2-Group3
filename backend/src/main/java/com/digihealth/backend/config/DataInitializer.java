@@ -88,6 +88,7 @@ public class DataInitializer implements CommandLineRunner {
         doctor.setUser(doctorUser);
         doctor.setSpecialization("Internal Medicine");
         doctor.setLicenseNumber("MD-DEMO-001");
+        doctor.setApprovalStatus(com.digihealth.backend.entity.ApprovalStatus.APPROVED);
         doctorRepository.save(doctor);
 
         // 3) Seed patients for this doctor
