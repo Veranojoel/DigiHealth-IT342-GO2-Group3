@@ -14,6 +14,7 @@ import DigiHealthLoginScreen from './components/LoginScreen';
 import DoctorRegistration from './components/DoctorRegistration';
 import AdminPortal from './components/AdminPortal';
 import AdminLogin from './components/AdminLogin';
+import AdminDashboard from './components/AdminDashboard';
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -24,22 +25,16 @@ const AppRoutes = () => {
 
   return (
     <Routes>
+      {/* Admin Routes - Always accessible */}
       <Route path="/admin" element={<AdminPortal />} />
       <Route path="/admin/login" element={<AdminLogin />} />
-      
-      <Route
-        path="/login"
-        element={!isAuthenticated ? <DigiHealthLoginScreen /> : <Navigate to="/dashboard" replace />}
-      />
-      <Route
-        path="/register"
-        element={!isAuthenticated ? <DoctorRegistration /> : <Navigate to="/dashboard" replace />}
-      />
+      <Route path="/admin/dashboard" element={<AdminDashboard />} />
 
-      <Route
-        path="/"
-        element={isAuthenticated ? <DashboardLayout /> : <Navigate to="/login" replace />}
-      >
+      {/* Doctor Routes - Auth protected */}
+      <Route path="/login" element={!isAuthenticated ? <DigiHealthLoginScreen /> : <Navigate to="/dashboard" replace />} />
+      <Route path="/register" element={!isAuthenticated ? <DoctorRegistration /> : <Navigate to="/dashboard" replace />} />
+
+      <Route path="/" element={isAuthenticated ? <DashboardLayout /> : <Navigate to="/login" replace />}>
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
         <Route path="appointments" element={<Appointments />} />
