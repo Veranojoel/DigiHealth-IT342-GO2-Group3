@@ -16,6 +16,8 @@ import AdminPortal from './components/AdminPortal';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import AdminPatients from './components/AdminPatients';
+import AdminAppointments from './components/AdminAppointments';
+import AdminAnalytics from './components/AdminAnalytics';
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -31,6 +33,8 @@ const AppRoutes = () => {
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/patients" element={<AdminPatients />} />
+      <Route path="/admin/appointments" element={<AdminAppointments />} />
+      <Route path="/admin/analytics" element={<AdminAnalytics />} />
 
       {/* Doctor Routes - Auth protected */}
       <Route path="/login" element={!isAuthenticated ? <DigiHealthLoginScreen /> : <Navigate to="/dashboard" replace />} />

@@ -50,6 +50,10 @@ public class User {
     // Soft delete / active flag for profile management
     private Boolean isActive = true;
 
+    // Doctor approval status - defaults to false for new doctors
+    @Column(name = "is_approved", nullable = false, columnDefinition = "BOOLEAN DEFAULT FALSE")
+    private Boolean isApproved = false;
+
     // Manually added getters and setters for Lombok compatibility issues
     public UUID getId() {
         return id;
@@ -121,5 +125,13 @@ public class User {
 
     public void setIsActive(Boolean isActive) {
         this.isActive = isActive;
+    }
+
+    public Boolean getIsApproved() {
+        return isApproved;
+    }
+
+    public void setIsApproved(Boolean isApproved) {
+        this.isApproved = isApproved;
     }
 }

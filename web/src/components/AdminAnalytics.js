@@ -14,7 +14,7 @@ const AdminAnalytics = () => {
   // Stats cards (same as appointments page)
   const stats = [
     {
-      icon: '/assets/Admin assets/Doctor-3.svg',
+      icon: '/assets/Admin assets/Doctor-4.svg',
       label: 'Total Doctors',
       value: '2',
       subtitle: 'Active'
