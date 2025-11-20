@@ -7,6 +7,8 @@ D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\mai
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\DoctorDashboardController.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\CurrentUserProfileDto.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\DashboardSummaryDto.java
+D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\AdminController.java
+D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\DoctorApprovalDto.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\security\JwtAuthenticationFilter.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\service\DashboardService.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Patient.java
@@ -14,6 +16,7 @@ D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\mai
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\repository\PatientRepository.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Gender.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\repository\UserRepository.java
+D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\AppointmentController.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\RegisterDto.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\UserProfileUpdateRequest.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\DayOfWeek.java
@@ -28,6 +31,7 @@ D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\mai
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\UserProfileController.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Appointment.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\config\SecurityConfig.java
+D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\AppointmentBookingDto.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\AppointmentStatus.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\AuthController.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\LoginResponse.java
@@ -35,5 +39,6 @@ D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\mai
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\RegistrationRequest.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\repository\DoctorRepository.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\ApprovalStatus.java
+D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\StatusUpdateDto.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\TodayAppointmentDto.java
 D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\config\DataInitializer.java

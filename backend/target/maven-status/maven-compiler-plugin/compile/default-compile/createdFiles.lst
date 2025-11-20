@@ -10,10 +10,13 @@ com\digihealth\backend\dto\RegistrationRequest.class
 com\digihealth\backend\dto\TodayAppointmentDto.class
 com\digihealth\backend\entity\Patient.class
 com\digihealth\backend\dto\DashboardSummaryDto.class
+com\digihealth\backend\controller\AdminController.class
+com\digihealth\backend\dto\AppointmentBookingDto.class
 com\digihealth\backend\controller\DoctorDashboardController.class
 com\digihealth\backend\dto\LoginRequest.class
 com\digihealth\backend\security\CustomUserDetailsService.class
 com\digihealth\backend\entity\Appointment.class
+com\digihealth\backend\dto\StatusUpdateDto.class
 com\digihealth\backend\repository\UserRepository.class
 com\digihealth\backend\dto\UserProfileUpdateRequest.class
 com\digihealth\backend\entity\DayOfWeek.class
@@ -24,6 +27,7 @@ com\digihealth\backend\dto\CurrentUserProfileDto.class
 com\digihealth\backend\entity\AppointmentStatus.class
 com\digihealth\backend\entity\Gender.class
 com\digihealth\backend\repository\AppointmentRepository.class
+com\digihealth\backend\controller\AppointmentController.class
 com\digihealth\backend\controller\AuthController.class
 com\digihealth\backend\config\SecurityConfig.class
 com\digihealth\backend\dto\LoginResponse.class
@@ -34,6 +38,7 @@ com\digihealth\backend\service\UserProfileService.class
 com\digihealth\backend\BackendApplication.class
 com\digihealth\backend\repository\DoctorRepository.class
 com\digihealth\backend\dto\CurrentUserProfileUpdateRequest.class
+com\digihealth\backend\dto\DoctorApprovalDto.class
 com\digihealth\backend\dto\DoctorAppointmentDto.class
 com\digihealth\backend\security\JwtTokenProvider.class
 com\digihealth\backend\controller\UserProfileController.class

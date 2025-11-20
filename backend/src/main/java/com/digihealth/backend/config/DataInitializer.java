@@ -58,6 +58,9 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
+        // Always create admin user regardless of seedDemoDoctorEnabled flag
+        createAdminUser();
+        
         if (!seedDemoDoctorEnabled) {
             return;
         }
@@ -67,7 +70,13 @@ public class DataInitializer implements CommandLineRunner {
 
         Optional<User> existing = userRepository.findByEmail(demoEmail);
         if (existing.isPresent()) {
-            // Already seeded; no further action
+            // Update existing demo doctor to ensure it's approved
+            User existingUser = existing.get();
+            if (!existingUser.getIsApproved()) {
+                existingUser.setIsApproved(true);
+                userRepository.save(existingUser);
+                System.out.println("✅ Updated existing demo doctor to approved status");
+            }
             return;
         }
 
@@ -78,10 +87,12 @@ public class DataInitializer implements CommandLineRunner {
         doctorUser.setPasswordHash(passwordEncoder.encode("DemoPass123!"));
         doctorUser.setRole(Role.DOCTOR);
         doctorUser.setIsActive(true);
+        doctorUser.setIsApproved(true); // Demo doctor is pre-approved for testing
         doctorUser.setSpecialization("Internal Medicine");
         doctorUser.setLicenseNumber("MD-DEMO-001");
         doctorUser.setPhoneNumber("+65 8000 0001");
         doctorUser = userRepository.save(doctorUser);
+        System.out.println("✅ Demo doctor created: demo.doctor@digihealth.com / DemoPass123!");
 
         // 2) Link Doctor entity (uses generated doctorId)
         Doctor doctor = new Doctor();
@@ -134,5 +145,27 @@ public class DataInitializer implements CommandLineRunner {
         appt3.setAppointmentTime(java.time.LocalTime.of(14, 0));
         appt3.setStatus(AppointmentStatus.COMPLETED);
         appointmentRepository.save(appt3);
+    }
+
+    /**
+     * Creates admin user if it doesn't exist. This runs independently of demo data seeding.
+     */
+    private void createAdminUser() {
+        final String adminEmail = "admin@digihealth.com";
+        Optional<User> existingAdmin = userRepository.findByEmail(adminEmail);
+        if (existingAdmin.isEmpty()) {
+            User adminUser = new User();
+            adminUser.setEmail(adminEmail);
+            adminUser.setFullName("System Administrator");
+            adminUser.setPasswordHash(passwordEncoder.encode("admin123"));
+            adminUser.setRole(Role.ADMIN);
+            adminUser.setIsActive(true);
+            adminUser.setIsApproved(true); // Admin is always approved
+            adminUser.setPhoneNumber("+65 9999 9999");
+            userRepository.save(adminUser);
+            System.out.println("✅ Admin user created: admin@digihealth.com / admin123");
+        } else {
+            System.out.println("ℹ️ Admin user already exists: admin@digihealth.com");
+        }
     }
 }

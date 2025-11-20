@@ -48,9 +48,6 @@ const DoctorRegistration = () => {
       // On successful registration, show success modal and redirect to login
       // Do not auto-login to align with FRS (doctor approval required)
       setShowModal(true);
-      setTimeout(() => {
-        navigate('/login');
-      }, 3000); // Redirect after 3 seconds
     } catch (error) {
       console.error('Registration or login failed:', error);
 
@@ -119,6 +116,18 @@ const DoctorRegistration = () => {
         {errorMsg && <div className="error-message">{errorMsg}</div>}
         {/* You can add the stepper component here */}
         {renderStep()}
+        {showModal && (
+          <SuccessModal 
+            onClose={() => {
+              setShowModal(false);
+              navigate('/login', { 
+                state: { 
+                  message: 'Registration successful! Your account is pending approval. Please wait for an administrator to approve your registration before attempting to login. This typically takes 24-48 hours.' 
+                } 
+              });
+            }} 
+          />
+        )}
         <div className="footer-container">
           <p>DigiHealth Clinic Management System</p>
           <p>© 2025 DigiHealth. All rights reserved.</p>

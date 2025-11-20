@@ -38,37 +38,53 @@ export const AuthProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    fetchUserProfile();
+    // Initialize user from localStorage if available
+    const storedUser = localStorage.getItem('user');
+    const token = getToken();
+    
+    if (storedUser && token) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setCurrentUser(parsedUser);
+        console.log('[AuthContext] User restored from localStorage:', parsedUser);
+      } catch (error) {
+        console.error('[AuthContext] Failed to parse stored user:', error);
+        localStorage.removeItem('user');
+      }
+    }
+    
+    // Only fetch profile if we don't have user data but have a token
+    if (!storedUser && token) {
+      fetchUserProfile();
+    } else {
+      setLoading(false);
+    }
   }, []);
 
   const login = async (email, password) => {
     try {
       const response = await apiClient.post('/api/auth/login', { email, password });
 
-      // Support multiple possible response shapes for robustness:
-      // - { accessToken, tokenType }
-      // - { token }
-      // - raw string token
-      const { accessToken, token, tokenType } = response.data || {};
-      const resolvedToken =
-        accessToken ||
-        token ||
-        (typeof response.data === 'string' ? response.data : null);
+      // Extract token and user data from response
+      const { accessToken, user } = response.data;
 
-      if (!resolvedToken) {
+      if (!accessToken) {
         throw new Error('Login response missing token');
       }
 
       // Persist JWT for apiClient to use as Authorization: Bearer <token>
-      setToken(resolvedToken);
+      setToken(accessToken);
       
-      console.log('[AuthContext] Token saved to localStorage:', resolvedToken.substring(0, 20) + '...');
+      // Store user data in localStorage and state
+      if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+        setCurrentUser(user);
+      }
+      
+      console.log('[AuthContext] Token saved to localStorage:', accessToken.substring(0, 20) + '...');
+      console.log('[AuthContext] User data saved:', user);
 
-      // After setting token, fetch the authenticated user's profile
-      // Pass the token directly to avoid any localStorage timing issues
-      await fetchUserProfile(resolvedToken);
-
-      // Preserve original behavior for callers
+      // Return the response for callers
       return response;
     } catch (error) {
       // Re-throw the error so the login component can handle it
@@ -89,6 +105,7 @@ export const AuthProvider = ({ children }) => {
 
   const logout = () => {
     clearToken();
+    localStorage.removeItem('user');
     setCurrentUser(null);
     // The redirect will be handled in the component to ensure clean state management
   };

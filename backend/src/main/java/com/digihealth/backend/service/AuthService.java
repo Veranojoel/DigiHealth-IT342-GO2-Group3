@@ -1,6 +1,7 @@
 package com.digihealth.backend.service;
 
 import com.digihealth.backend.dto.LoginRequest;
+import com.digihealth.backend.dto.LoginResponse;
 import com.digihealth.backend.dto.RegisterDto;
 import com.digihealth.backend.entity.Doctor;
 import com.digihealth.backend.entity.Role;
@@ -81,7 +82,7 @@ public class AuthService {
         System.out.println("[AuthService.registerDoctor] Doctor saved successfully for user ID: " + user.getId());
     }
 
-    public String login(LoginRequest loginRequest) {
+    public LoginResponse login(LoginRequest loginRequest) {
         // Defensive null check to avoid 500s on malformed/missing body
         if (loginRequest == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email and password are required");
@@ -107,6 +108,11 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
+        // Check if doctor is approved (only for DOCTOR role)
+        if (user.getRole() == Role.DOCTOR && !user.getIsApproved()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Doctor account is pending approval. Please contact administrator.");
+        }
+
         // Critical debugging
         System.out.println("[AuthService.login] User loaded from DB:");
         System.out.println("[AuthService.login]   ID: " + user.getId());
@@ -122,6 +128,6 @@ public class AuthService {
         System.out.println("[AuthService.login] Generated JWT token (first 50 chars): " + token.substring(0, Math.min(50, token.length())));
         System.out.println("[AuthService.login] Token should contain UUID: " + user.getId());
 
-        return token;
+        return new LoginResponse(token, user);
     }
 }

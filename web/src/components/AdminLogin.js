@@ -7,7 +7,7 @@ const AdminLogin = () => {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [email, setEmail] = useState('admin@digihealth.com');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState('admin123');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -17,11 +17,25 @@ const AdminLogin = () => {
     setLoading(true);
 
     try {
-      await login(email, password);
+      const response = await login(email, password);
+      
+      // Check if user is admin - get user data from response
+      const user = response?.data?.user;
+      
+      if (!user) {
+        setError('Invalid login response. Please try again.');
+        return;
+      }
+      
+      if (user.role !== 'ADMIN') {
+        setError('Access denied. Admin credentials required.');
+        return;
+      }
+      
       // Redirect to admin dashboard
       navigate('/admin/dashboard');
     } catch (err) {
-      const errorMessage = err.response?.data?.message || 'Invalid email or password';
+      const errorMessage = err.response?.data?.message || err.message || 'Invalid email or password';
       setError(errorMessage);
     } finally {
       setLoading(false);

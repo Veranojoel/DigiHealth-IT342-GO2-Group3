@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './LoginScreen.css';
 import { useAuth } from '../auth/auth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
   const [email, setEmail] = useState('');
@@ -10,7 +10,15 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
   const [errorMsg, setErrorMsg] = useState('');
 
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+
+  // Show approval message from registration
+  useEffect(() => {
+    if (location.state?.message) {
+      setErrorMsg(location.state.message);
+    }
+  }, [location.state]);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -29,7 +37,13 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
         (typeof error.response?.data === 'string'
           ? error.response.data
           : null);
-      setErrorMsg(backendMessage || 'Invalid email or password. Please try again.');
+      
+      // Special handling for approval-pending doctors
+      if (backendMessage?.includes('pending approval') || error.response?.status === 403) {
+        setErrorMsg('Your doctor account is pending approval. Please wait for an administrator to approve your registration before logging in. This typically takes 24-48 hours. Contact support if this takes longer.');
+      } else {
+        setErrorMsg(backendMessage || 'Invalid email or password. Please try again.');
+      }
     } finally {
       setSubmitting(false);
     }

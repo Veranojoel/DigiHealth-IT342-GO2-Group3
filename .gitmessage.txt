@@ -1,0 +1,7 @@
+feat(FE): add Admin Portal and Admin Login pages (UX + routes)
+
+- Add /admin landing page UI and styles
+- Implement /admin/login with form, demo credentials and exact Figma layout
+- Add routes in App.js to /admin and /admin/login (no push)
+
+This commit adds the admin entry and login screens needed for admin approval workflows.

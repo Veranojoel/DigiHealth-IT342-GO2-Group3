@@ -1,161 +1,101 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/auth';
+import apiClient from '../api/client';
 import AdminTabs from './AdminTabs';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const { currentUser, isAuthenticated, loading: authLoading, logout } = useAuth();
   const [activeTab, setActiveTab] = useState('doctors');
   const [pendingDoctors, setPendingDoctors] = useState([]);
   const [allDoctors, setAllDoctors] = useState([]);
   const [allPatients, setAllPatients] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  // Demo data - matches Figma exactly
+  // Authentication guard
   useEffect(() => {
-    setPendingDoctors([
-      {
-        id: 1,
-        name: 'Dr. Emily Rodriguez',
-        specialization: 'Dermatology',
-        license: 'MD-2024-003',
-        email: 'emily.rodriguez@digihealth.com',
-        date: '2/10/2024',
-      },
-      {
-        id: 2,
-        name: 'Dr. James Wilson',
-        specialization: 'Neurology',
-        license: 'MD-2024-004',
-        email: 'james.wilson@digihealth.com',
-        date: '2/12/2024',
-      }
-    ]);
-    setAllDoctors([
-      {
-        id: 'D001',
-        name: 'Dr. Sarah Johnson',
-        specialization: 'Cardiology',
-        email: 'sarah.johnson@digihealth.com',
-        phone: '+1-555-0101',
-        status: 'Approved',
-        registered: '1/15/2024',
-      },
-      {
-        id: 'D002',
-        name: 'Dr. Michael Chen',
-        specialization: 'Pediatrics',
-        email: 'michael.chen@digihealth.com',
-        phone: '+1-555-0102',
-        status: 'Approved',
-        registered: '1/20/2024',
-      },
-      {
-        id: 'D003',
-        name: 'Dr. Emily Rodriguez',
-        specialization: 'Dermatology',
-        email: 'emily.rodriguez@digihealth.com',
-        phone: '+1-555-0103',
-        status: 'Pending',
-        registered: '2/10/2024',
-      },
-      {
-        id: 'D004',
-        name: 'Dr. James Wilson',
-        specialization: 'Neurology',
-        email: 'james.wilson@digihealth.com',
-        phone: '+1-555-0104',
-        status: 'Pending',
-        registered: '2/12/2024',
-      }
-    ]);
+    if (!authLoading && (!isAuthenticated || currentUser?.role !== 'ADMIN')) {
+      navigate('/admin/login');
+    }
+  }, [isAuthenticated, currentUser, authLoading, navigate]);
 
-    // Patient demo data
-    setAllPatients([
-      {
-        id: 'P001',
-        name: 'Alice Johnson',
-        email: 'alice.johnson@email.com',
-        phone: '+1-555-0201',
-        age: 28,
-        gender: 'Female',
-        bloodType: 'O+',
-        status: 'Active',
-        lastVisit: '2/15/2024',
-        registered: '1/10/2024',
-        appointments: 3
-      },
-      {
-        id: 'P002',
-        name: 'Robert Smith',
-        email: 'robert.smith@email.com',
-        phone: '+1-555-0202',
-        age: 45,
-        gender: 'Male',
-        bloodType: 'A+',
-        status: 'Active',
-        lastVisit: '2/10/2024',
-        registered: '1/12/2024',
-        appointments: 5
-      },
-      {
-        id: 'P003',
-        name: 'Maria Garcia',
-        email: 'maria.garcia@email.com',
-        phone: '+1-555-0203',
-        age: 32,
-        gender: 'Female',
-        bloodType: 'B-',
-        status: 'Active',
-        lastVisit: '2/8/2024',
-        registered: '1/18/2024',
-        appointments: 2
-      },
-      {
-        id: 'P004',
-        name: 'David Brown',
-        email: 'david.brown@email.com',
-        phone: '+1-555-0204',
-        age: 55,
-        gender: 'Male',
-        bloodType: 'AB+',
-        status: 'Inactive',
-        lastVisit: '1/25/2024',
-        registered: '12/20/2023',
-        appointments: 8
-      },
-      {
-        id: 'P005',
-        name: 'Lisa Chen',
-        email: 'lisa.chen@email.com',
-        phone: '+1-555-0205',
-        age: 29,
-        gender: 'Female',
-        bloodType: 'O-',
-        status: 'Active',
-        lastVisit: '2/14/2024',
-        registered: '1/22/2024',
-        appointments: 1
-      }
-    ]);
-  }, []);
+  // Fetch data from backend
+  useEffect(() => {
+    if (isAuthenticated && currentUser?.role === 'ADMIN') {
+      fetchData();
+    }
+  }, [isAuthenticated, currentUser]);
+
+  const fetchData = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      const [pendingResponse, approvedResponse, patientsResponse] = await Promise.all([
+        apiClient.get('/api/admin/doctors/pending'),
+        apiClient.get('/api/admin/doctors/approved'),
+        apiClient.get('/api/admin/patients')
+      ]);
+
+      setPendingDoctors(pendingResponse.data);
+      setAllDoctors([...approvedResponse.data, ...pendingResponse.data]);
+      setAllPatients(patientsResponse.data);
+    } catch (err) {
+      console.error('Failed to fetch admin data:', err);
+      setError('Failed to load data. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleApproveDoctor = async (doctorId) => {
+    try {
+      await apiClient.put(`/api/admin/doctors/${doctorId}/approve`);
+      fetchData(); // Refresh data
+    } catch (err) {
+      console.error('Failed to approve doctor:', err);
+      setError('Failed to approve doctor. Please try again.');
+    }
+  };
+
+  const handleRejectDoctor = async (doctorId) => {
+    try {
+      await apiClient.put(`/api/admin/doctors/${doctorId}/reject`);
+      fetchData(); // Refresh data
+    } catch (err) {
+      console.error('Failed to reject doctor:', err);
+      setError('Failed to reject doctor. Please try again.');
+    }
+  };
+
+  // Show loading or error if authentication is still loading
+  if (authLoading) {
+    return <div className="admin-loading">Checking authentication...</div>;
+  }
+
+  // Redirect will happen in useEffect, but show loading meanwhile
+  if (!isAuthenticated || currentUser?.role !== 'ADMIN') {
+    return <div className="admin-loading">Redirecting to login...</div>;
+  }
+
+  // Remove old demo data setup - this is now in fetchData()
 
   const handleApprove = (doctorId) => {
     console.log('Approve doctor:', doctorId);
-    const doctor = pendingDoctors.find(d => d.id === doctorId);
-    if (doctor) {
-      setPendingDoctors(pendingDoctors.filter(d => d.id !== doctorId));
-    }
+    handleApproveDoctor(doctorId);
   };
 
   const handleReject = (doctorId) => {
     console.log('Reject doctor:', doctorId);
-    setPendingDoctors(pendingDoctors.filter(d => d.id !== doctorId));
+    handleRejectDoctor(doctorId);
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('adminToken');
+    logout();
     navigate('/admin/login');
   };
 
@@ -177,20 +117,20 @@ const AdminDashboard = () => {
   const stats = [
     {
       label: 'Total Doctors',
-      value: '2',
-      subtitle: '2 pending approval',
+      value: allDoctors.length.toString(),
+      subtitle: `${pendingDoctors.length} pending approval`,
       icon: '/assets/Admin assets/Doctor-4.svg'
     },
     {
       label: 'Total Patients',
-      value: '4',
+      value: allPatients.length.toString(),
       subtitle: 'Registered users',
       icon: '/assets/Admin assets/Total Patients.svg'
     },
     {
       label: 'Active Appointments',
-      value: '3',
-      subtitle: '1 completed',
+      value: '0',
+      subtitle: 'Loading...',
       icon: '/assets/Admin assets/Active Appointments.svg'
     },
     {
@@ -229,6 +169,14 @@ const AdminDashboard = () => {
         </div>
       </header>
 
+      {/* Error Display */}
+      {error && (
+        <div className="error-banner">
+          <span className="error-icon">❌</span>
+          <span className="error-text">{error}</span>
+        </div>
+      )}
+
       {/* Stats Section */}
       <div className="stats-section">
         {stats.map((stat, idx) => (
@@ -246,10 +194,12 @@ const AdminDashboard = () => {
       </div>
 
       {/* Alert Banner */}
-      <div className="alert-banner">
-        <span className="alert-icon">⚠️</span>
-        <span className="alert-text">You have 2 doctor registrations pending approval.</span>
-      </div>
+      {pendingDoctors.length > 0 && (
+        <div className="alert-banner">
+          <span className="alert-icon">⚠️</span>
+          <span className="alert-text">You have {pendingDoctors.length} doctor registration{pendingDoctors.length !== 1 ? 's' : ''} pending approval.</span>
+        </div>
+      )}
 
       {/* Tabs Navigation - Shared Component */}
       <AdminTabs />
@@ -279,11 +229,11 @@ const AdminDashboard = () => {
                   <tbody>
                     {pendingDoctors.map(doctor => (
                       <tr key={doctor.id}>
-                        <td>{doctor.name}</td>
+                        <td>{doctor.fullName}</td>
                         <td>{doctor.specialization}</td>
-                        <td>{doctor.license}</td>
+                        <td>{doctor.licenseNumber}</td>
                         <td>{doctor.email}</td>
-                        <td>{doctor.date}</td>
+                        <td>{new Date(doctor.createdAt || Date.now()).toLocaleDateString()}</td>
                         <td className="actions-cell">
                           <button className="action-btn approve" onClick={() => handleApprove(doctor.id)}>
                             ✓ Approve
@@ -322,16 +272,16 @@ const AdminDashboard = () => {
                     {allDoctors.map(doctor => (
                       <tr key={doctor.id}>
                         <td className="id-cell">{doctor.id}</td>
-                        <td>{doctor.name}</td>
+                        <td>{doctor.fullName}</td>
                         <td>{doctor.specialization}</td>
                         <td>{doctor.email}</td>
-                        <td>{doctor.phone}</td>
+                        <td>{doctor.phoneNumber}</td>
                         <td>
-                          <span className={`status-badge ${doctor.status.toLowerCase()}`}>
-                            ● {doctor.status}
+                          <span className={`status-badge ${doctor.isApproved ? 'approved' : 'pending'}`}>
+                            ● {doctor.isApproved ? 'Approved' : 'Pending'}
                           </span>
                         </td>
-                        <td>{doctor.registered}</td>
+                        <td>{new Date(doctor.createdAt || Date.now()).toLocaleDateString()}</td>
                       </tr>
                     ))}
                   </tbody>
