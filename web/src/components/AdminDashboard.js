@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AdminTabs from './AdminTabs';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
@@ -153,14 +154,6 @@ const AdminDashboard = () => {
     setPendingDoctors(pendingDoctors.filter(d => d.id !== doctorId));
   };
 
-  const handleTabClick = (tabId) => {
-    if (tabId === 'patients') {
-      navigate('/admin/patients');
-    } else {
-      setActiveTab(tabId);
-    }
-  };
-
   const handleLogout = () => {
     localStorage.removeItem('adminToken');
     navigate('/admin/login');
@@ -206,13 +199,6 @@ const AdminDashboard = () => {
       subtitle: '↗ System uptime',
       icon: '/assets/Admin assets/Analytics.svg'
     }
-  ];
-
-  const tabs = [
-    { id: 'doctors', label: 'Doctors', icon: '/assets/Admin assets/Doctor-4.svg' },
-    { id: 'patients', label: 'Patients', icon: '/assets/Admin assets/Patients.svg' },
-    { id: 'appointments', label: 'Appointments', icon: '/assets/Admin assets/Appointments.svg' },
-    { id: 'analytics', label: 'Analytics', icon: '/assets/Admin assets/Analytics.svg' }
   ];
 
   return (
@@ -265,19 +251,8 @@ const AdminDashboard = () => {
         <span className="alert-text">You have 2 doctor registrations pending approval.</span>
       </div>
 
-      {/* Tabs Navigation */}
-      <div className="tabs-navigation">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            className={`tab-button ${activeTab === tab.id ? 'active' : ''}`}
-            onClick={() => handleTabClick(tab.id)}
-          >
-            <img src={tab.icon} alt={tab.label} className="tab-icon-img" />
-            <span className="tab-label">{tab.label}</span>
-          </button>
-        ))}
-      </div>
+      {/* Tabs Navigation - Shared Component */}
+      <AdminTabs />
 
       {/* Content */}
       <div className="content-area">

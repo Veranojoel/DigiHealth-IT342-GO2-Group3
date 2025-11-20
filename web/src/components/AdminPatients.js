@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import AdminTabs from './AdminTabs';
 import './AdminPatients.css';
 
 const AdminPatients = () => {
@@ -167,18 +168,10 @@ const AdminPatients = () => {
         ))}
       </div>
 
-      {/* Navigation Breadcrumb */}
-      <div className="breadcrumb-section">
-        <button className="back-btn" onClick={() => navigate('/admin/dashboard')}>
-          <img src="/assets/BackIcon.svg" alt="back" className="back-icon" />
-          Back to Dashboard
-        </button>
-        <div className="breadcrumb">
-          <span className="breadcrumb-item">Admin</span>
-          <span className="breadcrumb-separator">/</span>
-          <span className="breadcrumb-item active">Patients</span>
-        </div>
-      </div>
+      {/* Tabs Navigation - Shared Component */}
+      <AdminTabs />
+
+     
 
       {/* Search and Filters */}
       <div className="filters-section">
