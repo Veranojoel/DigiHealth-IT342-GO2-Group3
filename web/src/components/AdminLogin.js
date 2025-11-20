@@ -51,15 +51,7 @@ const AdminLogin = () => {
         <div className="admin-login-header">
           {/* Admin Icon */}
           <div className="admin-icon-wrapper">
-            <svg viewBox="0 0 32 32" className="admin-icon">
-              <rect x="8" y="6" width="16" height="6" rx="1" fill="currentColor" />
-              <path
-                d="M16 6C16 6 10 8 10 14V20C10 24.5 16 28 16 28C16 28 22 24.5 22 20V14C22 8 16 6 16 6Z"
-                fill="currentColor"
-                opacity="0.6"
-              />
-              <circle cx="16" cy="16" r="3" fill="currentColor" opacity="0.8" />
-            </svg>
+            <img src="/assets/header-logo.svg" alt="DigiHealth Logo" className="admin-icon" />
           </div>
 
           {/* Title and Description */}
