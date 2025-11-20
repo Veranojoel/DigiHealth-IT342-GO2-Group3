@@ -15,6 +15,7 @@ import DoctorRegistration from './components/DoctorRegistration';
 import AdminPortal from './components/AdminPortal';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
+import AdminPatients from './components/AdminPatients';
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -29,6 +30,7 @@ const AppRoutes = () => {
       <Route path="/admin" element={<AdminPortal />} />
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/admin/patients" element={<AdminPatients />} />
 
       {/* Doctor Routes - Auth protected */}
       <Route path="/login" element={!isAuthenticated ? <DigiHealthLoginScreen /> : <Navigate to="/dashboard" replace />} />
