@@ -11,7 +11,6 @@ import com.digihealth.backend.repository.AppointmentRepository;
 import com.digihealth.backend.repository.UserRepository;
 import com.digihealth.backend.repository.DoctorRepository;
 import com.digihealth.backend.repository.PatientRepository;
-import com.digihealth.backend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -37,9 +36,6 @@ public class AppointmentController {
     @Autowired
     private PatientRepository patientRepository;
 
-    @Autowired
-    private JwtTokenProvider jwtTokenProvider;
-
     /**
      * Book an appointment
      * POST /api/appointments/book
@@ -61,8 +57,11 @@ public class AppointmentController {
             }
 
             UUID patientUserId = UUID.fromString((String) auth.getPrincipal());
-            User patientUser = userRepository.findById(patientUserId)
-                    .orElseThrow(() -> new RuntimeException("Patient user not found"));
+            
+            // Verify patient user exists
+            if (!userRepository.existsById(patientUserId)) {
+                return ResponseEntity.badRequest().body("Patient user not found");
+            }
 
             // Get doctor user
             User doctorUser = userRepository.findById(bookingDto.getDoctorId())

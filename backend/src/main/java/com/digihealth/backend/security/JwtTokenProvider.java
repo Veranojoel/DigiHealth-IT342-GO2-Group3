@@ -5,6 +5,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import io.jsonwebtoken.security.SignatureException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -108,7 +109,7 @@ public class JwtTokenProvider {
             logger.error("Invalid JWT token - Expired: {}", ex.getMessage());
         } catch (io.jsonwebtoken.UnsupportedJwtException ex) {
             logger.error("Invalid JWT token - Unsupported: {}", ex.getMessage());
-        } catch (io.jsonwebtoken.SignatureException ex) {
+        } catch (SignatureException ex) {
             logger.error("Invalid JWT token - Signature validation failed: {}", ex.getMessage());
         } catch (IllegalArgumentException ex) {
             logger.error("Invalid JWT token - Illegal argument: {}", ex.getMessage());

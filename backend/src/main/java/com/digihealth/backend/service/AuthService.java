@@ -9,7 +9,6 @@ import com.digihealth.backend.entity.User;
 import com.digihealth.backend.repository.DoctorRepository;
 import com.digihealth.backend.repository.UserRepository;
 import com.digihealth.backend.security.JwtTokenProvider;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -28,7 +27,6 @@ public class AuthService {
     private final JwtTokenProvider tokenProvider;
     private final AuthenticationManager authenticationManager;
 
-    @Autowired
     public AuthService(UserRepository userRepository, DoctorRepository doctorRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, AuthenticationManager authenticationManager) {
         this.userRepository = userRepository;
         this.doctorRepository = doctorRepository;

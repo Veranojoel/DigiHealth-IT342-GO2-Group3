@@ -17,6 +17,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+import org.springframework.http.HttpMethod;
 
 
 @Configuration
@@ -54,21 +55,22 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .cors()
-                .and()
-            .csrf().disable()
-            .exceptionHandling()
+            .cors(cors -> cors.configure(http))
+            .csrf(csrf -> csrf.disable())
+            .exceptionHandling(exception -> exception
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                .and()
-            .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-            .authorizeRequests()
+            )
+            .sessionManagement(session -> session
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
+            .authorizeHttpRequests(auth -> auth
                 // Allow preflight requests globally (needed for SPA auth calls)
-                .antMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 // Public auth endpoints used by the frontend (canonical)
                 .antMatchers("/api/auth/**").permitAll()
                 // Everything else requires authentication
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+            );
 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

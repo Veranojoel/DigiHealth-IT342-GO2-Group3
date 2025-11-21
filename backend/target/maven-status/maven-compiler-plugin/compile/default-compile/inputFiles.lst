@@ -1,44 +1,44 @@
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\DoctorPatientDto.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Role.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\service\AuthService.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\service\UserProfileService.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\security\JwtAuthenticationEntryPoint.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\BackendApplication.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\DoctorDashboardController.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\CurrentUserProfileDto.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\DashboardSummaryDto.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\AdminController.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\DoctorApprovalDto.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\security\JwtAuthenticationFilter.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\service\DashboardService.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Patient.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\DoctorAppointmentDto.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\repository\PatientRepository.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Gender.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\repository\UserRepository.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\AppointmentController.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\RegisterDto.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\UserProfileUpdateRequest.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\DayOfWeek.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\security\CustomUserDetailsService.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Address.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\UserProfileResponse.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\CurrentUserProfileUpdateRequest.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\LoginRequest.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\repository\AppointmentRepository.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\security\JwtTokenProvider.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Doctor.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\UserProfileController.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Appointment.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\config\SecurityConfig.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\AppointmentBookingDto.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\AppointmentStatus.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\AuthController.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\LoginResponse.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\User.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\RegistrationRequest.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\repository\DoctorRepository.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\ApprovalStatus.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\StatusUpdateDto.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\TodayAppointmentDto.java
-D:\SYSTEM INTEGRATION & ARCHITECTURE\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\config\DataInitializer.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/RegisterDto.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/controller/AuthController.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/security/JwtAuthenticationFilter.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/security/JwtTokenProvider.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/entity/Role.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/security/JwtAuthenticationEntryPoint.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/repository/AppointmentRepository.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/repository/PatientRepository.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/DoctorAppointmentDto.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/entity/ApprovalStatus.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/BackendApplication.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/controller/DoctorDashboardController.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/service/AuthService.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/CurrentUserProfileDto.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/config/DataInitializer.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/service/DashboardService.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/security/CustomUserDetailsService.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/DoctorPatientDto.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/CurrentUserProfileUpdateRequest.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/RegistrationRequest.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/entity/Gender.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/AppointmentBookingDto.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/entity/AppointmentStatus.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/UserProfileResponse.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/DoctorApprovalDto.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/controller/UserProfileController.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/repository/UserRepository.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/StatusUpdateDto.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/service/UserProfileService.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/entity/DayOfWeek.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/LoginRequest.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/entity/Doctor.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/entity/Patient.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/entity/User.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/DashboardSummaryDto.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/TodayAppointmentDto.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/repository/DoctorRepository.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/controller/AdminController.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/entity/Appointment.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/controller/AppointmentController.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/UserProfileUpdateRequest.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/dto/LoginResponse.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/config/SecurityConfig.java
+/Users/matthewrimar.martus/Downloads/DigiHealth-IT342-GO2-Group3/backend/src/main/java/com/digihealth/backend/entity/Address.java
