@@ -1,0 +1,344 @@
+/* =========================================
+   AuthLayout.css (Final Consolidated File)
+   ========================================= */
+
+/* === 0. KeyFrames === */
+@keyframes smoothPan {
+  0% {
+    background-position: 0% 0%;
+  }
+  50% {
+    background-position: 100% 100%;
+  }
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+/* === 1. GLOBAL LAYOUT (Background, Header, Footer) === */
+
+.auth-layout-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  font-family: "Arial", sans-serif;
+  /* 1. Define the complex, large background */
+  background: radial-gradient(circle at 10% 20%, #80f0ff, transparent 30%),
+    radial-gradient(circle at 80% 50%, #92ddff, transparent 30%),
+    radial-gradient(circle at 40% 90%, #d5eeff, transparent 30%);
+
+  /* 2. Make the background much larger than the viewport */
+  background-size: 400% 400%;
+
+  /* 3. Apply the smooth panning animation */
+  animation: smoothPan 40s ease-in-out infinite;
+
+  /* Ensure the background covers the entire element */
+  background-attachment: fixed;
+}
+
+.auth-content-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 32px;
+  width: 100%;
+  max-width: 900px; /* Max width for the overall layout */
+  padding: 24px;
+  box-sizing: border-box;
+}
+
+.auth-body {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+.header-container,
+.footer-container {
+  text-align: center;
+}
+
+.logo-container {
+  display: inline-block;
+  padding: 16px;
+  background: linear-gradient(to bottom, #0093e9, #80d0c7);
+  border-radius: 16px;
+}
+
+.logo-image {
+  width: 40px;
+  height: 40px;
+}
+
+.header-subtitle {
+  font-size: 16px;
+  color: #606060;
+  margin: 4px 0 0 0;
+}
+
+.footer-container {
+  font-size: 14px;
+  color: #606060;
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* === 2. SHARED UTILITIES (Errors, Links, Dividers) === */
+
+.error-message {
+  color: #dc2626;
+  background-color: #fee2e2;
+  border: 1px solid #fecaca;
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 8px;
+  margin-bottom: 16px;
+  font-size: 14px;
+  text-align: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.register-link {
+  font-size: 14px;
+  color: #606060;
+}
+
+.register-link a {
+  color: #0093e9;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.forgot-password {
+  text-align: right;
+  font-size: 14px;
+  color: #0093e9;
+  text-decoration: none;
+  margin-bottom: 16px;
+}
+
+.divider-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 16px;
+}
+
+.divider-line {
+  flex-grow: 1;
+  height: 1px;
+  background-color: #d1d5dc;
+}
+
+.divider-text {
+  color: #606060;
+  font-size: 16px;
+}
+
+/* === 3. CORE FORM CARD STYLES (Applies to Registration Steps) === */
+
+/* The base white card container */
+.form-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 42px;
+  width: 500px; /* Standard width for Registration Steps */
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  align-items: center;
+}
+
+.form-title {
+  font-size: 16px;
+  color: #0d1b2a;
+  margin: 0;
+  font-weight: bold;
+}
+
+.form-subtitle {
+  font-size: 16px;
+  color: #606060;
+  margin: 0;
+}
+
+/* === 3A. LOGIN CARD WIDTH OVERRIDE === */
+/* Apply this class only to the Login form in DigiHealthLoginScreen.js */
+.login-card-override {
+  width: 400px; /* Keeps the Login form small */
+  padding: 30px;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+/* === 4. FORM ELEMENTS (Inputs, Labels, Buttons) === */
+
+.form-inputs {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px; /* Tighter gap for input groups */
+}
+
+.form-inputs label {
+  font-size: 14px;
+  color: #0d1b2a;
+  font-weight: 500;
+}
+
+/* Styling for all common input types (text, email, password, time, select) */
+.form-inputs input,
+.form-inputs select {
+  height: 44px;
+  background: #f3f3f5;
+  border: 1px solid transparent; /* Unified border style */
+  border-radius: 8px;
+  padding: 0 12px;
+  font-size: 14px;
+  outline: none;
+  transition: all 0.2s;
+  box-sizing: border-box; /* Important for consistent sizing */
+  margin-bottom: 8px; /* Added spacing to fit the existing login layout better */
+}
+
+.form-inputs input:focus,
+.form-inputs select:focus {
+  border-color: #0093e9;
+  background: white;
+}
+
+/* Primary Action Button (Login) */
+.login-btn {
+  height: 44px;
+  background: linear-gradient(to bottom, #0093e9, #80d0c7);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: opacity 0.2s;
+  width: 100%;
+}
+
+.login-btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+
+.google-btn {
+  width: 100%;
+  height: 44px;
+  background: white;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* === 5. REGISTRATION STEP NAVIGATION BUTTONS === */
+
+.button-container {
+  display: flex;
+  width: 100%;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.back-btn,
+.next-btn {
+  flex: 1;
+  height: 36px;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+}
+
+.back-btn {
+  background: white;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: #1f2937;
+}
+
+.next-btn {
+  background: linear-gradient(to bottom, #0093e9, #80d0c7);
+  border: none;
+  color: white;
+}
+
+.next-btn:disabled,
+.login-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* === 6. REGISTRATION STEP 3 AVAILABILITY STYLES === */
+
+.availability-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.day-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #f3f3f5;
+}
+
+.day-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #0d1b2a;
+}
+
+.day-label input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+  /* Reset base input styles for checkbox */
+  background: white;
+  border: 1px solid #d1d5dc;
+  padding: 0;
+}
+
+.time-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.time-inputs input[type="time"] {
+  /* Uses base .form-inputs input style, just needs margin reset */
+  margin-bottom: 0;
+  width: 100px;
+  flex-grow: 0;
+}
+
+.unavailable-text {
+  color: #9ca3af;
+  font-style: italic;
+}
