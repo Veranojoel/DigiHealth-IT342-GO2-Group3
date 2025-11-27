@@ -5,10 +5,12 @@ D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\di
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\config\SecurityConfig.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\CurrentUserProfileDto.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\repository\PatientRepository.java
+D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\repository\AdminSettingsRepository.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\DoctorPatientDto.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\UserProfileResponse.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\StatusUpdateDto.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\security\JwtAuthenticationEntryPoint.java
+D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\AdminSettingsDto.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\AppointmentBookingDto.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Appointment.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\DoctorApprovalDto.java
@@ -26,6 +28,7 @@ D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\di
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\config\DataInitializer.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\RegisterDto.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\Address.java
+D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\AdminSettings.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\BackendApplication.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\LoginResponse.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\entity\DayOfWeek.java
@@ -35,6 +38,7 @@ D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\di
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\TodayAppointmentDto.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\UserProfileUpdateRequest.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\service\DashboardService.java
+D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\AdminSettingsController.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\dto\CurrentUserProfileUpdateRequest.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\repository\UserRepository.java
 D:\Documents\IT342-SIA1\DigiHealth-IT342-GO2-Group3\backend\src\main\java\com\digihealth\backend\controller\AdminController.java
