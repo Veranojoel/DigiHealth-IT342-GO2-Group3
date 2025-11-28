@@ -5,7 +5,7 @@ import AdminTabs from './AdminTabs';
 import apiClient from '../api/client';
 import './AdminAnalytics.css';
 
-const AdminAnalytics = () => {
+const AdminAnalytics = ({ nested = false }) => {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated, loading: authLoading } = useAuth();
   const [analyticsData, setAnalyticsData] = useState({
@@ -46,7 +46,7 @@ const AdminAnalytics = () => {
         // Calculate analytics
         const approvedDoctors = doctors.filter(d => d.status === 'APPROVED').length;
         const pendingDoctors = doctors.filter(d => d.status === 'PENDING').length;
-        const scheduledAppointments = appointments.filter(apt => 
+        const scheduledAppointments = appointments.filter(apt =>
           ['SCHEDULED', 'CONFIRMED', 'Scheduled'].includes(apt.status)
         ).length;
         const completedAppointments = appointments.filter(apt => apt.status === 'COMPLETED').length;
@@ -119,36 +119,129 @@ const AdminAnalytics = () => {
     }
   ];
 
-  if (authLoading) {
+  // Only show loading/error states if not in nested mode
+  if (!nested) {
+    if (authLoading) {
+      return (
+        <div className="admin-analytics-container">
+          <div style={{ padding: '20px', textAlign: 'center' }}>
+            Authenticating...
+          </div>
+        </div>
+      );
+    }
+
+    if (loading) {
+      return (
+        <div className="admin-analytics-container">
+          <div style={{ padding: '20px', textAlign: 'center' }}>
+            Loading analytics data...
+          </div>
+        </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="admin-analytics-container">
+          <div style={{ padding: '20px', textAlign: 'center', color: 'orange' }}>
+            ⚠️ {error} - Showing available data
+          </div>
+        </div>
+      );
+    }
+  }
+
+  // In nested mode, only render the analytics cards
+  if (nested) {
     return (
-      <div className="admin-analytics-container">
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-          Authenticating...
+      <div className="analytics-content-area">
+        <div className="analytics-grid">
+          {/* Doctor Statistics */}
+          <section className="analytics-card">
+            <div className="card-header">
+              <h3>Doctor Statistics</h3>
+            </div>
+            <div className="card-content">
+              <div className="stat-row">
+                <span className="stat-label">Approved Doctors</span>
+                <span className="stat-value">{analyticsData.doctors.approved}</span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-label pending">Pending Approvals</span>
+                <span className="stat-value pending">{analyticsData.doctors.pending}</span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-label">Total Registered</span>
+                <span className="stat-value">{analyticsData.doctors.total}</span>
+              </div>
+            </div>
+          </section>
+
+          {/* Appointment Statistics */}
+          <section className="analytics-card">
+            <div className="card-header">
+              <h3>Appointment Statistics</h3>
+            </div>
+            <div className="card-content">
+              <div className="stat-row">
+                <span className="stat-label scheduled">Scheduled</span>
+                <span className="stat-value scheduled">{analyticsData.appointments.scheduled}</span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-label completed">Completed</span>
+                <span className="stat-value completed">{analyticsData.appointments.completed}</span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-label">Total</span>
+                <span className="stat-value">{analyticsData.appointments.total}</span>
+              </div>
+            </div>
+          </section>
+
+          {/* Patient Statistics */}
+          <section className="analytics-card">
+            <div className="card-header">
+              <h3>Patient Statistics</h3>
+            </div>
+            <div className="card-content">
+              <div className="stat-row">
+                <span className="stat-label">Total Patients</span>
+                <span className="stat-value">{analyticsData.patients.total}</span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-label">Avg Appointments/Patient</span>
+                <span className="stat-value">{analyticsData.patients.avgAppointments}</span>
+              </div>
+            </div>
+          </section>
+
+          {/* System Health */}
+          <section className="analytics-card">
+            <div className="card-header">
+              <h3>System Health</h3>
+            </div>
+            <div className="card-content">
+              <div className="stat-row">
+                <span className="stat-label uptime">System Uptime</span>
+                <span className="stat-value uptime">{analyticsData.systemHealth.uptime}</span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-label">Active Sessions</span>
+                <span className="stat-value">{analyticsData.systemHealth.activeSessions}</span>
+              </div>
+              <div className="stat-row">
+                <span className="stat-label">System Status</span>
+                <span className="status-badge operational">{analyticsData.systemHealth.status}</span>
+              </div>
+            </div>
+          </section>
         </div>
       </div>
     );
   }
 
-  if (loading) {
-    return (
-      <div className="admin-analytics-container">
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-          Loading analytics data...
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="admin-analytics-container">
-        <div style={{ padding: '20px', textAlign: 'center', color: 'orange' }}>
-          ⚠️ {error} - Showing available data
-        </div>
-      </div>
-    );
-  }
-
+  // Standalone mode - render full page
   return (
     <div className="admin-analytics-container">
       {/* Header */}

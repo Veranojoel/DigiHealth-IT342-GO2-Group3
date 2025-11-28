@@ -5,7 +5,7 @@ import apiClient from '../api/client';
 import AdminTabs from './AdminTabs';
 import './AdminAppointments.css';
 
-const AdminAppointments = () => {
+const AdminAppointments = ({ nested = false }) => {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated, loading: authLoading } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
@@ -25,7 +25,7 @@ const AdminAppointments = () => {
   useEffect(() => {
     const fetchAppointments = async () => {
       if (!isAuthenticated || currentUser?.role !== 'ADMIN') return;
-      
+
       try {
         setLoading(true);
         // For now, get all doctor appointments since there's no admin-specific endpoint
@@ -69,7 +69,7 @@ const AdminAppointments = () => {
   };
 
   const handleStatusChange = (appointmentId, newStatus) => {
-    setAppointments(appointments.map(apt => 
+    setAppointments(appointments.map(apt =>
       apt.id === appointmentId ? { ...apt, status: newStatus } : apt
     ));
   };
@@ -101,7 +101,7 @@ const AdminAppointments = () => {
     },
     {
       label: 'Active Appointments',
-      value: appointments.filter(apt => 
+      value: appointments.filter(apt =>
         ['SCHEDULED', 'CONFIRMED', 'Scheduled'].includes(apt.status)
       ).length.toString(),
       subtitle: 'Scheduled',
@@ -118,26 +118,106 @@ const AdminAppointments = () => {
     }
   ];
 
-  if (loading) {
-    return (
-      <div className="admin-appointments-container">
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-          Loading appointments data...
+  // Only show loading/error states if not in nested mode
+  if (!nested) {
+    if (loading) {
+      return (
+        <div className="admin-appointments-container">
+          <div style={{ padding: '20px', textAlign: 'center' }}>
+            Loading appointments data...
+          </div>
         </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="admin-appointments-container">
+          <div style={{ padding: '20px', textAlign: 'center', color: 'orange' }}>
+            ⚠️ {error} - Showing available data
+          </div>
+        </div>
+      );
+    }
+  }
+
+  // In nested mode, only render the content area
+  if (nested) {
+    return (
+      <div className="appointments-content-area">
+        {/* Search and Filters */}
+        <div className="filters-section">
+          <div className="search-container">
+            <img src="/assets/search-icon.svg" alt="search" className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search by patient, doctor, or appointment ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          <div className="filter-container">
+            <select
+              value={selectedStatus}
+              onChange={(e) => setSelectedStatus(e.target.value)}
+              className="status-filter"
+            >
+              <option value="all">All Statuses</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+          </div>
+        </div>
+
+        {/* Appointments Table */}
+        <div className="table-wrapper">
+          <table className="appointments-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Patient</th>
+                <th>Doctor</th>
+                <th>Date</th>
+                <th>Time</th>
+                <th>Reason</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredAppointments.map(apt => (
+                <tr key={apt.id}>
+                  <td className="id-cell">{apt.id}</td>
+                  <td className="patient-cell">{apt.patientName}</td>
+                  <td className="doctor-cell">{apt.doctorName}</td>
+                  <td>{apt.date}</td>
+                  <td>{apt.time}</td>
+                  <td>{apt.reason}</td>
+                  <td>
+                    <span className={`status-badge ${apt.status.toLowerCase()}`}>
+                      {apt.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {filteredAppointments.length === 0 && (
+          <div className="empty-state">
+            <img src="/assets/Admin assets/Active Appointments.svg" alt="no appointments" className="empty-icon" />
+            <h3>No appointments found</h3>
+            <p>No appointments match your current search criteria.</p>
+          </div>
+        )}
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="admin-appointments-container">
-        <div style={{ padding: '20px', textAlign: 'center', color: 'orange' }}>
-          ⚠️ {error} - Showing available data
-        </div>
-      </div>
-    );
-  }
-
+  // Standalone mode - render full page
   return (
     <div className="admin-appointments-container">
       {/* Header */}
@@ -185,8 +265,6 @@ const AdminAppointments = () => {
       {/* Tabs Navigation - Shared Component */}
       <AdminTabs />
 
-    
-
       {/* Search and Filters */}
       <div className="filters-section">
         <div className="search-container">
@@ -221,7 +299,7 @@ const AdminAppointments = () => {
             <h2>All Appointments</h2>
             <p className="section-description">System-wide appointment overview</p>
           </div>
-          
+
           <div className="table-wrapper">
             <table className="appointments-table">
               <thead>

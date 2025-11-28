@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/auth';
 import apiClient from '../api/client';
 import AdminTabs from './AdminTabs';
+import AdminPatients from './AdminPatients';
+import AdminAppointments from './AdminAppointments';
+import AdminAnalytics from './AdminAnalytics';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser, isAuthenticated, loading: authLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('doctors');
   const [pendingDoctors, setPendingDoctors] = useState([]);
   const [allDoctors, setAllDoctors] = useState([]);
   const [allPatients, setAllPatients] = useState([]);
@@ -16,6 +19,22 @@ const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Determine active tab based on current route (matching AdminTabs logic)
+  const getActiveTab = () => {
+    if (location.pathname === '/admin/dashboard' || location.pathname === '/admin') {
+      return 'doctors';
+    } else if (location.pathname === '/admin/patients') {
+      return 'patients';
+    } else if (location.pathname === '/admin/appointments') {
+      return 'appointments';
+    } else if (location.pathname === '/admin/analytics') {
+      return 'analytics';
+    }
+    return 'doctors';
+  };
+
+  const activeTab = getActiveTab();
 
   // Authentication guard
   useEffect(() => {
@@ -83,16 +102,6 @@ const AdminDashboard = () => {
   }
 
   // Remove old demo data setup - this is now in fetchData()
-
-  const handleApprove = (doctorId) => {
-    console.log('Approve doctor:', doctorId);
-    handleApproveDoctor(doctorId);
-  };
-
-  const handleReject = (doctorId) => {
-    console.log('Reject doctor:', doctorId);
-    handleRejectDoctor(doctorId);
-  };
 
   const handleLogout = () => {
     logout();
@@ -235,10 +244,10 @@ const AdminDashboard = () => {
                         <td>{doctor.email}</td>
                         <td>{new Date(doctor.createdAt || Date.now()).toLocaleDateString()}</td>
                         <td className="actions-cell">
-                          <button className="action-btn approve" onClick={() => handleApprove(doctor.id)}>
+                          <button className="action-btn approve" onClick={() => handleApproveDoctor(doctor.id)}>
                             ✓ Approve
                           </button>
-                          <button className="action-btn reject" onClick={() => handleReject(doctor.id)}>
+                          <button className="action-btn reject" onClick={() => handleRejectDoctor(doctor.id)}>
                             ✕ Reject
                           </button>
                         </td>
@@ -297,15 +306,15 @@ const AdminDashboard = () => {
               <h2>Patients</h2>
               <p className="section-description">Patient management interface</p>
             </div>
-            <div className="redirect-notice">
-              <p>Redirecting to dedicated patients page...</p>
-              <button 
-                className="action-btn view" 
-                onClick={() => navigate('/admin/patients')}
-              >
-                Go to Patients Page
-              </button>
-            </div>
+            <AdminPatients
+              patients={allPatients}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              handleExportPatients={handleExportPatients}
+              nested={true}
+            />
           </section>
         )}
 
@@ -313,8 +322,9 @@ const AdminDashboard = () => {
           <section className="content-section">
             <div className="section-header">
               <h2>Appointments</h2>
-              <p className="section-description">Coming soon - Appointment management interface</p>
+              <p className="section-description">Appointment management interface</p>
             </div>
+            <AdminAppointments nested={true} />
           </section>
         )}
 
@@ -322,8 +332,9 @@ const AdminDashboard = () => {
           <section className="content-section">
             <div className="section-header">
               <h2>Analytics</h2>
-              <p className="section-description">Coming soon - Analytics and reporting interface</p>
+              <p className="section-description">Analytics and reporting interface</p>
             </div>
+            <AdminAnalytics nested={true} />
           </section>
         )}
       </div>

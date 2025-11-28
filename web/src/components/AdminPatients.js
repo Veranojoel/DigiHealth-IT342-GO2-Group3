@@ -5,14 +5,28 @@ import apiClient from '../api/client';
 import AdminTabs from './AdminTabs';
 import './AdminPatients.css';
 
-const AdminPatients = () => {
+const AdminPatients = ({
+  patients: initialPatients = [],
+  searchTerm: initialSearchTerm = '',
+  setSearchTerm: setParentSearchTerm,
+  statusFilter: initialStatusFilter = 'all',
+  setStatusFilter: setParentStatusFilter,
+  handleExportPatients,
+  nested = false
+}) => {
   const navigate = useNavigate();
   const { currentUser, isAuthenticated, loading: authLoading } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedStatus, setSelectedStatus] = useState('all');
-  const [patients, setPatients] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [internalSearchTerm, setInternalSearchTerm] = useState(initialSearchTerm);
+  const [internalStatusFilter, setInternalStatusFilter] = useState(initialStatusFilter);
+  const [patients, setPatients] = useState(initialPatients);
+  const [loading, setLoading] = useState(!initialPatients.length);
   const [error, setError] = useState('');
+
+  // Use parent state if provided, otherwise use internal state
+  const searchTerm = setParentSearchTerm ? initialSearchTerm : internalSearchTerm;
+  const setSearchTerm = setParentSearchTerm || setInternalSearchTerm;
+  const statusFilter = setParentStatusFilter ? initialStatusFilter : internalStatusFilter;
+  const setStatusFilter = setParentStatusFilter || setInternalStatusFilter;
 
   // Authentication guard
   useEffect(() => {
@@ -21,11 +35,11 @@ const AdminPatients = () => {
     }
   }, [isAuthenticated, currentUser, authLoading, navigate]);
 
-  // Fetch patients from API
+  // Fetch patients from API if not provided as prop
   useEffect(() => {
     const fetchPatients = async () => {
-      if (!isAuthenticated || currentUser?.role !== 'ADMIN') return;
-      
+      if (!isAuthenticated || currentUser?.role !== 'ADMIN' || initialPatients.length) return;
+
       try {
         setLoading(true);
         const response = await apiClient.get('/api/admin/patients');
@@ -51,7 +65,7 @@ const AdminPatients = () => {
     };
 
     fetchPatients();
-  }, [isAuthenticated, currentUser]);
+  }, [isAuthenticated, currentUser, initialPatients.length]);
 
   const calculateAge = (birthDate) => {
     if (!birthDate) return 'N/A';
@@ -75,7 +89,7 @@ const AdminPatients = () => {
   };
 
   const handleStatusChange = (patientId, newStatus) => {
-    setPatients(patients.map(patient => 
+    setPatients(patients.map(patient =>
       patient.id === patientId ? { ...patient, status: newStatus } : patient
     ));
   };
@@ -83,7 +97,7 @@ const AdminPatients = () => {
   const filteredPatients = patients.filter(patient => {
     const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          patient.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus = selectedStatus === 'all' || patient.status.toLowerCase() === selectedStatus;
+    const matchesStatus = statusFilter === 'all' || patient.status.toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
   });
 
@@ -118,26 +132,132 @@ const AdminPatients = () => {
     }
   ];
 
-  if (loading) {
-    return (
-      <div className="admin-patients-container">
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-          Loading patients data...
+  // Only show loading/error states if not in nested mode
+  if (!nested) {
+    if (loading) {
+      return (
+        <div className="admin-patients-container">
+          <div style={{ padding: '20px', textAlign: 'center' }}>
+            Loading patients data...
+          </div>
         </div>
+      );
+    }
+
+    if (error) {
+      return (
+        <div className="admin-patients-container">
+          <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
+            {error}
+          </div>
+        </div>
+      );
+    }
+  }
+
+  // In nested mode, only render the content area
+  if (nested) {
+    return (
+      <div className="patients-content-area">
+        {/* Search and Filters */}
+        <div className="filters-section">
+          <div className="search-container">
+            <img src="/assets/search-icon.svg" alt="search" className="search-icon" />
+            <input
+              type="text"
+              placeholder="Search patients by name or email..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+        <div className="filter-container">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="status-filter"
+          >
+            <option value="all">All Statuses</option>
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+          {handleExportPatients && (
+            <button className="export-btn" onClick={handleExportPatients}>
+              Export Data
+            </button>
+          )}
+        </div>
+
+        {/* Patients Table */}
+        <div className="table-wrapper">
+          <table className="patients-table">
+            <thead>
+              <tr>
+                <th>Patient ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Age</th>
+                <th>Gender</th>
+                <th>Status</th>
+                <th>Last Visit</th>
+                <th>Appointments</th>
+                <th>Registered</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredPatients.map(patient => (
+                <tr key={patient.id}>
+                  <td className="id-cell">{patient.id}</td>
+                  <td className="name-cell">{patient.name}</td>
+                  <td>{patient.email}</td>
+                  <td>{patient.phone}</td>
+                  <td>{patient.age}</td>
+                  <td>{patient.gender}</td>
+                  <td>
+                    <span className={`status-badge ${patient.status.toLowerCase()}`}>
+                      ● {patient.status}
+                    </span>
+                  </td>
+                  <td>{patient.lastVisit}</td>
+                  <td className="appointments-cell">{patient.appointmentsCount}</td>
+                  <td>{patient.registeredDate}</td>
+                  <td className="actions-cell">
+                    <button
+                      className="action-btn view"
+                      onClick={() => handlePatientView(patient.id)}
+                    >
+                      👁️ View
+                    </button>
+                    <select
+                      value={patient.status}
+                      onChange={(e) => handleStatusChange(patient.id, e.target.value)}
+                      className="status-select"
+                    >
+                      <option value="Active">Active</option>
+                      <option value="Inactive">Inactive</option>
+                    </select>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {filteredPatients.length === 0 && (
+          <div className="empty-state">
+            <img src="/assets/Admin assets/Total Patients.svg" alt="no patients" className="empty-icon" />
+            <h3>No patients found</h3>
+            <p>No patients match your current search criteria.</p>
+          </div>
+        )}
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="admin-patients-container">
-        <div style={{ padding: '20px', textAlign: 'center', color: 'red' }}>
-          {error}
-        </div>
-      </div>
-    );
-  }
-
+  // Standalone mode - render full page
   return (
     <div className="admin-patients-container">
       {/* Header */}
@@ -185,8 +305,6 @@ const AdminPatients = () => {
       {/* Tabs Navigation - Shared Component */}
       <AdminTabs />
 
-     
-
       {/* Search and Filters */}
       <div className="filters-section">
         <div className="search-container">
@@ -201,8 +319,8 @@ const AdminPatients = () => {
         </div>
         <div className="filter-container">
           <select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
             className="status-filter"
           >
             <option value="all">All Statuses</option>
@@ -210,6 +328,11 @@ const AdminPatients = () => {
             <option value="inactive">Inactive</option>
           </select>
         </div>
+        {handleExportPatients && (
+          <button className="export-btn" onClick={handleExportPatients}>
+            Export Data
+          </button>
+        )}
       </div>
 
       {/* Patients Table */}
@@ -219,7 +342,7 @@ const AdminPatients = () => {
             <h2>All Patients ({filteredPatients.length})</h2>
             <p className="section-description">Manage all registered patients in the system</p>
           </div>
-          
+
           <div className="table-wrapper">
             <table className="patients-table">
               <thead>
@@ -255,8 +378,8 @@ const AdminPatients = () => {
                     <td className="appointments-cell">{patient.appointmentsCount}</td>
                     <td>{patient.registeredDate}</td>
                     <td className="actions-cell">
-                      <button 
-                        className="action-btn view" 
+                      <button
+                        className="action-btn view"
                         onClick={() => handlePatientView(patient.id)}
                       >
                         👁️ View
