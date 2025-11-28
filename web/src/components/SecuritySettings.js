@@ -1,10 +1,70 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './SecuritySettings.css';
 import './ProfileSettings.css';
 import { Link, useLocation } from 'react-router-dom';
+import apiClient from '../api/client';
 
 const SecuritySettings = () => {
   const location = useLocation();
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [passwordValidations, setPasswordValidations] = useState({
+    minLength: false,
+    upperLower: false,
+    hasNumber: false,
+    hasSpecial: false
+  });
+  const [message, setMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validatePassword = (password) => {
+    const validations = {
+      minLength: password.length >= 8,
+      upperLower: /[a-z]/.test(password) && /[A-Z]/.test(password),
+      hasNumber: /\d/.test(password),
+      hasSpecial: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+    setPasswordValidations(validations);
+    return validations.minLength && validations.upperLower && validations.hasNumber && validations.hasSpecial;
+  };
+
+  const handleNewPasswordChange = (e) => {
+    const password = e.target.value;
+    setNewPassword(password);
+    validatePassword(password);
+  };
+
+  const isPasswordUpdateValid = () => {
+    return (
+      currentPassword &&
+      newPassword &&
+      confirmPassword &&
+      newPassword === confirmPassword &&
+      validatePassword(newPassword)
+    );
+  };
+
+  const handleUpdatePassword = async () => {
+    if (!isPasswordUpdateValid()) return;
+
+    setIsSubmitting(true);
+    setMessage('');
+    try {
+      await apiClient.post('/api/users/change-password', {
+        currentPassword,
+        newPassword
+      });
+      setMessage('Password updated successfully!');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+    } catch (error) {
+      setMessage(error.response?.data?.message || 'Failed to update password. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   return (
     <div className="profile-settings-container">
@@ -62,33 +122,64 @@ const SecuritySettings = () => {
         <div className="card-content">
           <div className="input-group">
             <label>Current Password</label>
-            <input type="password" placeholder="Enter your current password" />
+            <input
+              type="password"
+              placeholder="Enter your current password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+            />
           </div>
           <hr />
           <div className="input-group">
             <label>New Password</label>
-            <input type="password" placeholder="Enter your new password" />
+            <input
+              type="password"
+              placeholder="Enter your new password"
+              value={newPassword}
+              onChange={handleNewPasswordChange}
+            />
           </div>
           <div className="input-group">
             <label>Confirm New Password</label>
-            <input type="password" placeholder="Re-enter your new password" />
+            <input
+              type="password"
+              placeholder="Re-enter your new password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+            />
           </div>
+          {newPassword !== confirmPassword && confirmPassword && (
+            <p className="error-message">Passwords do not match</p>
+          )}
           <div className="password-requirements-card">
             <img src="/assets/shield.svg" alt="Password Requirements" />
             <div className="password-requirements-content">
               <p className="password-requirements-title">Password Requirements:</p>
               <ul>
-                <li>Minimum 8 characters long</li>
-                <li>Contains uppercase and lowercase letters</li>
-                <li>Includes at least one number</li>
-                <li>Contains at least one special character</li>
+                <li className={passwordValidations.minLength ? 'valid' : 'invalid'}>
+                  {passwordValidations.minLength ? '✓' : '✗'} Minimum 8 characters long
+                </li>
+                <li className={passwordValidations.upperLower ? 'valid' : 'invalid'}>
+                  {passwordValidations.upperLower ? '✓' : '✗'} Contains uppercase and lowercase letters
+                </li>
+                <li className={passwordValidations.hasNumber ? 'valid' : 'invalid'}>
+                  {passwordValidations.hasNumber ? '✓' : '✗'} Includes at least one number
+                </li>
+                <li className={passwordValidations.hasSpecial ? 'valid' : 'invalid'}>
+                  {passwordValidations.hasSpecial ? '✓' : '✗'} Contains at least one special character
+                </li>
               </ul>
             </div>
           </div>
           <div className="update-password-section">
-            <button className="update-password-btn">
+            {message && <p className={message.includes('success') ? 'success-message' : 'error-message'}>{message}</p>}
+            <button
+              className="update-password-btn"
+              onClick={handleUpdatePassword}
+              disabled={!isPasswordUpdateValid() || isSubmitting}
+            >
               <img src="/assets/save-changes-icon.svg" alt="Update Password" />
-              Update Password
+              {isSubmitting ? 'Updating...' : 'Update Password'}
             </button>
           </div>
         </div>

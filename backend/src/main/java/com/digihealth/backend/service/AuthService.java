@@ -4,10 +4,13 @@ import com.digihealth.backend.dto.LoginRequest;
 import com.digihealth.backend.dto.LoginResponse;
 import com.digihealth.backend.dto.RegisterDto;
 import com.digihealth.backend.entity.Doctor;
+import com.digihealth.backend.entity.DayOfWeek;
+import com.digihealth.backend.entity.DoctorWorkDay;
 import com.digihealth.backend.entity.Role;
 import com.digihealth.backend.entity.User;
 import com.digihealth.backend.repository.DoctorRepository;
 import com.digihealth.backend.repository.UserRepository;
+import com.digihealth.backend.repository.DoctorWorkDayRepository;
 import com.digihealth.backend.security.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,14 +30,16 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
     private final AuthenticationManager authenticationManager;
+    private final DoctorWorkDayRepository doctorWorkDayRepository;
 
     @Autowired
-    public AuthService(UserRepository userRepository, DoctorRepository doctorRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, AuthenticationManager authenticationManager) {
+    public AuthService(UserRepository userRepository, DoctorRepository doctorRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, AuthenticationManager authenticationManager, DoctorWorkDayRepository doctorWorkDayRepository) {
         this.userRepository = userRepository;
         this.doctorRepository = doctorRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenProvider = tokenProvider;
         this.authenticationManager = authenticationManager;
+        this.doctorWorkDayRepository = doctorWorkDayRepository;
     }
 
     public void registerUser(RegisterDto registerDto) {
@@ -77,9 +82,43 @@ public class AuthService {
         doctor.setSpecialization(registerDto.getSpecialization());
         doctor.setLicenseNumber(registerDto.getLicenseNumber());
 
-        doctorRepository.save(doctor);
+        doctor = doctorRepository.save(doctor);
         
         System.out.println("[AuthService.registerDoctor] Doctor saved successfully for user ID: " + user.getId());
+
+        if (registerDto.getWorkDays() != null && !registerDto.getWorkDays().isEmpty()) {
+            java.util.List<DoctorWorkDay> workDays = new java.util.ArrayList<>();
+            for (String dayString : registerDto.getWorkDays()) {
+                DayOfWeek day;
+                try {
+                    day = DayOfWeek.valueOf(dayString.substring(0, 3).toUpperCase());
+                } catch (Exception e) {
+                    day = DayOfWeek.MON;
+                }
+
+                String range = null;
+                if (registerDto.getAvailability() != null) {
+                    range = registerDto.getAvailability().get(dayString);
+                }
+                String start = "09:00";
+                String end = "17:00";
+                if (range != null && range.contains("-")) {
+                    String[] parts = range.split("-", 2);
+                    if (parts.length == 2) {
+                        start = parts[0].trim();
+                        end = parts[1].trim();
+                    }
+                }
+
+                DoctorWorkDay dwd = new DoctorWorkDay();
+                dwd.setDoctor(doctor);
+                dwd.setWorkDay(day);
+                dwd.setAvailableStartTime(start);
+                dwd.setAvailableEndTime(end);
+                workDays.add(dwd);
+            }
+            doctorWorkDayRepository.saveAll(workDays);
+        }
     }
 
     public LoginResponse login(LoginRequest loginRequest) {

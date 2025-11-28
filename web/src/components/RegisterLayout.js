@@ -144,12 +144,43 @@ export const RegistrationStep3 = ({
   isSubmitting,
 }) => {
   const toggleDay = (day) => {
-    const days = formData.workDays || [];
-    if (days.includes(day)) {
-      setFormData({ ...formData, workDays: days.filter((d) => d !== day) });
+    const workDays = formData.workDays || [];
+    const workHours = formData.workHours || {};
+
+    if (workDays.includes(day)) {
+      // Remove day from workDays
+      const updatedDays = workDays.filter((d) => d !== day);
+      // Remove day from workHours
+      const {[day]: _, ...updatedHours} = workHours;
+      setFormData({
+        ...formData,
+        workDays: updatedDays,
+        workHours: updatedHours
+      });
     } else {
-      setFormData({ ...formData, workDays: [...days, day] });
+      // Add day to workDays
+      setFormData({
+        ...formData,
+        workDays: [...workDays, day],
+        workHours: {
+          ...workHours,
+          [day]: { startTime: '09:00', endTime: '17:00' }
+        }
+      });
     }
+  };
+
+  const handleTimeChange = (day, field, value) => {
+    setFormData({
+      ...formData,
+      workHours: {
+        ...formData.workHours,
+        [day]: {
+          ...formData.workHours?.[day],
+          [field]: value
+        }
+      }
+    });
   };
 
   return (
@@ -182,9 +213,17 @@ export const RegistrationStep3 = ({
 
             {formData.workDays?.includes(day) ? (
               <div className="time-inputs">
-                <input type="time" />
+                <input
+                  type="time"
+                  value={formData.workHours?.[day]?.startTime || '09:00'}
+                  onChange={(e) => handleTimeChange(day, 'startTime', e.target.value)}
+                />
                 <span>to</span>
-                <input type="time" />
+                <input
+                  type="time"
+                  value={formData.workHours?.[day]?.endTime || '17:00'}
+                  onChange={(e) => handleTimeChange(day, 'endTime', e.target.value)}
+                />
               </div>
             ) : (
               <div className="unavailable-text">Unavailable</div>

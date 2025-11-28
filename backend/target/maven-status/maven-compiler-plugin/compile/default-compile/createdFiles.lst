@@ -32,6 +32,7 @@ com\digihealth\backend\controller\DoctorDashboardController.class
 com\digihealth\backend\dto\LoginRequest.class
 com\digihealth\backend\security\CustomUserDetailsService.class
 com\digihealth\backend\repository\UserRepository.class
+com\digihealth\backend\service\DoctorService$1.class
 com\digihealth\backend\service\DashboardService.class
 com\digihealth\backend\entity\Role.class
 com\digihealth\backend\config\DataInitializer.class
