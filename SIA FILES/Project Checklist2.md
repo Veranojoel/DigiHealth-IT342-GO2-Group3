@@ -31,8 +31,8 @@
 | **Mark appointments as completed** | ✅ **FULLY IMPLEMENTED** | Connected "Complete" action in details modal to `PUT /api/appointments/{id}/status` with real-time updates |
 | **Mark appointments as cancelled** | ✅ **FULLY IMPLEMENTED** | Connected "Cancel Appointment" action in edit modal to `PUT /api/appointments/{id}/status` with confirmation |
 | Appointment status badges | ✅ FULLY IMPLEMENTED | Visual status indicators (Confirmed, Pending, Completed, Cancelled) |
-| **Real-time status updates** | ❌ **NOT IMPLEMENTED** | Status changes should auto-update without page refresh |
-| **Status notifications to patients** | ❌ **NOT IMPLEMENTED** | System should notify patients when appointment status changes |
+| **Real-time status updates** | ✅ **FULLY IMPLEMENTED** | WebSocket (STOMP) broadcasts trigger auto-refresh in Dashboard/Admin pages |
+| **Status notifications to patients** | ✅ **FULLY IMPLEMENTED** | Email notifications sent to patients on status changes; mobile apps can subscribe to WebSocket or use push |
 
 ---
 
