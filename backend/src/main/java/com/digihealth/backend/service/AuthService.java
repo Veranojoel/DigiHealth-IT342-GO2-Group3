@@ -152,6 +152,10 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Doctor account is pending approval. Please contact administrator.");
         }
 
+        if (!Boolean.TRUE.equals(user.getIsActive())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is deactivated. Contact administrator to reactivate.");
+        }
+
         // Critical debugging
         System.out.println("[AuthService.login] User loaded from DB:");
         System.out.println("[AuthService.login]   ID: " + user.getId());

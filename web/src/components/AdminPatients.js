@@ -12,6 +12,7 @@ const AdminPatients = ({
   statusFilter: initialStatusFilter = 'all',
   setStatusFilter: setParentStatusFilter,
   handleExportPatients,
+  onRefresh,
   nested = false
 }) => {
   const navigate = useNavigate();
@@ -37,35 +38,36 @@ const AdminPatients = ({
 
   // Fetch patients from API if not provided as prop
   useEffect(() => {
-    const fetchPatients = async () => {
-      if (!isAuthenticated || currentUser?.role !== 'ADMIN' || initialPatients.length) return;
+        const fetchPatients = async () => {
+          if (!isAuthenticated || currentUser?.role !== 'ADMIN' || initialPatients.length) return;
 
-      try {
-        setLoading(true);
-        const response = await apiClient.get('/api/admin/patients');
-        const patientsData = response.data.map(user => ({
-          id: user.id,
-          name: `${user.firstName} ${user.lastName}`,
-          email: user.email,
-          phone: user.phoneNumber || 'N/A',
-          age: calculateAge(user.patient?.birthDate),
-          gender: user.patient?.gender || 'N/A',
-          status: user.isActive ? 'Active' : 'Inactive',
-          lastVisit: 'N/A', // TODO: Calculate from appointments
-          registeredDate: new Date(user.createdAt).toLocaleDateString(),
-          appointmentsCount: 0 // TODO: Get from appointments
-        }));
-        setPatients(patientsData);
-      } catch (err) {
-        setError('Failed to load patients data');
-        console.error('Error fetching patients:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
+          try {
+            setLoading(true);
+            const response = await apiClient.get('/api/admin/patients');
+            const patientsData = response.data.map(user => ({
+              id: user.id,
+              name: `${user.firstName || ''} ${user.lastName || user.fullName || ''}`.trim() || 'N/A',
+              email: user.email,
+              phone: user.phoneNumber || 'N/A',
+              age: calculateAge(user.patient?.birthDate),
+              gender: user.patient?.gender || 'N/A',
+              isActive: user.isActive !== undefined ? user.isActive : true,
+              status: user.isActive ? 'Active' : 'Inactive',
+              lastVisit: 'N/A', // TODO: Calculate from appointments
+              registeredDate: new Date(user.createdAt || Date.now()).toLocaleDateString(),
+              appointmentsCount: 0 // TODO: Get from appointments
+            }));
+            setPatients(patientsData);
+          } catch (err) {
+            setError('Failed to load patients data');
+            console.error('Error fetching patients:', err);
+          } finally {
+            setLoading(false);
+          }
+        };
 
-    fetchPatients();
-  }, [isAuthenticated, currentUser, initialPatients.length]);
+        fetchPatients();
+      }, [isAuthenticated, currentUser, initialPatients.length]);
 
   const calculateAge = (birthDate) => {
     if (!birthDate) return 'N/A';
@@ -92,6 +94,42 @@ const AdminPatients = ({
     setPatients(patients.map(patient =>
       patient.id === patientId ? { ...patient, status: newStatus } : patient
     ));
+  };
+
+  const handleTogglePatientStatus = async (patientId, isActive) => {
+    if (!window.confirm(`Are you sure you want to ${isActive ? 'deactivate' : 'reactivate'} this patient? This will cancel any future appointments.`)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const endpoint = isActive ? '/deactivate' : '/reactivate';
+      await apiClient.put(`/api/admin/users/${patientId}${endpoint}`);
+      
+      // Optimistic update
+      setPatients(patients.map(patient =>
+        patient.id === patientId 
+          ? { ...patient, status: isActive ? 'Inactive' : 'Active', isActive: !isActive }
+          : patient
+      ));
+      
+      // Refresh parent if provided
+      if (onRefresh) {
+        onRefresh();
+      }
+      
+      setError('');
+    } catch (err) {
+      console.error('Failed to toggle patient status:', err);
+      setError(err.response?.data?.error || 'Failed to toggle patient status. Please try again.');
+      
+      // Revert optimistic update on error
+      if (onRefresh) {
+        onRefresh();
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
   const filteredPatients = patients.filter(patient => {
@@ -231,14 +269,13 @@ const AdminPatients = ({
                     >
                       👁️ View
                     </button>
-                    <select
-                      value={patient.status}
-                      onChange={(e) => handleStatusChange(patient.id, e.target.value)}
-                      className="status-select"
+                    <button 
+                      className={`action-btn ${patient.isActive ? 'deactivate' : 'reactivate'}`}
+                      onClick={() => handleTogglePatientStatus(patient.id, patient.isActive)}
+                      disabled={loading}
                     >
-                      <option value="Active">Active</option>
-                      <option value="Inactive">Inactive</option>
-                    </select>
+                      {patient.isActive ? 'Deactivate' : 'Reactivate'}
+                    </button>
                   </td>
                 </tr>
               ))}

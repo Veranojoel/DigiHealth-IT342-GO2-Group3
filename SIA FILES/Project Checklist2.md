@@ -65,7 +65,7 @@
 ## 👩‍💼 SYSTEM ADMINISTRATION
 
 ### FR-9: Administrator Management
-**Status:** ⚠️ **PARTIALLY IMPLEMENTED** (Core approval workflow exists, needs enhancements)
+**Status:** ✅ **FULLY IMPLEMENTED** (Full approval + deactivation/reactivation workflows with backend APIs, cascading appointment cancellation, login security fixes, and test updates)
 
 | Feature | Status | Implementation Notes |
 |---------|--------|----------------------|
@@ -73,8 +73,8 @@
 | Review pending doctor registrations | ✅ FULLY IMPLEMENTED | Shows list of doctors awaiting approval |
 | Approve doctor accounts | ✅ FULLY IMPLEMENTED | Functional approval workflow with backend integration |
 | Reject doctor accounts | ✅ FULLY IMPLEMENTED | Functional rejection workflow with backend integration |
-| **Deactivate doctor accounts** | ⚠️ **PARTIALLY IMPLEMENTED** | UI exists but only updates local state (needs backend integration) |
-| **Deactivate patient accounts** | ⚠️ **PARTIALLY IMPLEMENTED** | UI exists but only updates local state (needs backend integration) |
+| **Deactivate doctor accounts** | ✅ **FULLY IMPLEMENTED** | Backend: PUT /api/admin/users/{id}/deactivate & /reactivate in AdminController; Frontend: handleToggleDoctorStatus in AdminDashboard.js, handleTogglePatientStatus in AdminPatients.js; Cascades future appointments to CANCELLED; Blocks inactive user login via AuthService.login() & CustomUserDetailsService |
+| **Deactivate patient accounts** | ✅ **FULLY IMPLEMENTED** | Backend: Same endpoints handle patients; Frontend: handleTogglePatientStatus in AdminPatients.js; Cascades future appointments to CANCELLED; Blocks inactive user login |
 | **Configure clinic details** | ❌ **NOT IMPLEMENTED** | Missing system settings configuration |
 | **Define appointment policies** | ❌ **NOT IMPLEMENTED** | Missing functionality to set booking rules |
 | **System status monitoring** | ⚠️ **PARTIALLY IMPLEMENTED** | Hardcoded system uptime (needs real monitoring) |

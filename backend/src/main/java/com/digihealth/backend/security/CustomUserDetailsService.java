@@ -24,6 +24,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email : " + email));
 
+        if (!Boolean.TRUE.equals(user.getIsActive())) {
+            throw new org.springframework.security.authentication.DisabledException("User account is deactivated.");
+        }
+
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPasswordHash(),
@@ -39,6 +43,10 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findById(id).orElseThrow(
                 () -> new UsernameNotFoundException("User not found with id : " + id)
         );
+
+        if (!Boolean.TRUE.equals(user.getIsActive())) {
+            throw new org.springframework.security.authentication.DisabledException("User account is deactivated.");
+        }
 
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),

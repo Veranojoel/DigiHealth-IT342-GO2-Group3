@@ -2,6 +2,8 @@ package com.digihealth.backend.controller;
 
 import com.digihealth.backend.dto.CurrentUserProfileDto;
 import com.digihealth.backend.dto.CurrentUserProfileUpdateRequest;
+import com.digihealth.backend.security.CustomUserDetailsService;
+import com.digihealth.backend.security.JwtTokenProvider;
 import com.digihealth.backend.service.UserProfileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,6 +30,12 @@ class UserProfileControllerTest {
 
     @MockBean
     private UserProfileService userProfileService;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private CustomUserDetailsService customUserDetailsService;
 
     private CurrentUserProfileDto sampleProfile() {
         CurrentUserProfileDto dto = new CurrentUserProfileDto();

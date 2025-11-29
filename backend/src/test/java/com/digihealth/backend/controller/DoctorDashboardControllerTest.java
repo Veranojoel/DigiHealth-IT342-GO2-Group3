@@ -4,6 +4,8 @@ import com.digihealth.backend.dto.DashboardSummaryDto;
 import com.digihealth.backend.dto.DoctorAppointmentDto;
 import com.digihealth.backend.dto.DoctorPatientDto;
 import com.digihealth.backend.dto.TodayAppointmentDto;
+import com.digihealth.backend.security.CustomUserDetailsService;
+import com.digihealth.backend.security.JwtTokenProvider;
 import com.digihealth.backend.service.DashboardService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -32,6 +34,12 @@ class DoctorDashboardControllerTest {
 
     @MockBean
     private DashboardService dashboardService;
+
+    @MockBean
+    private JwtTokenProvider jwtTokenProvider;
+
+    @MockBean
+    private CustomUserDetailsService customUserDetailsService;
 
     @Test
     @WithMockUser(username = "doctor@example.com", roles = {"DOCTOR"})

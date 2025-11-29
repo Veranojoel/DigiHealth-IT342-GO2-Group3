@@ -91,6 +91,25 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleToggleDoctorStatus = async (doctorId, isActive) => {
+    if (!window.confirm(`Are you sure you want to ${isActive ? 'deactivate' : 'reactivate'} this doctor?`)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const endpoint = isActive ? '/deactivate' : '/reactivate';
+      await apiClient.put(`/api/admin/users/${doctorId}${endpoint}`);
+      fetchData(); // Refresh data
+      setError(''); // Clear any previous errors
+    } catch (err) {
+      console.error('Failed to toggle doctor status:', err);
+      setError(err.response?.data?.error || 'Failed to toggle doctor status. Please try again.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Show loading or error if authentication is still loading
   if (authLoading) {
     return <div className="admin-loading">Checking authentication...</div>;
@@ -273,8 +292,9 @@ const AdminDashboard = () => {
                       <th>Specialization</th>
                       <th>Email</th>
                       <th>Phone</th>
-                      <th>Status</th>
-                      <th>Registered</th>
+                      <th>Approval</th>
+                      <th>Active Status</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -290,7 +310,22 @@ const AdminDashboard = () => {
                             ● {doctor.isApproved ? 'Approved' : 'Pending'}
                           </span>
                         </td>
-                        <td>{new Date(doctor.createdAt || Date.now()).toLocaleDateString()}</td>
+                        <td>
+                          <span className={`status-badge ${doctor.isActive ? 'active' : 'inactive'}`}>
+                            ● {doctor.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="actions-cell">
+                          {doctor.isApproved && (
+                            <button 
+                              className={`action-btn ${doctor.isActive ? 'deactivate' : 'reactivate'}`}
+                              onClick={() => handleToggleDoctorStatus(doctor.id, doctor.isActive)}
+                              disabled={loading}
+                            >
+                              {doctor.isActive ? 'Deactivate' : 'Reactivate'}
+                            </button>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -313,6 +348,7 @@ const AdminDashboard = () => {
               statusFilter={statusFilter}
               setStatusFilter={setStatusFilter}
               handleExportPatients={handleExportPatients}
+              onRefresh={fetchData}
               nested={true}
             />
           </section>
