@@ -24,6 +24,7 @@ import AdminPatients from "./components/AdminPatients";
 import AdminAppointments from "./components/AdminAppointments";
 import AdminAnalytics from "./components/AdminAnalytics";
 import AdminDashboardSettings from "./components/AdminDashboardSettings";
+import { SettingsProvider } from "./context/SettingsContext";
 
 const AppRoutes = () => {
   const { isAuthenticated, loading } = useAuth();
@@ -103,9 +104,11 @@ const AppRoutes = () => {
 
 function App() {
   return (
-    <Router>
-      <AppRoutes />
-    </Router>
+    <SettingsProvider>
+      <Router>
+        <AppRoutes />
+      </Router>
+    </SettingsProvider>
   );
 }
 

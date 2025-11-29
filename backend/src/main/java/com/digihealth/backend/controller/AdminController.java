@@ -15,6 +15,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.time.LocalDate;
 import com.digihealth.backend.entity.AppointmentStatus;
+import com.digihealth.backend.entity.AdminSettings;
+import com.digihealth.backend.repository.AdminSettingsRepository;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -25,6 +27,9 @@ public class AdminController {
 
     @Autowired
     private AppointmentRepository appointmentRepository;
+
+    @Autowired
+    private AdminSettingsRepository adminSettingsRepository;
 
     /**
      * Get all pending doctor approvals
@@ -240,5 +245,29 @@ public class AdminController {
                 "userId", id.toString(),
                 "status", "ACTIVE"
         ));
+    }
+
+    /**
+     * Get global admin settings (singleton ID=1)
+     * GET /api/admin/settings
+     */
+    @GetMapping("/settings")
+    public ResponseEntity<AdminSettings> getAdminSettings() {
+        return adminSettingsRepository.findById(1L)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    /**
+     * Update global admin settings (singleton ID=1, admin-only)
+     * PUT /api/admin/settings
+     */
+    @PutMapping("/settings")
+    public ResponseEntity<AdminSettings> updateAdminSettings(@RequestBody AdminSettings settings) {
+        if (settings.getId() == null || !settings.getId().equals(1L)) {
+            return ResponseEntity.badRequest().body(null);
+        }
+        AdminSettings saved = adminSettingsRepository.save(settings);
+        return ResponseEntity.ok(saved);
     }
 }

@@ -9,6 +9,8 @@ import com.digihealth.backend.entity.User;
 import com.digihealth.backend.repository.AppointmentRepository;
 import com.digihealth.backend.repository.DoctorRepository;
 import com.digihealth.backend.repository.PatientRepository;
+import com.digihealth.backend.entity.AdminSettings;
+import com.digihealth.backend.repository.AdminSettingsRepository;
 import com.digihealth.backend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -36,6 +38,7 @@ public class DataInitializer implements CommandLineRunner {
     private final DoctorRepository doctorRepository;
     private final PatientRepository patientRepository;
     private final AppointmentRepository appointmentRepository;
+    private final AdminSettingsRepository adminSettingsRepository;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Value("${digihealth.seed.demo-doctor.enabled:true}")
@@ -45,19 +48,22 @@ public class DataInitializer implements CommandLineRunner {
             UserRepository userRepository,
             DoctorRepository doctorRepository,
             PatientRepository patientRepository,
-            AppointmentRepository appointmentRepository
+            AppointmentRepository appointmentRepository,
+            AdminSettingsRepository adminSettingsRepository
     ) {
         this.userRepository = userRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
         this.appointmentRepository = appointmentRepository;
+        this.adminSettingsRepository = adminSettingsRepository;
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     @Override
     public void run(String... args) {
-        // Always create admin user regardless of seedDemoDoctorEnabled flag
+        // Always create admin user and settings regardless of seedDemoDoctorEnabled flag
         createAdminUser();
+        seedAdminSettings();
         
         if (!seedDemoDoctorEnabled) {
             return;
@@ -164,6 +170,36 @@ public class DataInitializer implements CommandLineRunner {
             System.out.println("✅ Admin user created: admin@digihealth.com / admin123");
         } else {
             System.out.println("ℹ️ Admin user already exists: admin@digihealth.com");
+        }
+    }
+
+    /**
+     * Seeds default admin settings if ID=1 doesn't exist.
+     */
+    private void seedAdminSettings() {
+        if (adminSettingsRepository.findById(1L).isEmpty()) {
+            AdminSettings defaults = new AdminSettings();
+            defaults.setId(1L);
+            defaults.setClinicName("DigiHealth Clinic");
+            defaults.setDescription("Multi-specialty clinic providing comprehensive healthcare services.");
+            defaults.setAddress("123 Health Street");
+            defaults.setCity("Quezon City");
+            defaults.setState("Metro Manila");
+            defaults.setZip("1100");
+            defaults.setEmail("info@digihealth.ph");
+            defaults.setPhone("+63 912 345 6789");
+            defaults.setAppointmentSlotMinutes(30);
+            defaults.setMaxAdvanceDays(90);
+            defaults.setMinAdvanceHours(24);
+            defaults.setCancelDeadlineHours(24);
+            defaults.setAllowNewRegistrations(true);
+            defaults.setMaintenanceMode(false);
+            defaults.setMaxLoginAttempts(5);
+            defaults.setSessionTimeoutMinutes(30);
+            adminSettingsRepository.save(defaults);
+            System.out.println("✅ Default admin settings seeded (ID=1)");
+        } else {
+            System.out.println("ℹ️ Admin settings (ID=1) already exists");
         }
     }
 }

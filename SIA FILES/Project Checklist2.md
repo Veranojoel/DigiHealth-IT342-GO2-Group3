@@ -75,9 +75,9 @@
 | Reject doctor accounts | ✅ FULLY IMPLEMENTED | Functional rejection workflow with backend integration |
 | **Deactivate doctor accounts** | ✅ **FULLY IMPLEMENTED** | Backend: PUT /api/admin/users/{id}/deactivate & /reactivate in AdminController; Frontend: handleToggleDoctorStatus in AdminDashboard.js, handleTogglePatientStatus in AdminPatients.js; Cascades future appointments to CANCELLED; Blocks inactive user login via AuthService.login() & CustomUserDetailsService |
 | **Deactivate patient accounts** | ✅ **FULLY IMPLEMENTED** | Backend: Same endpoints handle patients; Frontend: handleTogglePatientStatus in AdminPatients.js; Cascades future appointments to CANCELLED; Blocks inactive user login |
-| **Configure clinic details** | ❌ **NOT IMPLEMENTED** | Missing system settings configuration |
-| **Define appointment policies** | ❌ **NOT IMPLEMENTED** | Missing functionality to set booking rules |
-| **System status monitoring** | ⚠️ **PARTIALLY IMPLEMENTED** | Hardcoded system uptime (needs real monitoring) |
+| **Configure clinic details** | ✅ **FULLY IMPLEMENTED** | Dynamic CRUD form + success toast + global branding integration | 
+ | **Define appointment policies** | ⚠️ **PARTIALLY IMPLEMENTED** | Stored in admin_settings table (slot duration, advance booking, etc.); enforcement in booking logic pending | 
+ | **System status monitoring** | ⚠️ **PARTIALLY IMPLEMENTED** | Hardcoded system uptime (needs real monitoring) |
 
 ---
 

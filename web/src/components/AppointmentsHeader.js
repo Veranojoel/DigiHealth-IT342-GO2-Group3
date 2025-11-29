@@ -3,10 +3,12 @@ import { Link, NavLink } from 'react-router-dom';
 import './DashboardHeader.css';
 import ProfileDropdown from './ProfileDropdown';
 import { useAuth } from '../auth/auth';
+import { useSettings } from '../context/SettingsContext';
 
 const AppointmentsHeader = () => {
   const [isDropdownVisible, setDropdownVisible] = useState(false);
   const { currentUser } = useAuth();
+  const { settings } = useSettings();
 
   const toggleDropdown = () => {
     setDropdownVisible(!isDropdownVisible);
@@ -19,7 +21,7 @@ const AppointmentsHeader = () => {
           <img src="/assets/header-logo.svg" alt="DigiHealth Logo" />
         </div>
         <div className="header-title-container">
-          <h1>DigiHealth</h1>
+          <h1>{settings?.clinicName || 'DigiHealth'}</h1>
           <p>Doctor Portal</p>
         </div>
       </div>
