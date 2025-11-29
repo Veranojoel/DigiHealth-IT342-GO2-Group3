@@ -1,0 +1,291 @@
+FR-1: Patient Registration (Mobile App)
+The system shall allow patients to register using either Google OAuth 2.0 authentication
+or manual form input of patient personal information such as name, contact number,
+email address, and require completion of a basic medical profile including age, gender,
+allergies, and existing medical conditions to support medical consultations.
+
+FR-2: Patient Login (Mobile App)
+The system shall allow registered patients to log in using Google OAuth 2.0 or their
+registered email and password, validate user credentials securely, and provide
+authenticated access to patient functionalities such as appointment booking and profile
+management.
+
+FR-3: Doctor Registration (Web App)
+The system shall allow doctors to register an account by providing their full name,
+specialization, license number, contact details, and schedule availability. The system
+shall require administrator approval before newly registered doctors become visible for
+patient appointment selection.
+
+FR-4: Doctor Login and Schedule Management
+The system shall allow approved doctors to securely log in and access their dashboard,
+which displays upcoming appointments, patient information, and schedule
+management tools for adjusting availability and booking slots
+
+FR-5: Appointment Booking (Mobile App)
+The system shall allow patients to browse available doctors by name or specialization,
+view open time slots, and select a preferred appointment date and time. The system
+shall confirm bookings and notify both the patient and doctor of appointment details.
+
+FR-6: Appointment Management
+The system shall allow doctors to view all scheduled appointments, mark appointments
+as completed or cancelled, and update booking statuses in real time and automatically
+reflect updates on the patient’s appointment list.
+
+FR-7: Patient Record Management (Web Dashboard)
+The system shall allow doctors to view and update basic patient records containing
+consultation notes, provide search functionality to find patients by name or ID, and
+display patient appointment history. Restrict access to ensure that only assigned
+doctors can view or edit a patient’s medical record.
+
+FR-8: Role-Based Access Control
+The system shall implement role-based access for three distinct user types: Patient,
+Doctor, and System Administrator. Each role shall have specific permissions, ensuring
+that sensitive data and system features are accessible only to authorized users.
+
+FR-9: Administrator Management
+The system shall allow the system administrator to manage user accounts by creating,
+approving, or deactivating doctor accounts, configuring clinic details, defining
+appointment policies, and monitoring overall system status.
+
+FR-10: System Reports and Analytics
+The system shall generate summary reports displaying appointment statistics, patient
+registration counts, and doctor activity metrics through simple charts or tables
+accessible via the system administrator dashboard.
+
+FR-12: Admin System Monitoring
+The system shall provide a system status dashboard, display database connection
+status, include API health check functionality, and allow viewing of error logs within.
+
+Use Cases
+
+Use Case 1: Patient Registration
+Actor: Patient
+Precondition: Patient has the DigiHealth mobile app installed.
+Main Flow:
+1. The Patient opens the DigiHealth mobile app.
+2. The Patient taps “Register” and chooses between Google OAuth 2.0 sign-in or
+manual registration.
+3. The Patient provides basic profile information (name, phone, email and
+emergency contact).
+4. The Patient completes the basic medical profile including age, gender, allergies,
+and existing medical conditions.
+5. The System validates input and creates a new patient account.
+6. The System stores basic details in the database.
+Postcondition:
+A new patient account is successfully created and ready for login.
+
+Use Case 2: Patient Login
+Actor: Patient
+Precondition: Patient has an existing registered account.
+Main Flow:
+1. The Patient opens the DigiHealth app.
+2. The selects “Login” using Google OAuth 2.0 credentials or manual login.
+3. The System verifies credentials or token provided.
+4. The system establishes a secure session for the authenticated user.
+5. The System redirects the patient to the appointment booking dashboard.
+Postcondition:
+The patient is logged in and can now access appointment booking features..
+
+Use Case 3: Doctor Registration
+Actor: Doctor
+Precondition: The doctor has access to the web dashboard and a stable internet
+connection.
+Main Flow:
+1. The doctor accesses the DigiHealth web portal.
+2. The doctor selects “Register” and provides details including name,
+specialization, license number, contact information, and availability.
+3. The system validates the information and forwards the registration request
+to the administrator.
+4. The administrator reviews and approves the registration.
+The system activates the doctor account and adds it to the doctor listing.
+Postcondition: A verified doctor account is created and visible for patient
+appointment booking.
+
+Use Case 4: Doctor Login and Dashboard Access
+Actor: Doctor
+Precondition: The doctor has an approved account.
+Main Flow:
+1. The doctor accesses the DigiHealth web dashboard.
+2. The doctor enters login credentials or uses Google OAuth 2.0 authentication.
+3. The system validates the credentials and authorizes access.
+4. The system displays the doctor’s personalized dashboard showing upcoming
+appointments and patient details.
+5. The doctor can adjust availability or manage appointments as needed.
+Postcondition: The doctor successfully accesses the dashboard and can manage
+schedules and consultations.
+
+Use Case 5: Browse Doctors and Book Appointment
+Actor: Patient
+Precondition: The patient is logged in to the system.
+Main Flow:
+1. The patient opens the appointment booking section.
+2. The system displays a searchable list of available doctors with their specialties
+and schedules.
+3. The patient selects a doctor and chooses an available date and time slot.
+4. The patient reviews the appointment details and confirms the booking.
+5. The system saves the appointment data in the database.
+6. The system sends confirmation notifications to both doctor and patient.
+Postcondition: The appointment is successfully booked and visible in both patient and
+doctor dashboards.
+
+Use Case 6: Manage Appointments (Doctor)
+Actor: Doctor
+Precondition: The doctor is logged in and has active appointments.
+Main Flow:
+1. The doctor accesses the appointment management section of the dashboard.
+2. The system displays the list of upcoming patient appointments.
+3. The doctor reviews each appointment and can mark it as completed or
+cancelled.
+4. The system updates the appointment status in real time.
+5. The system sends status update notifications to the corresponding patient.
+Postcondition: Appointment records are updated and synchronized across doctor and
+patient interfaces.
+
+Use Case 7: Patient Record Management
+Actor: Doctor
+Precondition: The doctor has an active appointment with the patient.
+Main Flow:
+1. The doctor selects a completed appointment or patient from the dashboard.
+2. The system displays the patient’s personal information and previous consultation
+notes.
+3. The doctor inputs new medical notes, prescriptions, or observations.
+4. The system saves and updates the patient’s medical record in the database.
+5. The doctor can view or edit previous notes for reference.
+Postcondition: The patient’s medical record is securely updated and accessible only to
+the assigned doctor.
+
+Use Case 8: User and System Management
+Actor: System Administrator
+Precondition: The administrator is authenticated.
+Main Flow:
+1. The administrator logs in to the web dashboard.
+2. The administrator reviews pending doctor registration requests.
+3. The administrator approves, rejects, or deactivates user accounts as necessary.
+4. The administrator updates clinic settings such as booking policies, hours, and
+system information.
+5. The system records and saves all configuration and user management changes.
+Postcondition: System settings and user accounts are updated successfully.
+
+Use Case 9: Generate Reports and Analytics
+Actor: System Administrator
+Precondition: The administrator is logged in to the web dashboard.
+Main Flow:
+1. The administrator accesses the reporting and analytics module.
+2. The system retrieves appointment and registration data from the database.
+3. The system generates visual summaries such as total patients, total
+appointments, and doctor activity metrics.
+4. The administrator views the reports and can export them if needed.
+5. The system logs the report generation for audit purposes.
+Postcondition: Reports are successfully generated and available for review or
+export.
+
+=== REDLINED MVP ADDENDUM (2025-11-29) ===
+
+[ADDED] Patient Mobile App Requirements (FR-P1 to FR-P5)
+
+[ADDED] FR-P1: Patient Dashboard
+Description: Personalized dashboard with upcoming appointments, quick actions, and health summary.
+Acceptance Criteria:
+- Welcome message
+- Show next 3 upcoming appointments
+- Quick action buttons (Book, View Records, Contact Clinic)
+- Health summary card (basic profile snapshot)
+- Recent notifications
+- Easy navigation to Appointments, Records, Profile
+
+[ADDED] FR-P2: My Appointments
+Description: View and manage appointments.
+Acceptance Criteria:
+- Tabs: Upcoming, Past, Cancelled
+- Appointment cards with doctor, date/time, status, reason
+- Cancel appointment
+- Reschedule appointment
+- Add to calendar
+- Set reminders
+
+[ADDED] FR-P3: Medical Records
+Description: View consultation history and medical notes.
+Acceptance Criteria:
+- Records grouped by date
+- View diagnosis, prescriptions, notes
+- Search and filter records
+- Download as PDF
+- Share via email/messaging
+
+[ADDED] FR-P4: Doctor Profiles & Search
+Description: Comprehensive doctor search and profiles.
+Acceptance Criteria:
+- Advanced search and filters (specialization, rating, availability)
+- Doctor cards with ratings and summary
+- Full doctor profiles with experience and clinic info
+- Patient reviews listing
+- Visible available time slots
+
+[ADDED] FR-P5: Profile Management
+Description: Update personal and medical information.
+Acceptance Criteria:
+- Edit personal info (name, contact, email)
+- Update medical profile (age, gender, allergies, conditions)
+- Change password
+- Notification preferences
+- Privacy settings
+- Delete account
+
+[UPDATED] FR-4: Doctor Login and Schedule Management
+Clarifications for MVP:
+- Secure login via credentials (Google OAuth optional enhancement)
+- Dashboard with upcoming appointments and patient list
+- Real-time updates via WebSocket subscriptions for appointment counters and today list
+- Schedule management tools for working hours; adjust availability and booking slots
+- Role-based access: doctors can access only their own data
+
+[UPDATED] FR-6: Appointment Management
+Clarifications for MVP:
+- View all scheduled appointments; filter by status
+- Mark as completed or cancelled with real-time status updates to subscribed clients
+- Confirmation dialogs and basic error handling
+- Optional: capture consultation notes is deferred to FR-7
+- Status transition validation and permission checks required
+
+[ADDED] FR-7: Patient Record Management (Web Dashboard)
+Clarifications for MVP:
+- Add/edit consultation notes; rich text editor recommended
+- Timeline/history view for medical notes per patient
+- Search patients by name/ID and filter by date/status
+- Strict access: only assigned doctors can view/edit a patient’s records
+- Audit logging for create/update/delete of notes
+
+[UPDATED] FR-8: Role-Based Access Control
+Clarifications for MVP:
+- Roles: Patient, Doctor, System Administrator
+- Enforce authorization at controller/service layer for admin endpoints
+- Block inactive users from authentication; prevent deactivation of last admin
+
+[UPDATED] FR-9: Administrator Management
+Clarifications for MVP:
+- Approve/reject/deactivate/reactivate user accounts
+- Cascading deactivation: cancel future appointments for deactivated users
+- Last-admin safety check: cannot deactivate the final admin account
+- Audit logging of admin actions
+
+[UPDATED] FR-10: System Reports and Analytics
+Clarifications for MVP:
+- Basic statistics (counts by status, totals)
+- Charts and visualizations as enhancement
+- Export CSV/PDF as enhancement
+
+[ADDED] Real-Time Updates & Notifications (Cross-Cutting)
+Acceptance Criteria:
+- WebSocket infrastructure (STOMP/SockJS) configured with broadcast topics (e.g., /topic/appointments)
+- Frontend clients subscribe and update UI counters/lists upon messages
+- Email/SMS templates for appointment status changes
+- In-app notification UI and visual indicators for new/updated data
+- Event triggers for: appointment status change, new appointment, account deactivation/reactivation
+
+[ADDED] Search & Performance (Cross-Cutting)
+Acceptance Criteria:
+- Server-side filtering for patients and appointments
+- Indexes on frequently queried fields (e.g., status, dates, user activity)
+- Consistent error handling and pagination for list endpoints
+
+=== END OF REDLINED MVP ADDENDUM ===

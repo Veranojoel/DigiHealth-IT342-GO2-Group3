@@ -113,11 +113,11 @@
 
 | Feature | Area | Implementation Notes |
 |---------|------|----------------------|
-| **Appointment status management** | Doctor Web | Complete the UI for marking appointments as completed/cancelled (backend API already exists) |
-| **Consultation notes & medical records** | Doctor Web | Implement functionality for doctors to add/edit patient notes and medical records |
-| **Doctor schedule/availability management** | Doctor Web | Connect the working hours UI to the backend API and implement time slot logic |
-| **Deactivate/suspend user accounts** | System Admin | Implement backend logic for deactivating doctors and patients (currently UI-only) |
-| **Real-time updates & notifications** | Both | Implement WebSocket or polling for real-time dashboard updates |
+| **Appointment status management** | Doctor Web | Status: PARTIALLY IMPLEMENTED — UI wired to backend; add confirmation dialogs, toast notifications, backend validation/permission checks, and WebSocket integration in doctor Appointments view |
+| **Consultation notes & medical records** | Doctor Web | Status: PARTIALLY IMPLEMENTED — Backend controller, entity, repository, DTOs, and patient notes UI are pending |
+| **Doctor schedule/availability management** | Doctor Web | Status: PARTIALLY IMPLEMENTED — UI connected to API; add form validation, time slot generation, calendar view, and backend support for slots |
+| **Deactivate/suspend user accounts** | System Admin | Status: PARTIALLY IMPLEMENTED — Endpoints and UI active; add permission checks, audit logging, ensure `isActive` filters/indexes across queries, and success notifications |
+| **Real-time updates & notifications** | Both | Status: PARTIALLY IMPLEMENTED — WebSocket config and status broadcasting live; add in-app notification UI, visual indicators, event triggers for new appointments/deactivations, and integrate Appointments view |
 
 ---
 
@@ -125,11 +125,11 @@
 
 | Feature | Area | Implementation Notes |
 |---------|------|----------------------|
-| **Google OAuth 2.0 authentication** | Both | Add Google OAuth for enhanced security and user convenience |
-| **Visual charts for analytics** | System Admin | Implement charting library (Chart.js, D3.js) for data visualization |
-| **Export reports (CSV/PDF)** | System Admin | Implement actual export functionality for analytics data |
-| **Clinic settings & appointment policies** | System Admin | Create configuration interface for system settings |
-| **Search functionality** | Both | Complete the search implementation for patients and appointments |
+| **Google OAuth 2.0 authentication** | Both | Status: PARTIALLY IMPLEMENTED — Configure Google OAuth, backend callbacks/token exchange, and add frontend Google login |
+| **Visual charts for analytics** | System Admin | Status: PARTIALLY IMPLEMENTED — Analytics page exists; add Chart.js/D3 integration and bind to real data |
+| **Export reports (CSV/PDF)** | System Admin | Status: PARTIALLY IMPLEMENTED — Implement CSV/PDF export endpoints and frontend download actions |
+| **Clinic settings & appointment policies** | System Admin | Status: FULLY IMPLEMENTED — Settings UI and `/api/admin/settings` endpoints are integrated |
+| **Search functionality** | Both | Status: PARTIALLY IMPLEMENTED — Basic UI filters exist; add backend query/filter endpoints and unify search across modules |
 
 ---
 
@@ -137,10 +137,10 @@
 
 | Feature | Area | Implementation Notes |
 |---------|------|----------------------|
-| **System monitoring dashboard** | System Admin | Implement comprehensive system health monitoring |
-| **Database health checks** | System Admin | Add database connection monitoring |
-| **Error logs viewing** | System Admin | Implement error logging and viewing interface |
-| **Audit logs** | System Admin | Create audit trail for system changes |
+| **System monitoring dashboard** | System Admin | Status: PARTIALLY IMPLEMENTED — Add metrics/health endpoints and build monitoring UI |
+| **Database health checks** | System Admin | Status: PARTIALLY IMPLEMENTED — Add DB health probes and expose status endpoint |
+| **Error logs viewing** | System Admin | Status: PARTIALLY IMPLEMENTED — Implement persistent logging and admin logs UI |
+| **Audit logs** | System Admin | Status: PARTIALLY IMPLEMENTED — Add audit events, storage, and admin audit UI |
 
 ---
 
@@ -222,7 +222,7 @@ This section provides a detailed implementation roadmap for the high-priority fe
 
 #### Implementation Tasks:
 1. **Frontend UX Enhancements** [`web/src/components/Appointments.js`](web/src/components/Appointments.js)
-   - [x] Add confirmation dialogs for status changes
+   - [ ] Add confirmation dialogs for status changes
    - [ ] Replace alerts with toast notifications
 
 2. **API Service Enhancement** [`web/src/api/client.js`](web/src/api/client.js)
@@ -285,9 +285,9 @@ This section provides a detailed implementation roadmap for the high-priority fe
 
 #### Implementation Tasks:
 1. **Frontend-Backend Integration** [`web/src/components/Schedule.js`](web/src/components/Schedule.js)
-   - [ ] Connect Schedule UI to existing backend API (`PUT /api/doctors/me/working-hours`)
+   - [x] Connect Schedule UI to existing backend API (`PUT /api/doctors/me/working-hours`)
    - [ ] Implement form validation for working hours
-   - [ ] Add success/error feedback
+   - [x] Add success/error feedback
 
 2. **Time Slot Generation Logic**
    - [ ] Create utility function to generate time slots from working hours
@@ -317,16 +317,16 @@ This section provides a detailed implementation roadmap for the high-priority fe
 
 #### Implementation Tasks:
 1. **Backend API Development** [`backend/src/main/java/com/digihealth/backend/controller/AdminController.java`](backend/src/main/java/com/digihealth/backend/controller/AdminController.java)
-   - [ ] Add deactivation endpoints (`PUT /api/admin/users/{id}/deactivate`)
-   - [ ] Implement proper status transitions (Active ↔ Inactive)
-   - [ ] Add validation to prevent deactivation of last admin
-   - [ ] Implement cascading deactivation (cancel future appointments)
+   - [x] Add deactivation endpoints (`PUT /api/admin/users/{id}/deactivate`)
+   - [x] Implement proper status transitions (Active ↔ Inactive)
+   - [x] Add validation to prevent deactivation of last admin
+   - [x] Implement cascading deactivation (cancel future appointments)
 
 2. **Frontend Integration** [`web/src/components/AdminPatients.js`](web/src/components/AdminPatients.js)
-   - [ ] Connect deactivation UI to new backend API
-   - [ ] Add confirmation dialogs for deactivation
+   - [x] Connect deactivation UI to new backend API
+   - [x] Add confirmation dialogs for deactivation
    - [ ] Implement success/error notifications
-   - [ ] Update UI to reflect deactivation status
+   - [x] Update UI to reflect deactivation status
 
 3. **Database Schema**
    - [ ] Ensure `isActive` field is properly used in all queries
@@ -349,22 +349,22 @@ This section provides a detailed implementation roadmap for the high-priority fe
 
 #### Implementation Tasks:
 1. **WebSocket Infrastructure**
-   - [ ] Set up WebSocket configuration
+   - [x] Set up WebSocket configuration
    - [ ] Create WebSocket endpoints for key events
-   - [ ] Implement message broadcasting
+   - [x] Implement message broadcasting
 
 2. **Frontend Integration**
-   - [ ] Add WebSocket client to frontend
-   - [ ] Implement event listeners for key updates
+   - [x] Add WebSocket client to frontend
+   - [x] Implement event listeners for key updates
    - [ ] Add visual indicators for new/updated data
 
 3. **Notification System**
-   - [ ] Create notification service
+   - [x] Create notification service
    - [ ] Implement in-app notification UI
-   - [ ] Add email/SMS notification templates
+   - [x] Add email/SMS notification templates
 
 4. **Event Triggers**
-   - [ ] Add event publishing for appointment status changes
+   - [x] Add event publishing for appointment status changes
    - [ ] Add event publishing for new appointments
    - [ ] Add event publishing for account deactivations
 
