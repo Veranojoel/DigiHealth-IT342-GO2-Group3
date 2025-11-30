@@ -19,6 +19,7 @@ const Patients = () => {
   const [patientsPage, setPatientsPage] = useState({ page: 0, size: 10, totalPages: 0 });
   const [editingNoteId, setEditingNoteId] = useState(null);
   const [deletedBuffer, setDeletedBuffer] = useState(null);
+  const [detailsForm, setDetailsForm] = useState({ age: '', gender: '', allergies: '', medicalConditions: '', emergencyContactName: '', emergencyContactPhone: '', bloodType: '', birthDate: '', street: '', city: '', state: '', postalCode: '', country: '' });
   const auth = useAuth();
   const currentUser = auth?.currentUser || null;
 
@@ -62,6 +63,24 @@ const Patients = () => {
   const openPatient = async (patient) => {
     setSelectedPatient(patient);
     await loadNotes(patient.id);
+    try {
+      const p = patient;
+      setDetailsForm({
+        age: p.age || '',
+        gender: p.gender || '',
+        allergies: p.allergies || '',
+        medicalConditions: p.medicalConditions || '',
+        emergencyContactName: p.emergencyContactName || '',
+        emergencyContactPhone: p.emergencyContactPhone || '',
+        bloodType: p.bloodType || '',
+        birthDate: p.birthDate || '',
+        street: p.address?.street || '',
+        city: p.address?.city || '',
+        state: p.address?.state || '',
+        postalCode: p.address?.postalCode || '',
+        country: p.address?.country || ''
+      });
+    } catch {}
   };
 
   const saveNote = async () => {
@@ -93,6 +112,31 @@ const Patients = () => {
       setNotes(notes.filter(n => n.id !== note.id));
     } catch (err) {
       alert('Failed to delete note');
+    }
+  };
+
+  const saveDetails = async () => {
+    if (!selectedPatient) return;
+    try {
+      const payload = {
+        age: detailsForm.age ? Number(detailsForm.age) : null,
+        gender: detailsForm.gender || null,
+        allergies: detailsForm.allergies || null,
+        medicalConditions: detailsForm.medicalConditions || null,
+        emergencyContactName: detailsForm.emergencyContactName || null,
+        emergencyContactPhone: detailsForm.emergencyContactPhone || null,
+        bloodType: detailsForm.bloodType || null,
+        birthDate: detailsForm.birthDate || null,
+        street: detailsForm.street || null,
+        city: detailsForm.city || null,
+        state: detailsForm.state || null,
+        postalCode: detailsForm.postalCode || null,
+        country: detailsForm.country || null
+      };
+      await apiClient.put(`/api/doctors/me/patients/${selectedPatient.id}/details`, payload);
+      alert('Patient details saved');
+    } catch (err) {
+      alert('Failed to save patient details');
     }
   };
 
@@ -345,6 +389,78 @@ const Patients = () => {
                   <button disabled={notesPage.page <= 0} onClick={() => { setNotesPage({ ...notesPage, page: notesPage.page - 1 }); loadNotes(selectedPatient.id); }}>Prev</button>
                   <span style={{ margin: '0 8px' }}>Page {notesPage.page + 1} of {notesPage.totalPages}</span>
                   <button disabled={notesPage.page >= notesPage.totalPages - 1} onClick={() => { setNotesPage({ ...notesPage, page: notesPage.page + 1 }); loadNotes(selectedPatient.id); }}>Next</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {selectedPatient && (
+          <div className="card" style={{ marginTop: 20 }}>
+            <div className="table-header">
+              <h3>Patient Details — {selectedPatient.name}</h3>
+              <p>Update demographics and medical information</p>
+            </div>
+            <div className="notes-grid">
+              <div className="notes-form">
+                <div className="form-group">
+                  <label>Age</label>
+                  <input type="number" value={detailsForm.age} onChange={(e) => setDetailsForm({ ...detailsForm, age: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Gender</label>
+                  <select value={detailsForm.gender} onChange={(e) => setDetailsForm({ ...detailsForm, gender: e.target.value })}>
+                    <option value="">Select</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label>Blood Type</label>
+                  <input type="text" value={detailsForm.bloodType} onChange={(e) => setDetailsForm({ ...detailsForm, bloodType: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Birth Date</label>
+                  <input type="date" value={detailsForm.birthDate} onChange={(e) => setDetailsForm({ ...detailsForm, birthDate: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Emergency Contact Name</label>
+                  <input type="text" value={detailsForm.emergencyContactName} onChange={(e) => setDetailsForm({ ...detailsForm, emergencyContactName: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Emergency Contact Phone</label>
+                  <input type="text" value={detailsForm.emergencyContactPhone} onChange={(e) => setDetailsForm({ ...detailsForm, emergencyContactPhone: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Allergies</label>
+                  <textarea rows={2} value={detailsForm.allergies} onChange={(e) => setDetailsForm({ ...detailsForm, allergies: e.target.value })}></textarea>
+                </div>
+                <div className="form-group">
+                  <label>Medical Conditions</label>
+                  <textarea rows={2} value={detailsForm.medicalConditions} onChange={(e) => setDetailsForm({ ...detailsForm, medicalConditions: e.target.value })}></textarea>
+                </div>
+                <div className="form-group">
+                  <label>Street</label>
+                  <input type="text" value={detailsForm.street} onChange={(e) => setDetailsForm({ ...detailsForm, street: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>City</label>
+                  <input type="text" value={detailsForm.city} onChange={(e) => setDetailsForm({ ...detailsForm, city: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>State</label>
+                  <input type="text" value={detailsForm.state} onChange={(e) => setDetailsForm({ ...detailsForm, state: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Postal Code</label>
+                  <input type="text" value={detailsForm.postalCode} onChange={(e) => setDetailsForm({ ...detailsForm, postalCode: e.target.value })} />
+                </div>
+                <div className="form-group">
+                  <label>Country</label>
+                  <input type="text" value={detailsForm.country} onChange={(e) => setDetailsForm({ ...detailsForm, country: e.target.value })} />
+                </div>
+                <div className="dialog-footer">
+                  <button className="btn btn-gradient" onClick={saveDetails}>Save Details</button>
                 </div>
               </div>
             </div>

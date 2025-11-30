@@ -8,6 +8,8 @@ import com.digihealth.backend.entity.AppointmentStatus;
 import com.digihealth.backend.entity.Doctor;
 import com.digihealth.backend.entity.Patient;
 import com.digihealth.backend.entity.User;
+import com.digihealth.backend.entity.Address;
+import com.digihealth.backend.entity.Gender;
 import com.digihealth.backend.repository.AppointmentRepository;
 import com.digihealth.backend.repository.DoctorRepository;
 import com.digihealth.backend.repository.PatientRepository;
@@ -197,6 +199,36 @@ public class DoctorDashboardController {
         dto.setType("Consultation");
         dto.setStatus(appointment.getStatus().name());
         return dto;
+    }
+
+    @PutMapping("/doctors/me/patients/{patientId}/details")
+    public ResponseEntity<?> updatePatientDetails(@PathVariable UUID patientId, @RequestBody PatientDetailsUpdateRequest req) {
+        Doctor doctor = getCurrentDoctor();
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+
+        if (req.getAge() != null) patient.setAge(req.getAge());
+        if (req.getGender() != null) {
+            try { patient.setGender(Gender.valueOf(req.getGender())); } catch (Exception ignored) {}
+        }
+        if (req.getAllergies() != null) patient.setAllergies(req.getAllergies());
+        if (req.getMedicalConditions() != null) patient.setMedicalConditions(req.getMedicalConditions());
+        if (req.getEmergencyContactName() != null) patient.setEmergencyContactName(req.getEmergencyContactName());
+        if (req.getEmergencyContactPhone() != null) patient.setEmergencyContactPhone(req.getEmergencyContactPhone());
+        if (req.getBloodType() != null) patient.setBloodType(req.getBloodType());
+        if (req.getBirthDate() != null) patient.setBirthDate(req.getBirthDate());
+
+        Address addr = patient.getAddress();
+        if (addr == null) addr = new Address();
+        if (req.getStreet() != null) addr.setStreet(req.getStreet());
+        if (req.getCity() != null) addr.setCity(req.getCity());
+        if (req.getState() != null) addr.setState(req.getState());
+        if (req.getPostalCode() != null) addr.setPostalCode(req.getPostalCode());
+        if (req.getCountry() != null) addr.setCountry(req.getCountry());
+        patient.setAddress(addr);
+
+        Patient saved = patientRepository.save(patient);
+        return ResponseEntity.ok().build();
     }
 
     @PutMapping("/doctors/me/working-hours")

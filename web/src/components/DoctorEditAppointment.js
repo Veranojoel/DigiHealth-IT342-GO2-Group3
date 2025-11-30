@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import './DoctorEditAppointment.css';
-import apiClient, { updateDoctorAppointment } from '../api/client';
+import apiClient, { updateDoctorAppointment, updateAppointmentStatus } from '../api/client';
 
 const DoctorEditAppointment = ({ appointment, onClose, onSaved, onCancelled }) => {
   const initialDate = appointment?.startDateTime ? appointment.startDateTime.split(' ')[0] : '';

@@ -87,3 +87,7 @@ export const updateDoctorAppointment = async (appointmentId, payload) => {
 export const getDoctorPatients = async () => {
   return apiClient.get('/api/doctors/me/patients');
 };
+
+export const updateDoctorPatientDetails = async (patientId, payload) => {
+  return apiClient.put(`/api/doctors/me/patients/${patientId}/details`, payload);
+};

@@ -3,10 +3,6 @@ import './NewAppointmentModal.css';
 import { createDoctorAppointment, getDoctorPatients } from '../api/client';
 
 const NewAppointmentModal = ({ show, onClose, onCreated }) => {
-  if (!show) {
-    return null;
-  }
-
   // Function to stop click propagation
   const handleModalContentClick = (e) => {
     e.stopPropagation();
@@ -32,6 +28,10 @@ const NewAppointmentModal = ({ show, onClose, onCreated }) => {
     };
     if (show) loadPatients();
   }, [show]);
+
+  if (!show) {
+    return null;
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
