@@ -7,6 +7,7 @@ public class DoctorAppointmentDto {
     private String id;
     private String startDateTime;
     private String patientName;
+    private String patientId;
     private String doctorName;
     private String type;
     private String status;
@@ -22,6 +23,10 @@ public class DoctorAppointmentDto {
 
     public void setPatientName(String patientName) {
         this.patientName = patientName;
+    }
+
+    public void setPatientId(String patientId) {
+        this.patientId = patientId;
     }
 
     public void setDoctorName(String doctorName) {

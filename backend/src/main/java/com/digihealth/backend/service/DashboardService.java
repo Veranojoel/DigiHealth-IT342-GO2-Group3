@@ -96,8 +96,10 @@ public class DashboardService {
         TodayAppointmentDto dto = new TodayAppointmentDto();
         dto.setId(appointment.getAppointmentId().toString());
         dto.setTime(appointment.getAppointmentTime().format(DateTimeFormatter.ofPattern("HH:mm")));
-        dto.setPatientName(appointment.getPatient().getUser().getFullName());
-        dto.setType("Consultation"); // Assuming default, or could be from appointment if added
+        User pUser = appointment.getPatient() != null ? appointment.getPatient().getUser() : null;
+        String pName = pUser != null ? pUser.getFullName() : ("Patient " + appointment.getPatient().getPatientId().toString().substring(0,8));
+        dto.setPatientName(pName);
+        dto.setType("Consultation");
         dto.setStatus(appointment.getStatus().name());
         return dto;
     }
@@ -120,9 +122,10 @@ public class DashboardService {
 
                     DoctorPatientDto dto = new DoctorPatientDto();
                     dto.setId(patient.getPatientId().toString());
-                    dto.setName(patient.getUser().getFullName());
-                    dto.setPhone(patient.getUser().getPhoneNumber());
-                    dto.setEmail(patient.getUser().getEmail());
+                    User pUser = patient.getUser();
+                    dto.setName(pUser != null ? pUser.getFullName() : ("Patient " + patient.getPatientId().toString().substring(0,8)));
+                    dto.setPhone(pUser != null ? pUser.getPhoneNumber() : null);
+                    dto.setEmail(pUser != null ? pUser.getEmail() : null);
                     dto.setLastVisit(lastVisit.map(date -> date.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"))).orElse(null));
                     return dto;
                 })
@@ -146,9 +149,11 @@ public class DashboardService {
         DoctorAppointmentDto dto = new DoctorAppointmentDto();
         dto.setId(appointment.getAppointmentId().toString());
         dto.setStartDateTime(appointment.getAppointmentDate().atTime(appointment.getAppointmentTime()).format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")));
-        dto.setPatientName(appointment.getPatient().getUser().getFullName());
+        User pUser = appointment.getPatient() != null ? appointment.getPatient().getUser() : null;
+        dto.setPatientName(pUser != null ? pUser.getFullName() : ("Patient " + appointment.getPatient().getPatientId().toString().substring(0,8)));
+        dto.setPatientId(appointment.getPatient().getPatientId().toString());
         dto.setDoctorName(appointment.getDoctor().getUser().getFullName());
-        dto.setType("Consultation"); // Assuming default
+        dto.setType("Consultation");
         dto.setStatus(appointment.getStatus().name());
         return dto;
     }
