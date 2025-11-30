@@ -207,6 +207,10 @@ public class DoctorDashboardController {
         Patient patient = patientRepository.findById(patientId)
                 .orElseThrow(() -> new RuntimeException("Patient not found"));
 
+        if (!hasDoctorPatientRelationship(doctor, patient)) {
+            return ResponseEntity.status(403).build();
+        }
+
         if (req.getAge() != null) patient.setAge(req.getAge());
         if (req.getGender() != null) {
             try { patient.setGender(Gender.valueOf(req.getGender())); } catch (Exception ignored) {}
@@ -229,6 +233,41 @@ public class DoctorDashboardController {
 
         Patient saved = patientRepository.save(patient);
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/doctors/me/patients/{patientId}/details")
+    public ResponseEntity<java.util.Map<String, Object>> getPatientDetails(@PathVariable UUID patientId) {
+        Doctor doctor = getCurrentDoctor();
+        Patient patient = patientRepository.findById(patientId)
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+
+        if (!hasDoctorPatientRelationship(doctor, patient)) {
+            return ResponseEntity.status(403).build();
+        }
+
+        java.util.Map<String, Object> payload = new java.util.HashMap<>();
+        payload.put("age", patient.getAge());
+        payload.put("gender", patient.getGender() != null ? patient.getGender().name() : "");
+        payload.put("allergies", patient.getAllergies() != null ? patient.getAllergies() : "");
+        payload.put("medicalConditions", patient.getMedicalConditions() != null ? patient.getMedicalConditions() : "");
+        payload.put("emergencyContactName", patient.getEmergencyContactName() != null ? patient.getEmergencyContactName() : "");
+        payload.put("emergencyContactPhone", patient.getEmergencyContactPhone() != null ? patient.getEmergencyContactPhone() : "");
+        payload.put("bloodType", patient.getBloodType() != null ? patient.getBloodType() : "");
+        payload.put("birthDate", patient.getBirthDate());
+
+        Address a = patient.getAddress();
+        payload.put("street", a != null && a.getStreet() != null ? a.getStreet() : "");
+        payload.put("city", a != null && a.getCity() != null ? a.getCity() : "");
+        payload.put("state", a != null && a.getState() != null ? a.getState() : "");
+        payload.put("postalCode", a != null && a.getPostalCode() != null ? a.getPostalCode() : "");
+        payload.put("country", a != null && a.getCountry() != null ? a.getCountry() : "");
+
+        return ResponseEntity.ok(payload);
+    }
+
+    private boolean hasDoctorPatientRelationship(Doctor doctor, Patient patient) {
+        return appointmentRepository.findByDoctor(doctor).stream()
+                .anyMatch(a -> a.getPatient().getPatientId().equals(patient.getPatientId()));
     }
 
     @PutMapping("/doctors/me/working-hours")

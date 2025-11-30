@@ -162,7 +162,7 @@ This document aligns functional requirements to the current repository implement
 ## FR-7: Patient Record Management
 **Status:** ✅ FULLY IMPLEMENTED (Core records)
 
-**Description:** Allows doctors to view and update patient records (consultation notes, diagnosis, prescriptions, observations), search patients by name/ID, and view patient appointment history. Access is restricted to patients assigned to the doctor via appointments.
+**Description:** Allows doctors to view and update patient records (consultation notes, diagnosis, prescriptions, observations), search patients by name/ID, view patient appointment history, and edit patient demographics to eliminate NULL fields (allergies, blood type, emergency contacts, gender, medical conditions, address). Access is restricted to patients assigned to the doctor via appointments.
 
 **Acceptance Criteria:**
 - View patient records (assigned only) | ✅ IMPLEMENTED
@@ -170,17 +170,23 @@ This document aligns functional requirements to the current repository implement
 - Prescriptions and observations | ✅ IMPLEMENTED
 - View appointment history | ✅ IMPLEMENTED
 - Search patients by name/ID | ✅ IMPLEMENTED
+- Edit patient details (allergies, blood type, emergency contacts, gender, medical conditions, address) | ✅ IMPLEMENTED
 
 **Implementation:**
 - Frontend:
   - `web/src/components/Patients.js` (list, search, notes CRUD UI, rich text editor, pagination)
-  - Backend:
+  - Patient details form and fetch/save logic: `web/src/components/Patients.js:398–465` (form UI), `web/src/components/Patients.js:118–141` (PUT save)
+- Backend:
   - `backend/src/main/java/com/digihealth/backend/controller/MedicalNotesController.java` (notes CRUD)
   - `backend/src/main/java/com/digihealth/backend/entity/MedicalNote.java` (entity)
   - `backend/src/main/java/com/digihealth/backend/repository/MedicalNoteRepository.java` (repo)
   - `backend/src/main/java/com/digihealth/backend/dto/CreateUpdateMedicalNoteRequest.java`, `MedicalNoteDto.java` (DTOs)
   - Search: `backend/src/main/java/com/digihealth/backend/controller/DoctorDashboardController.java:34–44, +search method`
   - Enforce doctor-only access via appointment relationship checks in controller
+  - Patient details endpoints (GET/PUT) with object-level checks:
+    - PUT: `backend/src/main/java/com/digihealth/backend/controller/DoctorDashboardController.java:204–236`
+    - GET: `backend/src/main/java/com/digihealth/backend/controller/DoctorDashboardController.java:238–266`
+    - DTO: `backend/src/main/java/com/digihealth/backend/dto/PatientDetailsUpdateRequest.java`
 
 **Gaps to MVP:**
 - Rich text editor for notes | ✅ IMPLEMENTED

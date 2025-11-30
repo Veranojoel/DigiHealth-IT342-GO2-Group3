@@ -64,21 +64,22 @@ const Patients = () => {
     setSelectedPatient(patient);
     await loadNotes(patient.id);
     try {
-      const p = patient;
+      const res = await apiClient.get(`/api/doctors/me/patients/${patient.id}/details`);
+      const p = res.data || {};
       setDetailsForm({
-        age: p.age || '',
-        gender: p.gender || '',
-        allergies: p.allergies || '',
-        medicalConditions: p.medicalConditions || '',
-        emergencyContactName: p.emergencyContactName || '',
-        emergencyContactPhone: p.emergencyContactPhone || '',
-        bloodType: p.bloodType || '',
-        birthDate: p.birthDate || '',
-        street: p.address?.street || '',
-        city: p.address?.city || '',
-        state: p.address?.state || '',
-        postalCode: p.address?.postalCode || '',
-        country: p.address?.country || ''
+        age: p.age ?? '',
+        gender: p.gender ?? '',
+        allergies: p.allergies ?? '',
+        medicalConditions: p.medicalConditions ?? '',
+        emergencyContactName: p.emergencyContactName ?? '',
+        emergencyContactPhone: p.emergencyContactPhone ?? '',
+        bloodType: p.bloodType ?? '',
+        birthDate: p.birthDate ?? '',
+        street: p.street ?? '',
+        city: p.city ?? '',
+        state: p.state ?? '',
+        postalCode: p.postalCode ?? '',
+        country: p.country ?? ''
       });
     } catch {}
   };
@@ -120,18 +121,18 @@ const Patients = () => {
     try {
       const payload = {
         age: detailsForm.age ? Number(detailsForm.age) : null,
-        gender: detailsForm.gender || null,
-        allergies: detailsForm.allergies || null,
-        medicalConditions: detailsForm.medicalConditions || null,
-        emergencyContactName: detailsForm.emergencyContactName || null,
-        emergencyContactPhone: detailsForm.emergencyContactPhone || null,
-        bloodType: detailsForm.bloodType || null,
+        gender: detailsForm.gender || 'OTHER',
+        allergies: detailsForm.allergies || '',
+        medicalConditions: detailsForm.medicalConditions || '',
+        emergencyContactName: detailsForm.emergencyContactName || '',
+        emergencyContactPhone: detailsForm.emergencyContactPhone || '',
+        bloodType: detailsForm.bloodType || '',
         birthDate: detailsForm.birthDate || null,
-        street: detailsForm.street || null,
-        city: detailsForm.city || null,
-        state: detailsForm.state || null,
-        postalCode: detailsForm.postalCode || null,
-        country: detailsForm.country || null
+        street: detailsForm.street || '',
+        city: detailsForm.city || '',
+        state: detailsForm.state || '',
+        postalCode: detailsForm.postalCode || '',
+        country: detailsForm.country || ''
       };
       await apiClient.put(`/api/doctors/me/patients/${selectedPatient.id}/details`, payload);
       alert('Patient details saved');
