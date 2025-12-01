@@ -3,11 +3,11 @@ import './DoctorAppointmentDetails.css';
 import { updateAppointmentStatus, createMedicalNote } from '../api/client';
 
 const DoctorAppointmentDetails = ({ appointment, onClose, onEdit, onStatusUpdated }) => {
-  if (!appointment) return null;
-
   const [showPrompt, setShowPrompt] = useState(false);
   const [noteText, setNoteText] = useState('');
   const [saving, setSaving] = useState(false);
+
+  if (!appointment) return null;
 
   const handleComplete = () => {
     setShowPrompt(true);
