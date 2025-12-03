@@ -91,6 +91,32 @@ const AdminAnalytics = ({ nested = false }) => {
     navigate('/admin/login');
   };
 
+  const exportCSV = () => {
+    const rows = [];
+    rows.push(['Metric','Submetric','Value']);
+    rows.push(['Doctors','Approved',analyticsData.doctors.approved]);
+    rows.push(['Doctors','Pending',analyticsData.doctors.pending]);
+    rows.push(['Doctors','Total',analyticsData.doctors.total]);
+    rows.push(['Appointments','Scheduled',analyticsData.appointments.scheduled]);
+    rows.push(['Appointments','Completed',analyticsData.appointments.completed]);
+    rows.push(['Appointments','Total',analyticsData.appointments.total]);
+    rows.push(['Patients','Total',analyticsData.patients.total]);
+    rows.push(['Patients','AvgAppointments',analyticsData.patients.avgAppointments]);
+    rows.push(['System','Uptime',analyticsData.systemHealth.uptime]);
+    rows.push(['System','ActiveSessions',analyticsData.systemHealth.activeSessions]);
+    rows.push(['System','Status',analyticsData.systemHealth.status]);
+    const csv = rows.map(r=>r.join(',')).join('\n');
+    const blob = new Blob([csv],{ type:'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'analytics.csv';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   // Stats cards with real data
   const stats = [
     {
@@ -263,6 +289,9 @@ const AdminAnalytics = ({ nested = false }) => {
               <p className="user-email">admin@digihealth.com</p>
             </div>
           </div>
+          <button className="logout-btn" onClick={exportCSV}>
+            Export CSV
+          </button>
           <button className="logout-btn" onClick={handleLogout}>
             <img src="/assets/Admin-assets/Logout.svg" alt="logout" className="logout-icon-img" />
             Logout
