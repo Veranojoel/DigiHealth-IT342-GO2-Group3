@@ -22,14 +22,17 @@ This document aligns functional requirements to the current repository implement
 - Real-Time Updates & Notifications
 - Security & Compliance
 
-## FR-1: Patient Registration (Mobile)
-**Status:** 🔴 NOT IMPLEMENTED (UI) / ✅ IMPLEMENTED (API)
+## FR-1: Patient Registration (Patient PWA)
+**Status:** 🔴 NOT IMPLEMENTED (PWA UI) / ✅ IMPLEMENTED (API)
 
 **Features:**
 - Email/password registration API | ✅ IMPLEMENTED
 - Google OAuth 2.0 registration | NOT IMPLEMENTED
 - Capture medical profile (age, gender, allergies, conditions) | NOT IMPLEMENTED
 - Registration confirmation email | NOT IMPLEMENTED
+ 
+**Implementation Approach:**
+- PWA + Web chosen for patient app to accelerate delivery (no native Kotlin/Java required). Initial screens will be implemented under `web/` with mobile-first UI and installable via web manifest and service worker.
 
 **References:**
 - `DigiHealth_Postman_Collection.json: Register Patient`
@@ -37,14 +40,17 @@ This document aligns functional requirements to the current repository implement
 
 ---
 
-## FR-2: Patient Login (Mobile)
-**Status:** 🔴 NOT IMPLEMENTED (UI) / ✅ IMPLEMENTED (API)
+## FR-2: Patient Login (Patient PWA)
+**Status:** 🔴 NOT IMPLEMENTED (PWA UI) / ✅ IMPLEMENTED (API)
 
 **Features:**
 - Email/password login API | NOT IMPLEMENTED
 - Google OAuth 2.0 login | NOT IMPLEMENTED
 - JWT-based secure session | NOT IMPLEMENTED
-- Redirect to patient dashboard (mobile UI) | NOT IMPLEMENTED
+- Redirect to patient dashboard (PWA UI) | NOT IMPLEMENTED
+
+**Implementation Approach:**
+- Reuse existing auth flow in `web/src/auth/auth.js` and gate patient routes by role `ROLE_PATIENT`. Add `/patient/login`, `/patient/dashboard`, and `/patient/appointments` routes.
 
 **References:**
 - `DigiHealth_Postman_Collection.json: Patient Login`
@@ -58,7 +64,7 @@ This document aligns functional requirements to the current repository implement
 **Features:**
 - Doctor registration form | ✅ IMPLEMENTED
 - Admin approval required | ✅ IMPLEMENTED
-- Schedule availability capture during registration | NOT IMPLEMENTED
+ - Schedule availability capture during registration | ✅ IMPLEMENTED
 
 **References:**
 - `web/src/components/DoctorRegistration.js`
@@ -75,7 +81,7 @@ This document aligns functional requirements to the current repository implement
 - Secure login with credentials | ✅ IMPLEMENTED
 - Dashboard with appointments and patients | ✅ IMPLEMENTED
 - Schedule management tools for working hours | ✅ IMPLEMENTED
-- Adjust availability and booking slots | ❌ NOT IMPLEMENTED
+- Adjust availability and booking slots | ✅ IMPLEMENTED
 - Real-time counters and today list updates | ✅ IMPLEMENTED
 
 **Implementation:**
@@ -98,13 +104,13 @@ This document aligns functional requirements to the current repository implement
 
 **Gaps to MVP:**
 - Google OAuth 2.0 login | ❌ NOT IMPLEMENTED
-- Availability slot generation and conflict detection | ❌ NOT IMPLEMENTED
+- Availability slot generation and conflict detection | ✅ IMPLEMENTED
 - Visual indicators for real-time updates in all doctor views | ❌ NOT IMPLEMENTED
 
 ---
 
-## FR-5: Appointment Booking (Mobile)
-**Status:** 🔴 NOT IMPLEMENTED (UI) / ✅ IMPLEMENTED (API)
+## FR-5: Appointment Booking (Patient PWA)
+**Status:** 🔴 NOT IMPLEMENTED (PWA UI) / ✅ IMPLEMENTED (API)
 
 **Features:**
 - Browse doctors by name/specialization | NOT IMPLEMENTED
@@ -153,9 +159,9 @@ This document aligns functional requirements to the current repository implement
 - Admin subscriptions: `web/src/components/AdminAppointments.js:66–71`
 
 **Gaps to MVP:**
-- Auto prompt to capture notes when marking appointment completed | ❌ NOT IMPLEMENTED
-- Centralized error handling (frontend interceptor) | ❌ NOT IMPLEMENTED
-- Real-time visual indicators in doctor Appointments view | ❌ NOT IMPLEMENTED
+- Auto prompt to capture notes when marking appointment completed | ✅ IMPLEMENTED
+- Centralized error handling (frontend interceptor) | ✅ IMPLEMENTED
+- Real-time visual indicators in doctor Appointments view | ✅ IMPLEMENTED
 
 ---
 
@@ -262,17 +268,7 @@ This document aligns functional requirements to the current repository implement
 **References:**
 - `web/src/components/AdminAnalytics.js`
 
----
-
-## FR-11: Reserved (Not Defined)
-**Status:** N/A
-
-**Features:**
-- Reserved for future scope | NOT IMPLEMENTED
-
----
-
-## FR-12: Admin System Monitoring
+## FR-11: Admin System Monitoring
 **Status:** 🔴 NOT IMPLEMENTED
 
 **Features:**
@@ -320,7 +316,7 @@ This document aligns functional requirements to the current repository implement
 
 ---
 
-## Patient Mobile FR-P1 to FR-P5
+## Patient PWA FR-P1 to FR-P5
 **Status:** 🔴 NOT IMPLEMENTED (Planned)
 
 - FR-P1: Patient Dashboard — welcome, upcoming appointments, quick actions, notifications
@@ -330,7 +326,7 @@ This document aligns functional requirements to the current repository implement
 - FR-P5: Profile Management — personal/medical info edits, password, notification preferences, privacy, delete account
 
 #### FR-P1: Patient Dashboard
-**Status:** 🔴 NOT IMPLEMENTED (Mobile App)
+**Status:** 🔴 NOT IMPLEMENTED (PWA)
 
 **Description:** Personalized dashboard with upcoming appointments, quick actions, and health summary.
 
@@ -345,7 +341,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 #### FR-P2: My Appointments
-**Status:** 🔴 NOT IMPLEMENTED (Mobile App)
+**Status:** 🔴 NOT IMPLEMENTED (PWA)
 
 **Description:** View and manage appointments.
 
@@ -360,7 +356,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 #### FR-P3: Medical Records
-**Status:** 🔴 NOT IMPLEMENTED (Mobile App)
+**Status:** 🔴 NOT IMPLEMENTED (PWA)
 
 **Description:** View consultation history and medical notes.
 
@@ -374,7 +370,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 #### FR-P4: Doctor Profiles & Search
-**Status:** 🔴 NOT IMPLEMENTED (Mobile App)
+**Status:** 🔴 NOT IMPLEMENTED (PWA)
 
 **Description:** Comprehensive doctor search and profiles.
 
@@ -388,7 +384,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 #### FR-P5: Profile Management
-**Status:** 🔴 NOT IMPLEMENTED (Mobile App)
+**Status:** 🔴 NOT IMPLEMENTED (PWA)
 
 **Description:** Update personal and medical information.
 
@@ -416,7 +412,7 @@ Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 **Gaps to MVP:**
 - In-app notification UI and visual indicators | ❌ NOT IMPLEMENTED
 - Event triggers for new appointments and account deactivations | ❌ NOT IMPLEMENTED
-- Integrate doctor Appointments view with live topic updates | ❌ NOT IMPLEMENTED
+- Integrate doctor Appointments view with live topic updates | ✅ IMPLEMENTED
 
 ---
 
@@ -446,8 +442,8 @@ Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
   - Use `Pageable` in repository methods; accept `page`/`size` in controllers; return `Page<T>` for lists (patients/doctors/appointments).
 - Add audit logging
   - Create `AuditLog` entity (operation, actorId, resourceId, timestamp) and write audit entries in admin/doctor actions.
-- Deliver minimal Android app
-  - 5+ screens: Login, Appointments List, Appointment Detail, Create/Cancel, Profile; reuse backend endpoints; store JWT using `EncryptedSharedPreferences`; basic offline cache with Room or simple file cache.
+- Deliver patient PWA app
+  - Implement mobile-first UI under `web/`, enable install via manifest and service worker; later wrap with Trusted Web Activity for Play Store if needed.
 - Standardize error schema
   - Implement a `@ControllerAdvice` with a unified error contract `{ code, message, details }`.
 
