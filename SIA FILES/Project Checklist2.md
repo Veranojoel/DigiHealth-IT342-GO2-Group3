@@ -18,7 +18,7 @@
 | View patient information | ✅ FULLY IMPLEMENTED | Shows list of patients assigned to doctor |
 | Role-based access control | ✅ FULLY IMPLEMENTED | Doctors can only access their own data |
 | **Google OAuth 2.0 authentication** | ❌ **NOT IMPLEMENTED** | Should be added for enhanced security |
-| **Real-time updates** | ❌ **NOT IMPLEMENTED** | Dashboard should auto-refresh with new data |
+| **Real-time updates** | ✅ **FULLY IMPLEMENTED** | Dashboard auto-refresh via live updates; indicators in other views pending |
 
 ---
 
@@ -33,20 +33,22 @@
 | Appointment status badges | ✅ FULLY IMPLEMENTED | Visual status indicators (Confirmed, Pending, Completed, Cancelled) |
 | **Real-time status updates** | ✅ **FULLY IMPLEMENTED** | WebSocket (STOMP) broadcasts trigger auto-refresh in Dashboard/Admin pages |
 | **Status notifications to patients** | ✅ **FULLY IMPLEMENTED** | Email notifications sent to patients on status changes; mobile apps can subscribe to WebSocket or use push |
+| **Auto prompt to add notes on completion** | ✅ **FULLY IMPLEMENTED** | Prompt in details modal saves consultation note then completes |
+| **Real-time visual indicators** | ✅ **FULLY IMPLEMENTED** | Live banner and row highlight in Appointments on updates |
 
 ---
 
 ### FR-7: Patient Record Management
-**Status:** ⚠️ **PARTIALLY IMPLEMENTED** (Basic viewing exists, needs editing capabilities)
+**Status:** ✅ **FULLY IMPLEMENTED** (Core records, editing, and search)
 
 | Feature | Status | Implementation Notes |
 |---------|--------|----------------------|
 | View patient records | ✅ FULLY IMPLEMENTED | Doctors can see patient personal information |
 | Access restriction | ✅ FULLY IMPLEMENTED | Doctors can only see patients assigned to them |
 | View appointment history | ✅ FULLY IMPLEMENTED | Shows previous appointments for each patient |
-| **Add/edit consultation notes** | ❌ **NOT IMPLEMENTED** | Missing functionality to add medical observations |
-| **Search functionality** | ⚠️ **PARTIALLY IMPLEMENTED** | UI exists but search logic is not fully implemented |
-| **Update patient medical records** | ❌ **NOT IMPLEMENTED** | Missing functionality to edit patient details |
+| **Add/edit consultation notes** | ✅ **FULLY IMPLEMENTED** | Notes CRUD with permissions via `MedicalNotesController`; rich text editor, pagination |
+| **Search functionality** | ✅ **FULLY IMPLEMENTED** | Server-side search and pagination in Patients; `DoctorDashboardController` search/page endpoints |
+| **Update patient medical records** | ✅ **FULLY IMPLEMENTED** | Doctor edits demographics via `GET/PUT /api/doctors/me/patients/{id}/details`; Patients form wired |
 
 ---
 
@@ -56,8 +58,8 @@
 | Feature | Status | Implementation Notes |
 |---------|--------|----------------------|
 | Schedule management UI | ✅ FULLY IMPLEMENTED | Visual interface for setting working hours |
-| **Adjust availability/booking slots** | ⚠️ **PARTIALLY IMPLEMENTED** | Backend API exists (`PUT /api/doctors/me/working-hours`), but UI needs to be connected |
-| **Time slot management** | ❌ **NOT IMPLEMENTED** | Need to implement logic for creating specific time slots within working hours |
+| **Adjust availability/booking slots** | ✅ **FULLY IMPLEMENTED** | `GET /api/doctors/me/available-slots` + slot picker in New Appointment |
+| **Time slot management** | ✅ **FULLY IMPLEMENTED** | Slots generated from working hours and Admin settings; conflicts avoided |
 | **Calendar view** | ❌ **NOT IMPLEMENTED** | Missing calendar visualization of availability |
 
 ---
