@@ -50,6 +50,7 @@ public class AuthService {
         user.setEmail(registerDto.getEmail());
         user.setPasswordHash(passwordEncoder.encode(registerDto.getPassword()));
         user.setRole(Role.PATIENT); // Default role for registration
+        user.setIsActive(Boolean.TRUE);
 
         userRepository.save(user);
     }
@@ -67,6 +68,8 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(registerDto.getPassword()));
         user.setPhoneNumber(registerDto.getPhoneNumber());
         user.setRole(Role.DOCTOR); // Set role to DOCTOR
+        user.setIsActive(Boolean.TRUE);
+        user.setIsApproved(Boolean.FALSE);
 
         System.out.println("[AuthService.registerDoctor] User before save - ID: " + user.getId());
         
@@ -146,7 +149,7 @@ public class AuthService {
             .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
         // Check if doctor is approved (only for DOCTOR role)
-        if (user.getRole() == Role.DOCTOR && !user.getIsApproved()) {
+        if (user.getRole() == Role.DOCTOR && !Boolean.TRUE.equals(user.getIsApproved())) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Doctor account is pending approval. Please contact administrator.");
         }
 
