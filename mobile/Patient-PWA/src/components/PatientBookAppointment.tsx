@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Label } from './ui/label';
@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Calendar } from './ui/calendar';
 import { Badge } from './ui/badge';
 import { ArrowLeft, Calendar as CalendarIcon, Clock, FileText, CheckCircle2 } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 
 interface PatientBookAppointmentProps {
@@ -25,12 +25,7 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
   const [reason, setReason] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
-  // Mock available time slots
-  const timeSlots = [
-    '09:00 AM', '09:30 AM', '10:00 AM', '10:30 AM',
-    '11:00 AM', '11:30 AM', '02:00 PM', '02:30 PM',
-    '03:00 PM', '03:30 PM', '04:00 PM', '04:30 PM',
-  ];
+  const [timeSlots, setTimeSlots] = useState<string[]>([]);
 
   const appointmentTypes = [
     { value: 'general', label: 'General Checkup' },
@@ -39,20 +34,75 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
     { value: 'emergency', label: 'Emergency' },
   ];
 
-  const handleConfirmBooking = () => {
+  useEffect(() => {
+    const fetchSlots = async () => {
+      if (!doctor || !selectedDate) return;
+      const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
+      const token = localStorage.getItem('accessToken');
+      setIsLoading(true);
+      try {
+        const dateStr = selectedDate.toISOString().slice(0, 10);
+        const res = await fetch(`${API_BASE}/api/appointments/doctors/${doctor.id}/available-slots?date=${dateStr}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        if (!res.ok) {
+          const payload = await res.json().catch(() => null);
+          throw new Error((payload && (payload.message || payload.error)) || 'Failed to load slots');
+        }
+        const data = await res.json();
+        setTimeSlots(data || []);
+      } catch (e: any) {
+        toast.error(e.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchSlots();
+  }, [doctor, selectedDate]);
+
+  const handleConfirmBooking = async () => {
     if (!selectedDate || !selectedTime || !appointmentType || !reason.trim()) {
       toast.error('Please fill in all required fields');
       return;
     }
-
     setIsLoading(true);
-
-    // Simulate booking API call
-    setTimeout(() => {
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
+    const token = localStorage.getItem('accessToken');
+    try {
+      const dateStr = selectedDate.toISOString().slice(0, 10);
+      const payload = {
+        doctorId: doctor.id,
+        appointmentDate: dateStr,
+        appointmentTime: selectedTime,
+        reason,
+        symptoms: reason,
+      };
+      const res = await fetch(`${API_BASE}/api/appointments/book`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        body: JSON.stringify(payload),
+      });
+      const resp = await res.json().catch(() => null);
+      if (!res.ok) {
+        toast.error((resp && (resp.message || resp.error)) || 'Failed to book appointment');
+        setIsLoading(false);
+        return;
+      }
       toast.success('Appointment booked successfully!');
-      setIsLoading(false);
       onComplete();
-    }, 1500);
+    } catch (e: any) {
+      toast.error('Network error. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const renderProgressBar = () => (

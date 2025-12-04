@@ -4,7 +4,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from './ui/card';
 import { Eye, EyeOff, Mail, Lock, Smartphone } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Checkbox } from './ui/checkbox';
 
 interface PatientLoginProps {
@@ -19,30 +19,48 @@ export function PatientLogin({ onLogin, onRegister }: PatientLoginProps) {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!email || !password) {
       toast.error('Please enter your email and password');
       return;
     }
-
     setIsLoading(true);
-    
-    // Simulate login
-    setTimeout(() => {
-      const mockPatient = {
-        id: '1',
-        name: 'John Doe',
-        email: email,
-        phone: '+1234567890',
-        profilePicture: 'https://api.dicebear.com/7.x/avataaars/svg?seed=John',
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || `http://${host}:8080`;
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const payload = await res.json().catch(() => null);
+      if (!res.ok) {
+        toast.error((payload && (payload.message || payload.error)) || 'Login failed');
+        setIsLoading(false);
+        return;
+      }
+      localStorage.setItem('accessToken', payload.accessToken);
+      const name = payload?.user?.fullName || payload?.user?.name || 'Patient';
+      const patient = {
+        id: String(payload?.user?.id || ''),
+        name,
+        email: payload?.user?.email || '',
+        phone: payload?.user?.phoneNumber || '',
+        dateOfBirth: '',
+        address: '',
+        emergencyContact: '',
+        medicalHistory: '',
+        profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
       };
-      
-      onLogin(mockPatient);
+      localStorage.setItem('currentUser', JSON.stringify(patient));
+      onLogin(patient);
       toast.success('Welcome back!');
+    } catch (err) {
+      toast.error('Network error. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleGoogleLogin = () => {

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Toaster } from 'sonner@2.0.3';
+import { Toaster } from 'sonner';
 import { LoadingScreen } from './components/LoadingScreen';
 import { PatientLogin } from './components/PatientLogin';
 import { PatientRegistration } from './components/PatientRegistration';

@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Textarea } from './ui/textarea';
 import { Eye, EyeOff, ArrowLeft, Smartphone, User, Mail, Phone, Lock, Calendar, Heart } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Checkbox } from './ui/checkbox';
 
 interface PatientRegistrationProps {
@@ -81,32 +81,66 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
     setStep(2);
   };
 
-  const handleStep2Submit = (e: React.FormEvent) => {
+  const handleStep2Submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!dateOfBirth || !gender || !emergencyName || !emergencyPhone) {
       toast.error('Please fill in all required fields');
       return;
     }
-
     setIsLoading(true);
-    
-    setTimeout(() => {
-      const mockPatient = {
-        id: '1',
-        name: fullName,
-        email: email,
-        phone: phone,
-        dateOfBirth: dateOfBirth,
-        gender: gender,
-        bloodType: bloodType,
-        profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=${fullName}`,
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const API_BASE = import.meta.env.VITE_API_BASE_URL || `http://${host}:8080`;
+    try {
+      const registerRes = await fetch(`${API_BASE}/api/auth/register-patient`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          fullName,
+          email,
+          password,
+          phoneNumber: phone,
+        }),
+      });
+      if (!registerRes.ok) {
+        const err = await registerRes.json().catch(() => null);
+        toast.error((err && (err.message || err.error)) || 'Registration failed');
+        setIsLoading(false);
+        return;
+      }
+
+      const loginRes = await fetch(`${API_BASE}/api/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const payload = await loginRes.json().catch(() => null);
+      if (!loginRes.ok) {
+        toast.error((payload && (payload.message || payload.error)) || 'Login failed');
+        setIsLoading(false);
+        return;
+      }
+
+      localStorage.setItem('accessToken', payload.accessToken);
+      const name = payload?.user?.fullName || payload?.user?.name || fullName || 'Patient';
+      const patient = {
+        id: String(payload?.user?.id || ''),
+        name,
+        email: payload?.user?.email || email,
+        phone: payload?.user?.phoneNumber || phone,
+        dateOfBirth,
+        address: '',
+        emergencyContact: emergencyName,
+        medicalHistory: conditions,
+        profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
       };
-      
-      onRegister(mockPatient);
+      localStorage.setItem('currentUser', JSON.stringify(patient));
+      onRegister(patient);
       toast.success('Account created successfully!');
+    } catch (err) {
+      toast.error('Network error. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   return (

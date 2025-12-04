@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PatientMobileLayout } from './PatientMobileLayout';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
@@ -6,7 +6,7 @@ import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Calendar, Clock, MapPin, Phone, Video, X, RefreshCw, ChevronRight, Plus } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,6 +28,11 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
   const [currentScreen] = useState<'dashboard' | 'appointments' | 'records' | 'search' | 'profile'>('appointments');
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+  const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
+  const [pastAppointments, setPastAppointments] = useState<any[]>([]);
+  const [cancelledAppointments, setCancelledAppointments] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleNavigation = (screen: string) => {
     // Map bottom nav IDs to actual screen names
@@ -43,73 +48,51 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
     onNavigate(mappedScreen);
   };
 
-  // Mock data
-  const upcomingAppointments = [
-    {
-      id: '1',
-      doctorName: 'Dr. Sarah Johnson',
-      specialization: 'Cardiologist',
-      date: '2024-12-05',
-      time: '10:00 AM',
-      type: 'Follow-up',
-      status: 'Confirmed',
-      location: 'DigiHealth Clinic, Room 302',
-      phone: '+1 (555) 123-4567',
-      doctorImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-    },
-    {
-      id: '2',
-      doctorName: 'Dr. Michael Chen',
-      specialization: 'General Physician',
-      date: '2024-12-08',
-      time: '2:30 PM',
-      type: 'General Checkup',
-      status: 'Confirmed',
-      location: 'DigiHealth Clinic, Room 105',
-      phone: '+1 (555) 123-4567',
-      doctorImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
-    },
-  ];
-
-  const pastAppointments = [
-    {
-      id: '3',
-      doctorName: 'Dr. Emily Davis',
-      specialization: 'Dermatologist',
-      date: '2024-11-28',
-      time: '11:00 AM',
-      type: 'Consultation',
-      status: 'Completed',
-      location: 'DigiHealth Clinic, Room 201',
-      doctorImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emily',
-    },
-    {
-      id: '4',
-      doctorName: 'Dr. Robert Wilson',
-      specialization: 'Orthopedic',
-      date: '2024-11-15',
-      time: '9:30 AM',
-      type: 'Follow-up',
-      status: 'Completed',
-      location: 'DigiHealth Clinic, Room 408',
-      doctorImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert',
-    },
-  ];
-
-  const cancelledAppointments = [
-    {
-      id: '5',
-      doctorName: 'Dr. Lisa Anderson',
-      specialization: 'Pediatrician',
-      date: '2024-11-20',
-      time: '3:00 PM',
-      type: 'General Checkup',
-      status: 'Cancelled',
-      cancelledBy: 'Patient',
-      cancelledAt: '2024-11-19',
-      doctorImage: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa',
-    },
-  ];
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      setLoading(true);
+      setError(null);
+      const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
+      const token = localStorage.getItem('accessToken');
+      try {
+        const res = await fetch(`${API_BASE}/api/appointments/patient/my`, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        if (!res.ok) {
+          const payload = await res.json().catch(() => null);
+          throw new Error((payload && (payload.message || payload.error)) || 'Failed to load appointments');
+        }
+        const data = await res.json();
+        const mapped = (data || []).map((a: any) => ({
+          id: a.appointmentId,
+          doctorName: a.doctor?.user?.fullName || 'Doctor',
+          specialization: a.doctor?.user?.specialization || 'General Physician',
+          date: a.appointmentDate,
+          time: a.appointmentTime,
+          type: 'Consultation',
+          status: a.status || 'Scheduled',
+          location: 'Clinic',
+          doctorImage: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(a.doctor?.user?.fullName || 'Doctor')}`,
+        }));
+        const now = new Date();
+        const upcoming = mapped.filter((m: any) => new Date(m.date) >= new Date(now.toISOString().slice(0,10)) && m.status !== 'Cancelled');
+        const past = mapped.filter((m: any) => new Date(m.date) < new Date(now.toISOString().slice(0,10)) && m.status === 'Completed');
+        const cancelled = mapped.filter((m: any) => m.status === 'Cancelled');
+        setUpcomingAppointments(upcoming);
+        setPastAppointments(past);
+        setCancelledAppointments(cancelled);
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAppointments();
+  }, []);
 
   const handleCancelAppointment = (appointment: any) => {
     setSelectedAppointment(appointment);
@@ -261,7 +244,13 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
           </TabsList>
 
           <TabsContent value="upcoming" className="space-y-4">
-            {upcomingAppointments.length > 0 ? (
+            {error && (
+              <Card className="shadow-sm"><CardContent className="p-4 text-red-600">{error}</CardContent></Card>
+            )}
+            {loading && (
+              <Card className="shadow-sm"><CardContent className="p-4">Loading appointments...</CardContent></Card>
+            )}
+            {!loading && upcomingAppointments.length > 0 ? (
               upcomingAppointments.map(appointment => renderAppointmentCard(appointment, true))
             ) : (
               <Card className="shadow-sm">
@@ -283,7 +272,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
           </TabsContent>
 
           <TabsContent value="past" className="space-y-4">
-            {pastAppointments.length > 0 ? (
+            {!loading && pastAppointments.length > 0 ? (
               pastAppointments.map(appointment => renderAppointmentCard(appointment, false))
             ) : (
               <Card className="shadow-sm">
@@ -296,7 +285,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
           </TabsContent>
 
           <TabsContent value="cancelled" className="space-y-4">
-            {cancelledAppointments.length > 0 ? (
+            {!loading && cancelledAppointments.length > 0 ? (
               cancelledAppointments.map(appointment => renderAppointmentCard(appointment, false))
             ) : (
               <Card className="shadow-sm">

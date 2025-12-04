@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PatientMobileLayout } from './PatientMobileLayout';
 import { Card, CardContent } from './ui/card';
 import { Button } from './ui/button';
@@ -19,6 +19,9 @@ export function PatientDoctorSearch({ patient, onNavigate, onLogout }: PatientDo
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSpecialization, setSelectedSpecialization] = useState('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleNavigation = (screen: string) => {
     // Map bottom nav IDs to actual screen names
@@ -34,79 +37,45 @@ export function PatientDoctorSearch({ patient, onNavigate, onLogout }: PatientDo
     onNavigate(mappedScreen);
   };
 
-  // Mock data
-  const doctors = [
-    {
-      id: '1',
-      name: 'Dr. Sarah Johnson',
-      specialization: 'Cardiologist',
-      rating: 4.8,
-      reviewCount: 124,
-      experience: '15 years',
-      location: 'DigiHealth Clinic, Building A',
-      nextAvailable: '2024-12-05',
-      image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
-      bio: 'Specialized in preventive cardiology and heart disease management.',
-      languages: ['English', 'Spanish'],
-      education: 'MD, Harvard Medical School',
-    },
-    {
-      id: '2',
-      name: 'Dr. Michael Chen',
-      specialization: 'General Physician',
-      rating: 4.9,
-      reviewCount: 203,
-      experience: '12 years',
-      location: 'DigiHealth Clinic, Building B',
-      nextAvailable: '2024-12-04',
-      image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Michael',
-      bio: 'General practice with focus on family medicine and preventive care.',
-      languages: ['English', 'Mandarin'],
-      education: 'MD, Johns Hopkins University',
-    },
-    {
-      id: '3',
-      name: 'Dr. Emily Davis',
-      specialization: 'Dermatologist',
-      rating: 4.7,
-      reviewCount: 98,
-      experience: '10 years',
-      location: 'DigiHealth Clinic, Building A',
-      nextAvailable: '2024-12-06',
-      image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emily',
-      bio: 'Expert in medical and cosmetic dermatology.',
-      languages: ['English', 'French'],
-      education: 'MD, Stanford University',
-    },
-    {
-      id: '4',
-      name: 'Dr. Robert Wilson',
-      specialization: 'Orthopedic',
-      rating: 4.6,
-      reviewCount: 156,
-      experience: '18 years',
-      location: 'DigiHealth Clinic, Building C',
-      nextAvailable: '2024-12-07',
-      image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Robert',
-      bio: 'Specializing in sports medicine and joint replacement.',
-      languages: ['English'],
-      education: 'MD, Mayo Clinic',
-    },
-    {
-      id: '5',
-      name: 'Dr. Lisa Anderson',
-      specialization: 'Pediatrician',
-      rating: 4.9,
-      reviewCount: 187,
-      experience: '14 years',
-      location: 'DigiHealth Clinic, Building B',
-      nextAvailable: '2024-12-05',
-      image: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lisa',
-      bio: 'Child healthcare specialist with expertise in developmental pediatrics.',
-      languages: ['English', 'German'],
-      education: 'MD, Yale School of Medicine',
-    },
-  ];
+  useEffect(() => {
+    const fetchDoctors = async () => {
+      setLoading(true);
+      setError(null);
+      const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
+      const token = localStorage.getItem('accessToken');
+      try {
+        const res = await fetch(`${API_BASE}/api/appointments/doctors`, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        if (!res.ok) {
+          const payload = await res.json().catch(() => null);
+          throw new Error((payload && (payload.message || payload.error)) || 'Failed to load doctors');
+        }
+        const data = await res.json();
+        const mapped = (data || []).map((u: any) => ({
+          id: u.id,
+          name: u.fullName || 'Doctor',
+          specialization: u.specialization || 'General Physician',
+          rating: 4.8,
+          reviewCount: 0,
+          experience: '10 years',
+          location: 'Clinic',
+          nextAvailable: new Date().toISOString().slice(0, 10),
+          image: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(u.fullName || 'Doctor')}`,
+        }));
+        setDoctors(mapped);
+      } catch (e: any) {
+        setError(e.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDoctors();
+  }, []);
 
   const specializations = ['All', 'Cardiologist', 'General Physician', 'Dermatologist', 'Orthopedic', 'Pediatrician'];
 
@@ -171,7 +140,17 @@ export function PatientDoctorSearch({ patient, onNavigate, onLogout }: PatientDo
 
         {/* Doctors List */}
         <div className="space-y-3 pb-4">
-          {filteredDoctors.length > 0 ? (
+          {error && (
+            <Card className="shadow-sm">
+              <CardContent className="p-4 text-red-600">{error}</CardContent>
+            </Card>
+          )}
+          {loading && (
+            <Card className="shadow-sm">
+              <CardContent className="p-4">Loading doctors...</CardContent>
+            </Card>
+          )}
+          {!loading && filteredDoctors.length > 0 ? (
             filteredDoctors.map((doctor) => (
               <Card 
                 key={doctor.id} 

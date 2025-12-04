@@ -8,7 +8,7 @@ import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { User, Mail, Phone, Calendar, Heart, Shield, Bell, ChevronRight, LogOut, Camera, Edit2, Save } from 'lucide-react';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 import { Switch } from './ui/switch';
 import {
   AlertDialog,

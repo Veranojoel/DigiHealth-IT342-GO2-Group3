@@ -7,7 +7,7 @@ import { Input } from './ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { Calendar, FileText, Pill, Search, Download, Share2, ChevronRight, Filter } from 'lucide-react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
-import { toast } from 'sonner@2.0.3';
+import { toast } from 'sonner';
 
 interface PatientMedicalRecordsProps {
   patient: any;
