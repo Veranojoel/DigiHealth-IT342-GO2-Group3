@@ -13,7 +13,7 @@ const apiClient = axios.create({
 apiClient.interceptors.request.use(
   (config) => {
     try {
-      const token = localStorage.getItem('digihealth_jwt');
+      const token = localStorage.getItem('digihealth_jwt') || localStorage.getItem('adminToken');
       console.log('[API Client] ========== REQUEST INTERCEPTOR ==========');
       console.log('[API Client] Request URL:', config.url);
       console.log('[API Client] Request Method:', config.method);
