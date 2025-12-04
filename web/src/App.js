@@ -20,6 +20,7 @@ import DoctorRegistration from "./components/DoctorRegistration";
 import AdminPortal from "./components/AdminPortal";
 import AdminLogin from "./components/AdminLogin";
 import AdminDashboard from "./components/AdminDashboard";
+import ErrorBoundary from "./components/ErrorBoundary";
 import AdminPatients from "./components/AdminPatients";
 import AdminAppointments from "./components/AdminAppointments";
 import AdminAnalytics from "./components/AdminAnalytics";
@@ -38,7 +39,7 @@ const AppRoutes = () => {
       {/* Admin Routes - Always accessible */}
       <Route path="/admin" element={<AdminPortal />} />
       <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/admin/dashboard" element={<ErrorBoundary><AdminDashboard /></ErrorBoundary>} />
       <Route path="/admin/patients" element={<AdminPatients />} />
       <Route path="/admin/appointments" element={<AdminAppointments />} />
       <Route path="/admin/analytics" element={<AdminAnalytics />} />
