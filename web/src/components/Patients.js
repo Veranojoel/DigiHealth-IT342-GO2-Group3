@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './Patients.css';
 import apiClient from '../api/client';
 import { useAuth } from '../auth/auth';
+import { useAppointmentUpdates } from '../hooks/useAppointmentUpdates';
 
 const Patients = () => {
   const [patients, setPatients] = useState([]);
@@ -22,6 +23,7 @@ const Patients = () => {
   const [detailsForm, setDetailsForm] = useState({ age: '', gender: '', allergies: '', medicalConditions: '', emergencyContactName: '', emergencyContactPhone: '', bloodType: '', birthDate: '', street: '', city: '', state: '', postalCode: '', country: '' });
   const auth = useAuth();
   const currentUser = auth?.currentUser || null;
+  const [live, setLive] = useState(false);
 
   const PATIENTS_URL = '/api/doctors/me/patients';
   const SEARCH_URL = '/api/doctors/me/patients/search';
@@ -42,6 +44,17 @@ const Patients = () => {
     };
     fetchPatients();
   }, [patientsPage.page, patientsPage.size, query]);
+
+  const refetchPatients = async () => {
+    try {
+      const res = await apiClient.get('/api/doctors/me/patients/page', { params: { page: patientsPage.page, size: patientsPage.size, q: query } });
+      const data = res.data;
+      setPatients(data.content || []);
+      setPatientsPage(prev => ({ page: data.page ?? prev.page, size: data.size ?? prev.size, totalPages: data.totalPages ?? prev.totalPages }));
+    } catch (err) {
+      // silent
+    }
+  };
 
   const handleSearch = async (e) => {
     const q = e.target.value;
@@ -83,6 +96,15 @@ const Patients = () => {
       });
     } catch {}
   };
+
+  useAppointmentUpdates(async () => {
+    setLive(true);
+    await refetchPatients();
+    if (selectedPatient) {
+      await loadNotes(selectedPatient.id);
+    }
+    setTimeout(() => setLive(false), 2000);
+  });
 
   const saveNote = async () => {
     if (!selectedPatient) return;
@@ -216,6 +238,10 @@ const Patients = () => {
         )}
         <div className="patients-header">
           <h2>My Patients</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <span style={{ width: 8, height: 8, borderRadius: 8, background: live ? '#22c55e' : '#9ca3af', boxShadow: live ? '0 0 6px #22c55e' : 'none' }} />
+            <span style={{ fontSize: 12, color: '#6b7280' }}>Live</span>
+          </div>
           <p>View patients assigned to your care</p>
         </div>
 

@@ -19,6 +19,7 @@ const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   // Determine active tab based on current route (matching AdminTabs logic)
   const getActiveTab = () => {
@@ -79,6 +80,8 @@ const AdminDashboard = () => {
     try {
       await apiClient.put(`/api/admin/doctors/${doctorId}/approve`);
       fetchData(); // Refresh data
+      setSuccess('Doctor approved successfully');
+      setTimeout(() => setSuccess(''), 4000);
     } catch (err) {
       console.error('Failed to approve doctor:', err);
       setError('Failed to approve doctor. Please try again.');
@@ -89,6 +92,8 @@ const AdminDashboard = () => {
     try {
       await apiClient.put(`/api/admin/doctors/${doctorId}/reject`);
       fetchData(); // Refresh data
+      setSuccess('Doctor rejected successfully');
+      setTimeout(() => setSuccess(''), 4000);
     } catch (err) {
       console.error('Failed to reject doctor:', err);
       setError('Failed to reject doctor. Please try again.');
@@ -106,6 +111,8 @@ const AdminDashboard = () => {
       await apiClient.put(`/api/admin/users/${doctorId}${endpoint}`);
       fetchData(); // Refresh data
       setError(''); // Clear any previous errors
+      setSuccess(isActive ? 'Doctor deactivated successfully' : 'Doctor reactivated successfully');
+      setTimeout(() => setSuccess(''), 4000);
     } catch (err) {
       console.error('Failed to toggle doctor status:', err);
       setError(err.response?.data?.error || 'Failed to toggle doctor status. Please try again.');
@@ -197,6 +204,12 @@ const AdminDashboard = () => {
         <div className="error-banner">
           <span className="error-icon">❌</span>
           <span className="error-text">{error}</span>
+        </div>
+      )}
+      {success && (
+        <div className="success-banner">
+          <span className="success-icon">✅</span>
+          <span className="success-text">{success}</span>
         </div>
       )}
 

@@ -4,6 +4,7 @@ import './ProfileSettings.css';
 import { Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/auth';
 import apiClient from '../api/client';
+import { useAppointmentUpdates } from '../hooks/useAppointmentUpdates';
 
 const Schedule = () => {
   const location = useLocation();
@@ -20,6 +21,7 @@ const Schedule = () => {
   const [message, setMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [live, setLive] = useState(false);
 
   // Load working hours from backend API
   useEffect(() => {
@@ -90,6 +92,11 @@ const Schedule = () => {
 
     fetchWorkingHours();
   }, [currentUser]);
+
+  useAppointmentUpdates(() => {
+    setLive(true);
+    setTimeout(() => setLive(false), 2000);
+  });
 
   const toggleDayAvailability = (day) => {
     if (!isEditing) return;
@@ -213,6 +220,10 @@ const Schedule = () => {
         <div className="active-account-badge">
           <img src="/assets/active-account.svg" alt="Active Account" />
           <p>Active Account</p>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 8 }}>
+          <span style={{ width: 8, height: 8, borderRadius: 8, background: live ? '#22c55e' : '#9ca3af', boxShadow: live ? '0 0 6px #22c55e' : 'none' }} />
+          <span style={{ fontSize: 12, color: '#6b7280' }}>Live</span>
         </div>
       </div>
 
