@@ -26,6 +26,9 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
   const [isLoading, setIsLoading] = useState(false);
 
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
+  const [workDays, setWorkDays] = useState<string[]>([]);
+  const [dayHours, setDayHours] = useState<Record<string, { start: string; end: string }>>({});
+  const [slotMinutes, setSlotMinutes] = useState<number>(30);
 
   const appointmentTypes = [
     { value: 'general', label: 'General Checkup' },
@@ -51,10 +54,32 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
         });
         if (!res.ok) {
           const payload = await res.json().catch(() => null);
-          throw new Error((payload && (payload.message || payload.error)) || 'Failed to load slots');
+          const dayAbbr = selectedDate.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase().slice(0, 3);
+          const hours = dayHours[dayAbbr];
+          if (hours) {
+            const start = hours.start || '09:00';
+            const end = hours.end || '17:00';
+            const [startH, startM] = start.split(':').map((s) => parseInt(s, 10));
+            const [endH, endM] = end.split(':').map((s) => parseInt(s, 10));
+            const startDate = new Date(selectedDate);
+            startDate.setHours(startH, startM, 0, 0);
+            const endDate = new Date(selectedDate);
+            endDate.setHours(endH, endM, 0, 0);
+            const slots: string[] = [];
+            const cur = new Date(startDate);
+            while (cur.getTime() <= endDate.getTime() - slotMinutes * 60 * 1000) {
+              const hh = String(cur.getHours()).padStart(2, '0');
+              const mm = String(cur.getMinutes()).padStart(2, '0');
+              slots.push(`${hh}:${mm}`);
+              cur.setMinutes(cur.getMinutes() + slotMinutes);
+            }
+            setTimeSlots(slots);
+            return;
+          }
+          return;
         }
         const data = await res.json();
-        setTimeSlots(data || []);
+        setTimeSlots(Array.isArray(data) ? data : []);
       } catch (e: any) {
         toast.error(e.message);
       } finally {
@@ -62,7 +87,46 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
       }
     };
     fetchSlots();
-  }, [doctor, selectedDate]);
+  }, [doctor, selectedDate, dayHours, slotMinutes]);
+
+  useEffect(() => {
+    const fetchWorkDays = async () => {
+      if (!doctor) return;
+      const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
+      const token = localStorage.getItem('accessToken');
+      try {
+        const res = await fetch(`${API_BASE}/api/appointments/doctors/${doctor.id}/work-days`, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        const payload = await res.json().catch(() => null);
+        if (!res.ok) {
+          setWorkDays([]);
+          setDayHours({});
+          setSlotMinutes(30);
+          return;
+        }
+        const days: string[] = (payload?.workDays || []).map((d: string) => d.toUpperCase());
+        const hoursObj = payload?.hours || {};
+        const normalizedHours: Record<string, { start: string; end: string }> = {};
+        Object.keys(hoursObj).forEach((k) => {
+          const v = hoursObj[k];
+          normalizedHours[k.toUpperCase()] = { start: v.start, end: v.end };
+        });
+        setWorkDays(days);
+        setDayHours(normalizedHours);
+        setSlotMinutes(Number(payload?.slotMinutes || 30));
+      } catch {
+        setWorkDays([]);
+        setDayHours({});
+        setSlotMinutes(30);
+      }
+    };
+    fetchWorkDays();
+  }, [doctor]);
 
   const handleConfirmBooking = async () => {
     if (!selectedDate || !selectedTime || !appointmentType || !reason.trim()) {
@@ -164,7 +228,12 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
                   mode="single"
                   selected={selectedDate}
                   onSelect={setSelectedDate}
-                  disabled={(date) => date < new Date()}
+                  disabled={(date) => {
+                    const today = new Date();
+                    if (date < new Date(today.getFullYear(), today.getMonth(), today.getDate())) return true;
+                    const abbr = date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase().slice(0, 3);
+                    return workDays.length > 0 && !workDays.includes(abbr);
+                  }}
                   className="rounded-md border"
                 />
               </CardContent>

@@ -68,7 +68,7 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
 
   const handleQuickAction = (actionId: string) => {
     if (actionId === 'book') {
-      onNavigate('book-appointment');
+      onNavigate('search');
     } else {
       handleNavigation(actionId);
     }
@@ -202,7 +202,7 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
                 <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
                 <p className="text-muted-foreground mb-4">No upcoming appointments</p>
                 <Button 
-                  onClick={() => onNavigate('book-appointment')}
+                  onClick={() => onNavigate('search')}
                   style={{
                     background: 'linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)'
                   }}

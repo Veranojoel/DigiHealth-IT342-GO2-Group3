@@ -219,7 +219,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold">My Appointments</h1>
           <Button
-            onClick={() => onNavigate('book-appointment')}
+            onClick={() => onNavigate('search')}
             size="sm"
             style={{
               background: 'linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)'
@@ -258,7 +258,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
                   <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
                   <p className="text-muted-foreground mb-4">No upcoming appointments</p>
                   <Button 
-                    onClick={() => onNavigate('book-appointment')}
+                    onClick={() => onNavigate('search')}
                     style={{
                       background: 'linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)'
                     }}

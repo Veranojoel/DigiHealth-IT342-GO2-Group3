@@ -88,7 +88,7 @@ export function PatientDoctorSearch({ patient, onNavigate, onLogout }: PatientDo
   });
 
   const handleDoctorClick = (doctor: any) => {
-    onNavigate('doctor-profile', doctor);
+    onNavigate('book-appointment', doctor);
   };
 
   return (
