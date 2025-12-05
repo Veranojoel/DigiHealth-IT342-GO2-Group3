@@ -40,6 +40,14 @@ export function PatientLogin({ onLogin, onRegister }: PatientLoginProps) {
         setIsLoading(false);
         return;
       }
+      // Role-based boundary: only allow PATIENT to access Patient PWA
+      const role = payload?.user?.role;
+      if (role !== 'PATIENT') {
+        toast.error('Access denied: This app is for patients. Please use the correct portal.');
+        try { localStorage.removeItem('accessToken'); } catch {}
+        setIsLoading(false);
+        return;
+      }
       localStorage.setItem('accessToken', payload.accessToken);
       const name = payload?.user?.fullName || payload?.user?.name || 'Patient';
       const patient = {

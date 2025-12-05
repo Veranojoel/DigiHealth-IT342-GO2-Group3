@@ -31,6 +31,9 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
+    @Autowired
+    private com.digihealth.backend.security.JwtAccessDeniedHandler jwtAccessDeniedHandler;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -65,6 +68,7 @@ public class SecurityConfig {
             .csrf().disable()
             .exceptionHandling()
                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                .accessDeniedHandler(jwtAccessDeniedHandler)
                 .and()
             .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
@@ -74,6 +78,12 @@ public class SecurityConfig {
                 // Public auth endpoints used by the frontend (canonical)
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
+                // Enforce ROLE-based access at HTTP level for critical domains
+                .antMatchers("/api/doctors/**").hasRole("DOCTOR")
+                .antMatchers("/api/appointments/book").hasRole("PATIENT")
+                .antMatchers("/api/appointments/my").hasRole("DOCTOR")
+                .antMatchers("/api/appointments/patient/**").hasRole("PATIENT")
+                .antMatchers("/api/appointments/doctors/**").hasAnyRole("PATIENT","DOCTOR")
                 // Everything else requires authentication
                 .anyRequest().authenticated();
 

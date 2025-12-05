@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,6 +62,7 @@ public class AppointmentController {
      * }
      */
     @PostMapping("/book")
+    @PreAuthorize("hasRole('PATIENT')")
     public ResponseEntity<?> bookAppointment(@RequestBody AppointmentBookingDto bookingDto) {
         try {
             // Get current user (patient)
@@ -116,6 +118,7 @@ public class AppointmentController {
      * GET /api/appointments/my
      */
     @GetMapping("/my")
+    @PreAuthorize("hasRole('DOCTOR')")
     public ResponseEntity<?> getMyAppointments() {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -135,6 +138,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/patient/my")
+    @PreAuthorize("hasRole('PATIENT')")
     public ResponseEntity<?> getMyPatientAppointments() {
         try {
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
@@ -153,6 +157,7 @@ public class AppointmentController {
     }
 
     @GetMapping("/doctors/{doctorId}/available-slots")
+    @PreAuthorize("hasAnyRole('PATIENT','DOCTOR')")
     public ResponseEntity<?> getAvailableSlots(@PathVariable UUID doctorId, @RequestParam("date") java.time.LocalDate date) {
         try {
             User doctorUser = userRepository.findById(doctorId)

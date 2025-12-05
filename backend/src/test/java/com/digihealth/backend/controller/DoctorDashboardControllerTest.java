@@ -41,6 +41,8 @@ class DoctorDashboardControllerTest {
     @MockBean
     private CustomUserDetailsService customUserDetailsService;
 
+    
+
     @MockBean
     private com.digihealth.backend.service.DoctorService doctorService;
 
@@ -164,4 +166,5 @@ class DoctorDashboardControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().is4xxClientError());
     }
+
 }
