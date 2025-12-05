@@ -18,6 +18,7 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [acceptTerms, setAcceptTerms] = useState(false);
 
   // Step 1: Account Information
@@ -29,11 +30,17 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
 
   // Step 2: Medical Profile
   const [dateOfBirth, setDateOfBirth] = useState('');
+  const [age, setAge] = useState<number | ''>('');
   const [gender, setGender] = useState('');
   const [bloodType, setBloodType] = useState('');
   const [allergies, setAllergies] = useState('');
   const [conditions, setConditions] = useState('');
   const [medications, setMedications] = useState('');
+  const [street, setStreet] = useState('');
+  const [city, setCity] = useState('');
+  const [state, setState] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [country, setCountry] = useState('');
   const [emergencyName, setEmergencyName] = useState('');
   const [emergencyPhone, setEmergencyPhone] = useState('');
 
@@ -63,6 +70,11 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
       return;
     }
 
+    if (!isPHPhoneValid(phone)) {
+      toast.error('Please enter a valid PH mobile number (+63 9xx xxx xxxx)');
+      return;
+    }
+
     if (password !== confirmPassword) {
       toast.error('Passwords do not match');
       return;
@@ -87,6 +99,10 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
       toast.error('Please fill in all required fields');
       return;
     }
+    if (!isPHPhoneValid(emergencyPhone)) {
+      toast.error('Please enter a valid emergency contact number (+63 9xx xxx xxxx)');
+      return;
+    }
     setIsLoading(true);
     const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
     const API_BASE = import.meta.env.VITE_API_BASE_URL || `http://${host}:8080`;
@@ -99,6 +115,20 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
           email,
           password,
           phoneNumber: phone,
+          birthDate: dateOfBirth,
+          age: typeof age === 'number' ? age : undefined,
+          gender,
+          bloodType,
+          allergies,
+          medicalConditions: conditions,
+          medications,
+          emergencyContactName: emergencyName,
+          emergencyContactPhone: emergencyPhone,
+          street,
+          city,
+          state,
+          postalCode,
+          country
         }),
       });
       if (!registerRes.ok) {
@@ -128,9 +158,16 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
         email: payload?.user?.email || email,
         phone: payload?.user?.phoneNumber || phone,
         dateOfBirth,
+        age: typeof age === 'number' ? age : undefined,
         address: '',
+        street,
+        city,
+        state,
+        postalCode,
+        country,
         emergencyContact: emergencyName,
         medicalHistory: conditions,
+        currentMedications: medications,
         profilePicture: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(name)}`,
       };
       localStorage.setItem('currentUser', JSON.stringify(patient));
@@ -141,6 +178,21 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const onDobChange = (val: string) => {
+    setDateOfBirth(val);
+    try {
+      const parts = val.split('-');
+      if (parts.length === 3) {
+        const dob = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        const today = new Date();
+        let computed = today.getFullYear() - dob.getFullYear();
+        const m = today.getMonth() - dob.getMonth();
+        if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) computed--;
+        setAge(computed >= 0 ? computed : 0);
+      }
+    } catch {}
   };
 
   return (
@@ -241,7 +293,7 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
                     <Input
                       id="email"
                       type="email"
-                      placeholder="john.doe@example.com"
+                      placeholder="juan.delacruz@example.com"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       className="pl-10 h-12"
@@ -254,15 +306,15 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
                   <Label htmlFor="phone">Phone Number *</Label>
                   <div className="relative">
                     <Phone className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-                    <Input
-                      id="phone"
-                      type="tel"
-                      placeholder="+1 (555) 000-0000"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="pl-10 h-12"
-                      required
-                    />
+                  <Input
+                    id="phone"
+                    type="tel"
+                    placeholder="+63 912 345 6789"
+                    value={phone}
+                    onChange={(e) => setPhone(formatPHPhone(e.target.value))}
+                    className="pl-10 h-12"
+                    required
+                  />
                   </div>
                 </div>
 
@@ -293,15 +345,22 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
                   <Label htmlFor="confirmPassword">Confirm Password *</Label>
                   <div className="relative">
                     <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
-                    <Input
-                      id="confirmPassword"
-                      type="password"
-                      placeholder="Re-enter password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="pl-10 h-12"
-                      required
-                    />
+                  <Input
+                    id="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    placeholder="Re-enter password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pl-10 pr-10 h-12"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-3 top-3 text-muted-foreground hover:text-foreground"
+                  >
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                  </button>
                   </div>
                 </div>
 
@@ -344,7 +403,7 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
                     id="dateOfBirth"
                     type="date"
                     value={dateOfBirth}
-                    onChange={(e) => setDateOfBirth(e.target.value)}
+                    onChange={(e) => onDobChange(e.target.value)}
                     className="pl-10 h-12"
                     required
                   />
@@ -411,11 +470,73 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
                 <Label htmlFor="medications">Current Medications (Optional)</Label>
                 <Textarea
                   id="medications"
-                  placeholder="E.g., Aspirin 81mg daily..."
+                  placeholder="E.g., Paracetamol 500mg as needed..."
                   value={medications}
                   onChange={(e) => setMedications(e.target.value)}
                   className="min-h-[60px]"
                 />
+              </div>
+
+              <div className="border-t pt-4">
+                <h3 className="font-medium mb-4">Address (Optional)</h3>
+                <div className="space-y-3">
+                  <div className="space-y-2">
+                    <Label htmlFor="street">Street</Label>
+                    <Input
+                      id="street"
+                      placeholder="123 Ayala Ave"
+                      value={street}
+                      onChange={(e) => setStreet(e.target.value)}
+                      className="h-12"
+                    />
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="flex-1 space-y-2">
+                      <Label htmlFor="city">City</Label>
+                      <Input
+                        id="city"
+                        placeholder="City"
+                        value={city}
+                        onChange={(e) => setCity(e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                    <div className="w-28 space-y-2">
+                      <Label htmlFor="state">Region/Province</Label>
+                      <Input
+                        id="state"
+                        placeholder="NCR"
+                        value={state}
+                        onChange={(e) => setState(e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex gap-3">
+                    <div className="flex-1 space-y-2">
+                      <Label htmlFor="postalCode">Postal Code</Label>
+                      <Input
+                        id="postalCode"
+                        placeholder="1200"
+                        value={postalCode}
+                        onChange={(e) => setPostalCode(e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                    <div className="flex-1 space-y-2">
+                      <Label htmlFor="country">Country</Label>
+                      <Input
+                        id="country"
+                        placeholder="Philippines"
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                        className="h-12"
+                      />
+                    </div>
+                  </div>
+                </div>
               </div>
 
               <div className="border-t pt-4">
@@ -439,15 +560,15 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
 
                   <div className="space-y-2">
                     <Label htmlFor="emergencyPhone">Contact Phone *</Label>
-                    <Input
-                      id="emergencyPhone"
-                      type="tel"
-                      placeholder="+1 (555) 000-0000"
-                      value={emergencyPhone}
-                      onChange={(e) => setEmergencyPhone(e.target.value)}
-                      className="h-12"
-                      required
-                    />
+                      <Input
+                        id="emergencyPhone"
+                        type="tel"
+                        placeholder="+63 912 345 6789"
+                        value={emergencyPhone}
+                        onChange={(e) => setEmergencyPhone(formatPHPhone(e.target.value))}
+                        className="h-12"
+                        required
+                      />
                   </div>
                 </div>
               </div>
@@ -469,3 +590,29 @@ export function PatientRegistration({ onBackToLogin, onRegister }: PatientRegist
     </div>
   );
 }
+  const normalizePHDigits = (value: string) => {
+    const digits = (value || '').replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.startsWith('09')) {
+      return digits.slice(1); // drop leading 0 -> 9xxxxxxxxx
+    }
+    if (digits.startsWith('63')) {
+      return digits.slice(2); // drop country code -> 9xxxxxxxxx
+    }
+    return digits; // possibly starts with 9 already
+  };
+
+  const formatPHPhone = (value: string) => {
+    let d = normalizePHDigits(value);
+    if (!d.startsWith('9')) d = '9' + d.replace(/^[^9]*/, '');
+    d = d.slice(0, 10);
+    const part1 = d.slice(0, 3); // 9xx
+    const part2 = d.slice(3, 6); // xxx
+    const part3 = d.slice(6, 10); // xxxx
+    return `+63${part1 ? ' ' + part1 : ''}${part2 ? ' ' + part2 : ''}${part3 ? ' ' + part3 : ''}`.trim();
+  };
+
+  const isPHPhoneValid = (value: string) => {
+    const d = normalizePHDigits(value);
+    return /^9\d{9}$/.test(d);
+  };

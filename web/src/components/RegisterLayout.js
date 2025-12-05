@@ -38,6 +38,11 @@ export const RegistrationStep1 = ({
   formData,
   setFormData,
 }) => {
+  const ensureDoctorPrefix = (name) => {
+    const trimmed = (name || '').trim();
+    if (!trimmed) return '';
+    return trimmed.toLowerCase().startsWith('dr.') ? trimmed.replace(/^dr\./i, 'Dr.') : `Dr. ${trimmed}`;
+  };
   return (
     <StepLayout
       title="Basic Information"
@@ -48,15 +53,16 @@ export const RegistrationStep1 = ({
       <label>Full Name *</label>
       <input
         type="text"
-        placeholder="Dr. John Doe"
+        placeholder="Dr. Juan Dela Cruz"
         value={formData.fullName || ""}
         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+        onBlur={(e) => setFormData({ ...formData, fullName: ensureDoctorPrefix(e.target.value) })}
       />
 
       <label>Email Address *</label>
       <input
         type="email"
-        placeholder="doctor@example.com"
+        placeholder="doctor.ph@example.com"
         value={formData.email || ""}
         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
       />
@@ -88,6 +94,27 @@ export const RegistrationStep2 = ({
   formData,
   setFormData,
 }) => {
+  const normalizePHDigits = (value) => {
+    const digits = (value || '').replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.startsWith('09')) {
+      return digits.slice(1);
+    }
+    if (digits.startsWith('63')) {
+      return digits.slice(2);
+    }
+    return digits;
+  };
+
+  const formatPHPhone = (value) => {
+    let d = normalizePHDigits(value);
+    if (!d.startsWith('9')) d = '9' + d.replace(/^[^9]*/, '');
+    d = d.slice(0, 10);
+    const part1 = d.slice(0, 3);
+    const part2 = d.slice(3, 6);
+    const part3 = d.slice(6, 10);
+    return `+63${part1 ? ' ' + part1 : ''}${part2 ? ' ' + part2 : ''}${part3 ? ' ' + part3 : ''}`.trim();
+  };
   return (
     <StepLayout
       title="Professional Information"
@@ -115,7 +142,7 @@ export const RegistrationStep2 = ({
       <label>Medical License Number *</label>
       <input
         type="text"
-        placeholder="MD-12345"
+        placeholder="PRC-1234567"
         value={formData.licenseNumber || ""}
         onChange={(e) =>
           setFormData({ ...formData, licenseNumber: e.target.value })
@@ -125,10 +152,10 @@ export const RegistrationStep2 = ({
       <label>Phone Number *</label>
       <input
         type="text"
-        placeholder="+63"
+        placeholder="+63 912 345 6789"
         value={formData.phoneNumber || ""}
         onChange={(e) =>
-          setFormData({ ...formData, phoneNumber: e.target.value })
+          setFormData({ ...formData, phoneNumber: formatPHPhone(e.target.value) })
         }
       />
     </StepLayout>

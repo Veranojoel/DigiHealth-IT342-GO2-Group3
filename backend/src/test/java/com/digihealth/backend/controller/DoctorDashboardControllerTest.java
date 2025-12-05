@@ -41,6 +41,24 @@ class DoctorDashboardControllerTest {
     @MockBean
     private CustomUserDetailsService customUserDetailsService;
 
+    @MockBean
+    private com.digihealth.backend.service.DoctorService doctorService;
+
+    @MockBean
+    private com.digihealth.backend.repository.AppointmentRepository appointmentRepository;
+
+    @MockBean
+    private com.digihealth.backend.repository.DoctorRepository doctorRepository;
+
+    @MockBean
+    private com.digihealth.backend.repository.PatientRepository patientRepository;
+
+    @MockBean
+    private com.digihealth.backend.repository.UserRepository userRepository;
+
+    @MockBean
+    private com.digihealth.backend.repository.AdminSettingsRepository adminSettingsRepository;
+
     @Test
     @WithMockUser(username = "doctor@example.com", roles = {"DOCTOR"})
     @DisplayName("GET /api/dashboard/summary returns dashboard summary for authenticated doctor")

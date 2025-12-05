@@ -94,6 +94,7 @@ class UserProfileControllerTest {
                 "}";
 
         mockMvc.perform(put("/api/users/me")
+                        .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(body))
                 .andExpect(status().isOk())

@@ -29,7 +29,7 @@ This document aligns functional requirements to the current repository implement
 - Email/password registration API | ✅ IMPLEMENTED
 - Patient endpoint `POST /api/auth/register-patient` | ✅ IMPLEMENTED
 - Google OAuth 2.0 registration | NOT IMPLEMENTED
-- Capture medical profile (age, gender, allergies, conditions) | NOT IMPLEMENTED (client-only fields)
+- Capture medical profile (age, gender, allergies, conditions) | ✅ IMPLEMENTED
 - Registration confirmation email | NOT IMPLEMENTED
 
 **Implementation Approach:**
@@ -40,6 +40,20 @@ This document aligns functional requirements to the current repository implement
 - `backend/src/main/java/com/digihealth/backend/service/AuthService.java:43-57`
 - `backend/src/main/java/com/digihealth/backend/dto/RegisterDto.java:6-15, 58-64`
 - PWA: `mobile/Patient-PWA/src/components/PatientRegistration.tsx:93-143`
+
+**Localization & Validation (PH):**
+- PH-specific placeholders for name, email, phone, address, medications | ✅ IMPLEMENTED
+- Phone inputs mask/format to `+63 9xx xxx xxxx`; accepts `09`, `9`, or `63` prefixes | ✅ IMPLEMENTED
+- Client-side validation enforces `^9\d{9}$` after normalization | ✅ IMPLEMENTED
+- Emergency contact fields use the same mask/validation | ✅ IMPLEMENTED
+- Confirm Password field includes view/hide toggle | ✅ IMPLEMENTED
+
+**Code References:**
+- Phone mask binding: `mobile/Patient-PWA/src/components/PatientRegistration.tsx:310-317`
+- Confirm Password toggle: `mobile/Patient-PWA/src/components/PatientRegistration.tsx:349-363`
+- Emergency phone mask binding: `mobile/Patient-PWA/src/components/PatientRegistration.tsx:562-571`
+- Normalization/format/validation helpers: `mobile/Patient-PWA/src/components/PatientRegistration.tsx:593-618`
+- Step validations using `isPHPhoneValid(...)`: `mobile/Patient-PWA/src/components/PatientRegistration.tsx:73-76, 102-105`
 
 ---
 
@@ -79,6 +93,15 @@ This document aligns functional requirements to the current repository implement
 **References:**
 - `web/src/components/DoctorRegistration.js`
 - `backend` admin approval endpoints
+
+**Localization & Validation (PH):**
+- PH-specific placeholders for name, email, PRC license, and phone | ✅ IMPLEMENTED
+- Auto-prefix `Dr.` on Full Name when input is a normal name | ✅ IMPLEMENTED
+- Phone input masks to `+63 9xx xxx xxxx` and normalizes `09`/`63`/`9` inputs | ✅ IMPLEMENTED
+
+**Code References:**
+- Ensure `Dr.` prefix on blur: `web/src/components/RegisterLayout.js:41-45, 59`
+- Phone mask helper and binding: `web/src/components/RegisterLayout.js:97-117, 152-160`
 
 ---
 
@@ -475,3 +498,22 @@ Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 ## Implementation Notes
 - Postman flows available in `DigiHealth_Postman_Collection.json` for registration, login, admin approvals, appointments.
 - Real component paths and backend endpoints are referenced for traceability.
+# DigiHealth FRS2 – Implementation Status
+
+**Last Updated:** 2025-12-05
+
+- Profile Management (API): IMPLEMENTED
+  - Endpoints:
+    - `GET /api/users/me`, `PUT /api/users/me`
+    - `GET /api/profile/{id}`, `PUT /api/profile/{id}` (accepts `userId` or `patientId`)
+    - `DELETE /api/profile/{id}` deactivates the user account
+  - Notes:
+    - Dual-ID resolution in service for `{id}` to support both user and patient contexts
+    - Controller and service unit tests added; CSRF handling included in tests
+
+- Patient Registration (API): IMPLEMENTED
+  - `POST /api/auth/register-patient`
+  - Emergency contact fields supported; extended medical fields captured post-registration via profile APIs
+
+- Patient Login (API): IMPLEMENTED
+  - JWT-based auth; `Authorization: Bearer <token>`

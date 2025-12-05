@@ -470,3 +470,12 @@ gantt
 | Real-time Updates | All other features | Enhanced UX |
 
 ---
+# Project Checklist
+
+**Last Updated:** 2025-12-05
+
+- Profile Management API — IMPLEMENTED
+- Dual-ID resolver in `UserProfileService` — IMPLEMENTED
+- Controller/service unit tests — IMPLEMENTED
+- Doctor dashboard `@WebMvcTest` dependency mocks — IMPLEMENTED
+- Patient PWA profile UI — PENDING

@@ -43,7 +43,7 @@ public class AuthService {
         this.doctorWorkDayRepository = doctorWorkDayRepository;
     }
 
-    public void registerUser(RegisterDto registerDto) {
+    public void registerUser(com.digihealth.backend.dto.RegisterPatientDto registerDto) {
         if (userRepository.existsByEmail(registerDto.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
@@ -60,6 +60,38 @@ public class AuthService {
 
         com.digihealth.backend.entity.Patient patient = new com.digihealth.backend.entity.Patient();
         patient.setUser(user);
+        patient.setEmergencyContactName(registerDto.getEmergencyContactName());
+        patient.setEmergencyContactPhone(registerDto.getEmergencyContactPhone());
+        patient.setBloodType(registerDto.getBloodType());
+        patient.setAllergies(registerDto.getAllergies());
+        patient.setMedicalConditions(registerDto.getMedicalConditions());
+        patient.setCurrentMedications(registerDto.getMedications());
+        if (registerDto.getBirthDate() != null) {
+            patient.setBirthDate(registerDto.getBirthDate());
+            try {
+                java.time.LocalDate dob = registerDto.getBirthDate();
+                java.time.Period period = java.time.Period.between(dob, java.time.LocalDate.now());
+                int computedAge = Math.max(0, period.getYears());
+                patient.setAge(computedAge);
+            } catch (Exception ignored) {}
+        }
+        if (registerDto.getGender() != null) {
+            String g = registerDto.getGender().trim().toUpperCase();
+            com.digihealth.backend.entity.Gender genderEnum;
+            if ("MALE".equals(g)) genderEnum = com.digihealth.backend.entity.Gender.MALE;
+            else if ("FEMALE".equals(g)) genderEnum = com.digihealth.backend.entity.Gender.FEMALE;
+            else genderEnum = com.digihealth.backend.entity.Gender.OTHER;
+            patient.setGender(genderEnum);
+        }
+        if (registerDto.getStreet() != null || registerDto.getCity() != null || registerDto.getState() != null || registerDto.getPostalCode() != null || registerDto.getCountry() != null) {
+            com.digihealth.backend.entity.Address address = new com.digihealth.backend.entity.Address();
+            address.setStreet(registerDto.getStreet());
+            address.setCity(registerDto.getCity());
+            address.setState(registerDto.getState());
+            address.setPostalCode(registerDto.getPostalCode());
+            address.setCountry(registerDto.getCountry());
+            patient.setAddress(address);
+        }
         patientRepository.save(patient);
     }
 

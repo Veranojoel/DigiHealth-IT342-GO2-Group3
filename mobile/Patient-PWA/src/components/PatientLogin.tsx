@@ -145,7 +145,7 @@ export function PatientLogin({ onLogin, onRegister }: PatientLoginProps) {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="john.doe@example.com"
+                  placeholder="juan.delacruz@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10 h-12"

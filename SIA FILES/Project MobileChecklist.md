@@ -1,6 +1,6 @@
 # 📋 DIGIHEALTH PATIENT PWA IMPLEMENTATION CHECKLIST
 
-**Last Updated:** 2025-12-04
+**Last Updated:** 2025-12-05
 **Scope:** Patient-facing Progressive Web App (PWA) delivered via the existing `web/` codebase
 
 ---
@@ -19,6 +19,15 @@
 | Registration form (email/password) | ✅ IMPLEMENTED | Wired to `/api/auth/register-patient` |
 | Medical profile fields (age, gender, allergies, conditions) | ❌ NOT IMPLEMENTED | Capture and send to backend |
 | Confirmation email | ❌ NOT IMPLEMENTED | Trigger on successful registration |
+
+### Localization & Validation (PH)
+| Item | Status | Notes |
+|------|--------|-------|
+| PH-specific placeholders (name, email, phone, address, meds) | ✅ IMPLEMENTED | PatientRegistration.tsx UI fields updated |
+| `+63 9xx xxx xxxx` phone mask | ✅ IMPLEMENTED | Accepts `09`/`63`/`9` inputs; normalized |
+| Client-side phone validation | ✅ IMPLEMENTED | Uses `^9\d{9}$` post-normalization |
+| Emergency contact phone mask/validation | ✅ IMPLEMENTED | Same helpers as main phone |
+| Confirm Password eye toggle | ✅ IMPLEMENTED | Independent toggle from Password field |
 
 ---
 
@@ -95,15 +104,15 @@
 ---
 
 ## FR-P5: Profile Management
-**Status:** ❌ NOT IMPLEMENTED (PWA)
+**Status:** ✅ IMPLEMENTED (API) / ❌ NOT IMPLEMENTED (PWA)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Edit personal info | ❌ NOT IMPLEMENTED | Synchronize with backend |
-| Update medical profile | ❌ NOT IMPLEMENTED | Allergies, conditions |
+| Edit personal info | ✅ IMPLEMENTED (API) | `/api/users/me` GET/PUT |
+| Update medical profile | ✅ IMPLEMENTED (API) | `/api/users/me` or `/api/profile/{id}` |
 | Change password | ❌ NOT IMPLEMENTED | Reuse existing flow |
 | Notification preferences | ❌ NOT IMPLEMENTED | UI toggles |
-| Delete account | ❌ NOT IMPLEMENTED | Safety checks |
+| Delete account | ✅ IMPLEMENTED (API) | `/api/profile/{id}` DELETE (deactivate) |
 
 ---
 

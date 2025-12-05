@@ -3,6 +3,7 @@ package com.digihealth.backend.controller;
 import com.digihealth.backend.dto.LoginRequest;
 import com.digihealth.backend.dto.LoginResponse;
 import com.digihealth.backend.dto.RegisterDto;
+import com.digihealth.backend.dto.RegisterPatientDto;
 import com.digihealth.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -31,7 +32,7 @@ public class AuthController {
     }
 
     @PostMapping("/register-patient")
-    public ResponseEntity<?> registerPatient(@RequestBody RegisterDto registerDto) {
+    public ResponseEntity<?> registerPatient(@RequestBody RegisterPatientDto registerDto) {
         authService.registerUser(registerDto);
         return ResponseEntity.ok("Patient registered successfully!");
     }

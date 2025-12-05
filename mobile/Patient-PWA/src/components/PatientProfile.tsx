@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { PatientMobileLayout } from './PatientMobileLayout';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -47,13 +47,12 @@ export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfile
     onNavigate(mappedScreen);
   };
 
-  // Personal Information State
-  const [fullName, setFullName] = useState(patient?.name || 'John Doe');
-  const [email, setEmail] = useState(patient?.email || 'john.doe@example.com');
-  const [phone, setPhone] = useState(patient?.phone || '+1 (555) 000-0000');
+  const [fullName, setFullName] = useState(patient?.name || 'Juan Dela Cruz');
+  const [email, setEmail] = useState(patient?.email || 'juan.delacruz@example.com');
+  const [phone, setPhone] = useState(patient?.phone || '+63 912 345 6789');
   const [dateOfBirth, setDateOfBirth] = useState('1990-01-15');
   const [gender, setGender] = useState('male');
-  const [address, setAddress] = useState('123 Main St, New York, NY 10001');
+  const [address, setAddress] = useState('123 Ayala Ave, Makati, NCR 1200, Philippines');
 
   // Medical Information State
   const [bloodType, setBloodType] = useState('O+');
@@ -61,7 +60,7 @@ export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfile
   const [conditions, setConditions] = useState('Hypertension');
   const [medications, setMedications] = useState('Lisinopril 10mg daily');
   const [emergencyName, setEmergencyName] = useState('Jane Doe');
-  const [emergencyPhone, setEmergencyPhone] = useState('+1 (555) 000-0001');
+  const [emergencyPhone, setEmergencyPhone] = useState('+63 912 345 6780');
 
   // Notification Settings
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -69,10 +68,116 @@ export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfile
   const [appointmentReminders, setAppointmentReminders] = useState(true);
   const [marketingEmails, setMarketingEmails] = useState(false);
 
-  const handleSave = () => {
-    toast.success('Profile updated successfully');
-    setIsEditing(false);
-    setActiveSection(null);
+  const normalizePHDigits = (value: string) => {
+    const digits = (value || '').replace(/\D/g, '');
+    if (!digits) return '';
+    if (digits.startsWith('09')) return digits.slice(1);
+    if (digits.startsWith('63')) return digits.slice(2);
+    return digits;
+  };
+  const formatPHPhone = (value: string) => {
+    let d = normalizePHDigits(value);
+    if (!d.startsWith('9')) d = '9' + d.replace(/^[^9]*/, '');
+    d = d.slice(0, 10);
+    const part1 = d.slice(0, 3);
+    const part2 = d.slice(3, 6);
+    const part3 = d.slice(6, 10);
+    return `+63${part1 ? ' ' + part1 : ''}${part2 ? ' ' + part2 : ''}${part3 ? ' ' + part3 : ''}`.trim();
+  };
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      try {
+        const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+        const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || `http://${host}:8080`;
+        const token = localStorage.getItem('accessToken') || '';
+        const stored = localStorage.getItem('currentUser');
+        const id = stored ? JSON.parse(stored)?.id : undefined;
+        if (!token || !id) return;
+        const res = await fetch(`${API_BASE}/api/profile/${id}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (!res.ok) return;
+        const data = await res.json();
+        const name = data.firstName || fullName;
+        setFullName(name);
+        setEmail(data.email || email);
+        setPhone(data.phoneNumber ? formatPHPhone(data.phoneNumber) : phone);
+        if (data.birthDate) setDateOfBirth(String(data.birthDate));
+        if (data.gender) setGender(String(data.gender).toLowerCase());
+        const addrStr = [data.street, data.city, data.state, data.postalCode, data.country]
+          .filter(Boolean)
+          .join(', ');
+        if (addrStr) setAddress(addrStr);
+        if (data.bloodType) setBloodType(data.bloodType);
+        if (data.allergies) setAllergies(data.allergies);
+        if (data.medicalConditions) setConditions(data.medicalConditions);
+        if (data.emergencyContactName) setEmergencyName(data.emergencyContactName);
+        if (data.emergencyContactPhone) setEmergencyPhone(formatPHPhone(data.emergencyContactPhone));
+      } catch {}
+    };
+    loadProfile();
+  }, []);
+
+  const handleSave = async () => {
+    try {
+      const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+      const API_BASE = (import.meta as any).env?.VITE_API_BASE_URL || `http://${host}:8080`;
+      const token = localStorage.getItem('accessToken') || '';
+      const stored = localStorage.getItem('currentUser');
+      const id = stored ? JSON.parse(stored)?.id : undefined;
+      if (!token || !id) { toast.error('Missing session. Please login again.'); return; }
+
+      let street = '';
+      let city = '';
+      let state = '';
+      let postalCode = '';
+      let country = '';
+      const parts = (address || '').split(',').map(p => p.trim());
+      street = parts[0] || '';
+      city = parts[1] || '';
+      state = parts[2] || '';
+      const pcMatch = (parts[3] || '').match(/\d{4,6}/);
+      postalCode = pcMatch ? pcMatch[0] : '';
+      country = parts[4] || (parts.length >= 4 ? parts[parts.length-1] : '');
+
+      const body: any = {
+        firstName: fullName,
+        lastName: '',
+        phoneNumber: normalizePHDigits(phone) ? phone : formatPHPhone(phone),
+        birthDate: dateOfBirth,
+        gender: gender,
+        bloodType,
+        allergies,
+        medicalConditions: conditions,
+        emergencyContactName: emergencyName,
+        emergencyContactPhone: normalizePHDigits(emergencyPhone) ? emergencyPhone : formatPHPhone(emergencyPhone),
+        street,
+        city,
+        state,
+        postalCode,
+        country
+      };
+
+      const res = await fetch(`${API_BASE}/api/profile/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(body)
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        toast.error((err && (err.message || err.error)) || 'Update failed');
+        return;
+      }
+      toast.success('Profile updated successfully');
+      setIsEditing(false);
+      setActiveSection(null);
+    } catch {
+      toast.error('Network error. Please try again.');
+    }
   };
 
   const handleLogoutConfirm = () => {
