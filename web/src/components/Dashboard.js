@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import './Dashboard.css';
-import apiClient from '../api/client';
-import { useAuth } from '../auth/auth';
+import React, { useState, useEffect } from "react";
+import "./Dashboard.css";
+import apiClient from "../api/client";
+import { useAuth } from "../auth/auth";
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -15,8 +15,8 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const DASHBOARD_SUMMARY_URL = '/api/dashboard/summary';
-  const TODAY_APPOINTMENTS_URL = '/api/appointments/today';
+  const DASHBOARD_SUMMARY_URL = "/api/dashboard/summary";
+  const TODAY_APPOINTMENTS_URL = "/api/appointments/today";
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,17 +28,21 @@ const Dashboard = () => {
           apiClient.get(TODAY_APPOINTMENTS_URL),
         ]);
 
-        setSummary(summaryRes.data || {
-          totalPatients: 0,
-          todayConfirmed: 0,
-          todayPending: 0,
-          todayCompleted: 0,
-        });
-        setTodayAppointments(Array.isArray(appointmentsRes.data) ? appointmentsRes.data : []);
+        setSummary(
+          summaryRes.data || {
+            totalPatients: 0,
+            todayConfirmed: 0,
+            todayPending: 0,
+            todayCompleted: 0,
+          }
+        );
+        setTodayAppointments(
+          Array.isArray(appointmentsRes.data) ? appointmentsRes.data : []
+        );
       } catch (err) {
         // Gracefully handle auth/permission issues without crashing UI
-        
-        setError('Failed to load dashboard data');
+
+        setError("Failed to load dashboard data");
       } finally {
         setLoading(false);
       }
@@ -54,18 +58,18 @@ const Dashboard = () => {
       <main className="dashboard-main">
         <div className="welcome-message">
           <h2>
-            Welcome back,{' '}
+            Welcome back,{" "}
             {currentUser && currentUser.fullName
               ? currentUser.fullName
-              : 'Doctor'}
+              : "Doctor"}
           </h2>
           <p>
-            Today is{' '}
+            Today is{" "}
             {new Date().toLocaleDateString(undefined, {
-              weekday: 'long',
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
+              weekday: "long",
+              year: "numeric",
+              month: "long",
+              day: "numeric",
             })}
           </p>
         </div>
@@ -122,30 +126,38 @@ const Dashboard = () => {
         </div>
 
         <div className="appointments-table-card">
-            <div className="card-header">
-                <h3>My Appointments Today</h3>
-                <a href="#" className="view-all-btn">View All</a>
-            </div>
-            <table>
-                <thead>
-                    <tr>
-                        <th>Time</th>
-                        <th>Patient Name</th>
-                        <th>Type</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {todayAppointments.map(appt => (
-                      <tr key={appt.id}>
-                        <td>{appt.time}</td>
-                        <td>{appt.patientName}</td>
-                        <td>{appt.type}</td>
-                        <td><span className={`status-badge ${appt.status.toLowerCase()}`}>{appt.status}</span></td>
-                      </tr>
-                    ))}
-                </tbody>
-            </table>
+          <div className="card-header">
+            <h3>My Appointments Today</h3>
+            <a href="#" className="view-all-btn">
+              View All
+            </a>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Patient Name</th>
+                <th>Type</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {todayAppointments.map((appt) => (
+                <tr key={appt.id}>
+                  <td>{appt.time}</td>
+                  <td>{appt.patientName}</td>
+                  <td>{appt.type}</td>
+                  <td>
+                    <span
+                      className={`status-badge ${appt.status.toLowerCase()}`}
+                    >
+                      {appt.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </main>
     </div>

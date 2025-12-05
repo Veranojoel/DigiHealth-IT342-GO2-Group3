@@ -1,26 +1,27 @@
-import React from 'react';
-import { Outlet, useLocation } from 'react-router-dom';
-import DashboardHeader from './DashboardHeader';
-import AppointmentsHeader from './AppointmentsHeader';
+import React from "react";
+import { Outlet, useLocation } from "react-router-dom";
+import PageHeader from "./PageHeader";
 
 const DashboardLayout = () => {
   const location = useLocation();
 
-  const getHeader = () => {
+  const getActivePage = () => {
     switch (location.pathname) {
-      case '/appointments':
-        return <AppointmentsHeader />;
-      // Add other cases for different headers if needed
+      case "/appointments":
+        return "Appointments";
+      case "/patients":
+        return "Patients";
+      case "/dashboard":
       default:
-        return <DashboardHeader />;
+        return "Dashboard";
     }
   };
 
   return (
     <div className="dashboard-layout">
-      {getHeader()}
+      <PageHeader activePage={getActivePage()} />
       <main>
-        <Outlet /> {/* This is where the routed components will be rendered */}
+        <Outlet /> {/* Routed components render here */}
       </main>
     </div>
   );
