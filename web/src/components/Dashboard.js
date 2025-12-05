@@ -20,36 +20,34 @@ const Dashboard = () => {
   const DASHBOARD_SUMMARY_URL = "/api/dashboard/summary";
   const TODAY_APPOINTMENTS_URL = "/api/appointments/today";
 
-  const fetchSummary = useCallback(async () => {
-    try {
-      const res = await apiClient.get(DASHBOARD_SUMMARY_URL);
-      setSummary(
-        res.data || {
-          totalPatients: 0,
-          todayConfirmed: 0,
-          todayPending: 0,
-          todayCompleted: 0,
-        }
-      );
-    } catch (err) {
-      console.error("Error fetching summary:", err);
-    }
-  }, []);
-
-  const fetchTodayAppointments = useCallback(async () => {
-    try {
-      const res = await apiClient.get(TODAY_APPOINTMENTS_URL);
-      setTodayAppointments(Array.isArray(res.data) ? res.data : []);
-    } catch (err) {
-      console.error("Error fetching appointments:", err);
-    }
-  }, []);
-
   useEffect(() => {
     const fetchData = async () => {
-      setLoading(true);
-      await Promise.all([fetchSummary(), fetchTodayAppointments()]);
-      setLoading(false);
+      try {
+        setLoading(true);
+
+        const [summaryRes, appointmentsRes] = await Promise.all([
+          apiClient.get(DASHBOARD_SUMMARY_URL),
+          apiClient.get(TODAY_APPOINTMENTS_URL),
+        ]);
+
+        setSummary(
+          summaryRes.data || {
+            totalPatients: 0,
+            todayConfirmed: 0,
+            todayPending: 0,
+            todayCompleted: 0,
+          }
+        );
+        setTodayAppointments(
+          Array.isArray(appointmentsRes.data) ? appointmentsRes.data : []
+        );
+      } catch (err) {
+        // Gracefully handle auth/permission issues without crashing UI
+
+        setError("Failed to load dashboard data");
+      } finally {
+        setLoading(false);
+      }
     };
     fetchData();
   }, [fetchSummary, fetchTodayAppointments]);
