@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
-import "./Dashboard.css";
+import "./PageStyling.css";
 import apiClient from "../api/client";
 import { useAuth } from "../auth/auth";
+import { PageWrapper, PageMessage, PageFolder } from "./PageComponents";
 
 const Dashboard = () => {
   const { currentUser } = useAuth();
@@ -54,26 +55,18 @@ const Dashboard = () => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="dashboard-container">
-      <main className="dashboard-main">
-        <div className="welcome-message">
-          <h2>
-            Welcome back,{" "}
-            {currentUser && currentUser.fullName
-              ? currentUser.fullName
-              : "Doctor"}
-          </h2>
-          <p>
-            Today is{" "}
-            {new Date().toLocaleDateString(undefined, {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </p>
-        </div>
+    <PageWrapper>
+      <PageMessage
+        title={`Welcome back, ${currentUser?.fullName || "Doctor"}`}
+        message={`Today is ${new Date().toLocaleDateString(undefined, {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        })}`}
+      />
 
+      <PageFolder>
         <div className="stats-cards">
           <div className="stat-card">
             <div className="card-header">
@@ -124,7 +117,6 @@ const Dashboard = () => {
             </div>
           </div>
         </div>
-
         <div className="appointments-table-card">
           <div className="card-header">
             <h3>My Appointments Today</h3>
@@ -159,8 +151,8 @@ const Dashboard = () => {
             </tbody>
           </table>
         </div>
-      </main>
-    </div>
+      </PageFolder>
+    </PageWrapper>
   );
 };
 

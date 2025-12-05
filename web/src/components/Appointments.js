@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import './Appointments.css';
-import NewAppointmentModal from './NewAppointmentModal';
-import apiClient from '../api/client';
+import React, { useState, useEffect } from "react";
+import "./PageStyling.css";
+import NewAppointmentModal from "./NewAppointmentModal";
+import apiClient from "../api/client";
+import { PageWrapper, PageMessage, PageFolder } from "./PageComponents";
 
 const Appointments = () => {
   const [showModal, setShowModal] = useState(false);
@@ -9,7 +10,7 @@ const Appointments = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const APPOINTMENTS_URL = '/api/doctors/me/appointments';
+  const APPOINTMENTS_URL = "/api/doctors/me/appointments";
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -18,7 +19,7 @@ const Appointments = () => {
         const res = await apiClient.get(APPOINTMENTS_URL);
         setAppointments(res.data);
       } catch (err) {
-        setError('Failed to load appointments');
+        setError("Failed to load appointments");
       } finally {
         setLoading(false);
       }
@@ -27,13 +28,19 @@ const Appointments = () => {
   }, []);
 
   const getStatusCounts = () => {
-    const counts = { all: appointments.length, confirmed: 0, pending: 0, completed: 0, cancelled: 0 };
-    appointments.forEach(appt => {
+    const counts = {
+      all: appointments.length,
+      confirmed: 0,
+      pending: 0,
+      completed: 0,
+      cancelled: 0,
+    };
+    appointments.forEach((appt) => {
       const status = appt.status?.toLowerCase();
-      if (status === 'confirmed') counts.confirmed++;
-      else if (status === 'pending') counts.pending++;
-      else if (status === 'completed') counts.completed++;
-      else if (status === 'cancelled') counts.cancelled++;
+      if (status === "confirmed") counts.confirmed++;
+      else if (status === "pending") counts.pending++;
+      else if (status === "completed") counts.completed++;
+      else if (status === "cancelled") counts.cancelled++;
     });
     return counts;
   };
@@ -44,19 +51,23 @@ const Appointments = () => {
   if (error) return <div>{error}</div>;
 
   const formatTime = (dateTime) => {
-    if (!dateTime) return 'N/A';
+    if (!dateTime) return "N/A";
     const date = new Date(dateTime);
-    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
   };
 
   return (
-    <div className="appointments-container">
-      <main className="appointments-main">
-        <div className="appointments-header">
-          <h2>My Appointments</h2>
-          <p>View and manage your scheduled appointments</p>
-        </div>
+    <PageWrapper>
+      <PageMessage
+        title="Appointments"
+        message="Manage your scheduled appointments"
+      />
 
+      <PageFolder>
         <div className="stats-tabs">
           <div className="stat-tab active">
             <p>All Appointments</p>
@@ -79,22 +90,29 @@ const Appointments = () => {
             <span>{counts.cancelled}</span>
           </div>
         </div>
-
         <div className="card filter-card">
-            <div className="date-filter">
-                <img src="/assets/today-icon.svg" alt="Calendar" />
-                <div className="date-dropdown">
-                    <span>Today - Oct 20, 2025</span>
-                    <img src="/assets/today-dropdown.svg" alt="dropdown" />
-                </div>
+          <div className="date-filter">
+            <img src="/assets/today-icon.svg" alt="Calendar" />
+            <div className="date-dropdown">
+              <span>Today - Oct 20, 2025</span>
+              <img src="/assets/today-dropdown.svg" alt="dropdown" />
             </div>
-            <div className="view-toggle">
-                <button className="toggle-btn active"><img src="/assets/burger.svg" alt="List" /> List</button>
-                <button className="toggle-btn"><img src="/assets/calendar.svg" alt="Calendar" /> Calendar</button>
-            </div>
-            <button className="new-appointment-btn" onClick={() => setShowModal(true)}><img src="/assets/new.svg" alt="Add" /> New Appointment</button>
+          </div>
+          <div className="view-toggle">
+            <button className="toggle-btn active">
+              <img src="/assets/burger.svg" alt="List" /> List
+            </button>
+            <button className="toggle-btn">
+              <img src="/assets/calendar.svg" alt="Calendar" /> Calendar
+            </button>
+          </div>
+          <button
+            className="new-appointment-btn"
+            onClick={() => setShowModal(true)}
+          >
+            <img src="/assets/new.svg" alt="Add" /> New Appointment
+          </button>
         </div>
-
         <div className="card appointments-list-card">
           <div className="table-header">
             <h3>Appointments List</h3>
@@ -112,22 +130,35 @@ const Appointments = () => {
                 </tr>
               </thead>
               <tbody>
-                {appointments.map(appt => (
+                {appointments.map((appt) => (
                   <tr key={appt.id}>
-                    <td>{formatTime(appt.startDateTime || appt.appointmentTime)}</td>
-                    <td>{appt.patientName || 'N/A'}</td>
-                    <td>{appt.type || 'N/A'}</td>
-                    <td>{appt.doctorName || 'N/A'}</td>
-                    <td><span className={`status-badge ${appt.status?.toLowerCase() || 'unknown'}`}>{appt.status || 'Unknown'}</span></td>
+                    <td>
+                      {formatTime(appt.startDateTime || appt.appointmentTime)}
+                    </td>
+                    <td>{appt.patientName || "N/A"}</td>
+                    <td>{appt.type || "N/A"}</td>
+                    <td>{appt.doctorName || "N/A"}</td>
+                    <td>
+                      <span
+                        className={`status-badge ${
+                          appt.status?.toLowerCase() || "unknown"
+                        }`}
+                      >
+                        {appt.status || "Unknown"}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
-      </main>
-      <NewAppointmentModal show={showModal} onClose={() => setShowModal(false)} />
-    </div>
+        <NewAppointmentModal
+          show={showModal}
+          onClose={() => setShowModal(false)}
+        />
+      </PageFolder>
+    </PageWrapper>
   );
 };
 
