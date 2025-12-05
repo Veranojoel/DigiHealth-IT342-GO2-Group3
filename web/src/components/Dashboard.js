@@ -54,6 +54,37 @@ const Dashboard = () => {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
+  const stats = [
+    {
+      label: "My Patients",
+      valueKey: "totalPatients",
+      description: "Total patients assigned",
+      icon: "/assets/patients-icon.svg",
+      className: "patients",
+    },
+    {
+      label: "Confirmed Today",
+      valueKey: "todayConfirmed",
+      description: "Ready for consultation",
+      icon: "/assets/confirmed-icon.svg",
+      className: "confirmed",
+    },
+    {
+      label: "Pending Today",
+      valueKey: "todayPending",
+      description: "Needs confirmation",
+      icon: "/assets/pending-icon.svg",
+      className: "pending",
+    },
+    {
+      label: "Completed Today",
+      valueKey: "todayCompleted",
+      description: "Finished consultations",
+      icon: "/assets/completed-icon.svg",
+      className: "completed",
+    },
+  ];
+
   return (
     <PageWrapper>
       <PageMessage
@@ -68,57 +99,24 @@ const Dashboard = () => {
 
       <PageFolder>
         <div className="stats-cards">
-          <div className="stat-card">
-            <div className="card-header">
-              <p>My Patients</p>
-              <div className="card-icon patients">
-                <img src="/assets/patients-icon.svg" alt="My Patients" />
+          {stats.map((stat) => (
+            <div key={stat.label} className="stat-card">
+              <div className="stat-header">
+                <p>{stat.label}</p>
+                <div className={`card-icon ${stat.className}`}>
+                  <img src={stat.icon} alt={stat.label} />
+                </div>
+              </div>
+              <div className="card-body">
+                <p className="stat-number">{summary[stat.valueKey]}</p>
+                <p className="stat-description">{stat.description}</p>
               </div>
             </div>
-            <div className="card-body">
-              <p className="stat-number">{summary.totalPatients}</p>
-              <p className="stat-description">Total patients assigned</p>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="card-header">
-              <p>Confirmed Today</p>
-              <div className="card-icon confirmed">
-                <img src="/assets/confirmed-icon.svg" alt="Confirmed Today" />
-              </div>
-            </div>
-            <div className="card-body">
-              <p className="stat-number">{summary.todayConfirmed}</p>
-              <p className="stat-description">Ready for consultation</p>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="card-header">
-              <p>Pending Today</p>
-              <div className="card-icon pending">
-                <img src="/assets/pending-icon.svg" alt="Pending Today" />
-              </div>
-            </div>
-            <div className="card-body">
-              <p className="stat-number">{summary.todayPending}</p>
-              <p className="stat-description">Needs confirmation</p>
-            </div>
-          </div>
-          <div className="stat-card">
-            <div className="card-header">
-              <p>Completed Today</p>
-              <div className="card-icon completed">
-                <img src="/assets/completed-icon.svg" alt="Completed Today" />
-              </div>
-            </div>
-            <div className="card-body">
-              <p className="stat-number">{summary.todayCompleted}</p>
-              <p className="stat-description">Finished consultations</p>
-            </div>
-          </div>
+          ))}
         </div>
+
         <div className="appointments-table-card">
-          <div className="card-header">
+          <div className="appointment-header">
             <h3>My Appointments Today</h3>
             <a href="#" className="view-all-btn">
               View All

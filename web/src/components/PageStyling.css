@@ -97,11 +97,13 @@ body {
   }
 }
 
-/* === Dashboard Stylings === */
+/* ------------------------- */
+/*        Dashboard          */
+/* ------------------------- */
 
 .stats-cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 24px;
   margin-top: 32px;
 }
@@ -115,17 +117,13 @@ body {
   flex-direction: column;
   gap: 24px;
   position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card-header {
-  display: flex;
-}
-
-.card-header p {
-  font-size: 16px;
-  color: #606060;
-  margin: 0;
-  font-weight: bold;
+.stat-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
 }
 
 .card-icon {
@@ -136,8 +134,8 @@ body {
   justify-content: center;
   align-items: center;
   position: absolute;
-  right: 11px;
-  top: 11px;
+  right: 20px;
+  top: 20px;
 }
 
 .card-icon.patients {
@@ -188,25 +186,52 @@ body {
   margin-bottom: 30px;
 }
 
-.appointments-table-card h3 {
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 34px;
+}
+
+.appointment-header h3 {
   font-size: 16px;
-  color: #0d1b2a;
+  color: #606060;
   margin: 0;
+  font-weight: bold;
 }
 
 .view-all-btn {
   border: 1px solid #0093e9;
   color: #0093e9;
   background-color: white;
-  border-radius: 8px;
+  border-radius: 3px;
   text-decoration: none;
   font-size: 14px;
   left: 100px;
 }
 
+.view-all-btn,
+.status-badge {
+  transition: all 0.2s ease-in-out;
+}
+
+.view-all-btn:hover {
+  background-color: #0093e9;
+  color: #fff;
+  border-color: #007acc;
+}
+
+.status-badge.confirmed {
+  transition: background-color 0.2s;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
+}
+
+tbody tr:hover {
+  background-color: #f3f4f6; /* subtle hover */
 }
 
 thead {
