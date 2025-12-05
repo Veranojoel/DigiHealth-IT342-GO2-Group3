@@ -27,8 +27,24 @@ import AdminAnalytics from "./components/AdminAnalytics";
 import AdminDashboardSettings from "./components/AdminDashboardSettings";
 import { SettingsProvider } from "./context/SettingsContext";
 
+const RoleGuard = ({ role, children }) => {
+  const { isAuthenticated, loading, currentUser } = useAuth();
+  if (loading) {
+    return <div>Loading application...</div>;
+  }
+  if (!isAuthenticated) {
+    const target = role === "ADMIN" ? "/admin/login" : "/login";
+    return <Navigate to={target} replace />;
+  }
+  if (!currentUser || currentUser.role !== role) {
+    const redirectTo = currentUser && currentUser.role === "ADMIN" ? "/admin/dashboard" : "/login";
+    return <Navigate to={redirectTo} replace />;
+  }
+  return children;
+};
+
 const AppRoutes = () => {
-  const { isAuthenticated, loading } = useAuth();
+  const { isAuthenticated, loading, currentUser } = useAuth();
 
   if (loading) {
     return <div>Loading application...</div>;
@@ -36,14 +52,13 @@ const AppRoutes = () => {
 
   return (
     <Routes>
-      {/* Admin Routes - Always accessible */}
       <Route path="/admin" element={<AdminPortal />} />
       <Route path="/admin/login" element={<AdminLogin />} />
-      <Route path="/admin/dashboard" element={<ErrorBoundary><AdminDashboard /></ErrorBoundary>} />
-      <Route path="/admin/patients" element={<AdminPatients />} />
-      <Route path="/admin/appointments" element={<AdminAppointments />} />
-      <Route path="/admin/analytics" element={<AdminAnalytics />} />
-      <Route path="/admin/settings" element={<AdminDashboardSettings />} />
+      <Route path="/admin/dashboard" element={<ErrorBoundary><RoleGuard role="ADMIN"><AdminDashboard /></RoleGuard></ErrorBoundary>} />
+      <Route path="/admin/patients" element={<RoleGuard role="ADMIN"><AdminPatients /></RoleGuard>} />
+      <Route path="/admin/appointments" element={<RoleGuard role="ADMIN"><AdminAppointments /></RoleGuard>} />
+      <Route path="/admin/analytics" element={<RoleGuard role="ADMIN"><AdminAnalytics /></RoleGuard>} />
+      <Route path="/admin/settings" element={<RoleGuard role="ADMIN"><AdminDashboardSettings /></RoleGuard>} />
 
       {/* Doctor Routes - Auth protected */}
       <Route
@@ -52,7 +67,7 @@ const AppRoutes = () => {
           !isAuthenticated ? (
             <DigiHealthLoginScreen />
           ) : (
-            <Navigate to="/dashboard" replace />
+            <Navigate to={currentUser && currentUser.role === "ADMIN" ? "/admin/dashboard" : "/dashboard"} replace />
           )
         }
       />
@@ -62,7 +77,7 @@ const AppRoutes = () => {
           !isAuthenticated ? (
             <DoctorRegistration />
           ) : (
-            <Navigate to="/dashboard" replace />
+            <Navigate to={currentUser && currentUser.role === "ADMIN" ? "/admin/dashboard" : "/dashboard"} replace />
           )
         }
       />
@@ -71,7 +86,7 @@ const AppRoutes = () => {
         path="/"
         element={
           isAuthenticated ? (
-            <DashboardLayout />
+            <RoleGuard role="DOCTOR"><DashboardLayout /></RoleGuard>
           ) : (
             <Navigate to="/login" replace />
           )
@@ -96,7 +111,7 @@ const AppRoutes = () => {
       <Route
         path="*"
         element={
-          <Navigate to={isAuthenticated ? "/dashboard" : "/login"} replace />
+          <Navigate to={isAuthenticated ? (currentUser && currentUser.role === "ADMIN" ? "/admin/dashboard" : "/dashboard") : "/login"} replace />
         }
       />
     </Routes>

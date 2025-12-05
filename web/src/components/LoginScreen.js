@@ -26,7 +26,7 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
     setSubmitting(true);
 
     try {
-      await login(email, password);
+      await login(email, password, { allowedRole: "DOCTOR" });
       navigate("/dashboard");
     } catch (error) {
       const backendMessage =
@@ -43,7 +43,7 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
         );
       } else {
         setErrorMsg(
-          backendMessage || "Invalid email or password. Please try again."
+          (backendMessage || error.message || "Invalid email or password. Please try again.")
         );
       }
     } finally {
