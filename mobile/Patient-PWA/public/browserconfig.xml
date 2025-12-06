@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<browserconfig>
+  <msapplication>
+    <tile>
+      <square70x70logo src="https://digihealth.vercel.app/logo192.png"/>
+      <square150x150logo src="https://digihealth.vercel.app/logo192.png"/>
+      <square310x310logo src="https://digihealth.vercel.app/logo512.png"/>
+      <TileColor>#0093E9</TileColor>
+    </tile>
+  </msapplication>
+</browserconfig>
