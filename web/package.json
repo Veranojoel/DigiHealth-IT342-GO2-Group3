@@ -23,8 +23,10 @@
     "build": "NODE_OPTIONS=--openssl-legacy-provider DISABLE_ESLINT_PLUGIN=true react-scripts build",
     "test": "node node_modules/react-scripts/scripts/test.js",
     "eject": "react-scripts eject"
+    
   },
   "browserslist": {
+    "homepage": ".",
     "production": [
       ">0.2%",
       "not dead",
