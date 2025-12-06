@@ -56,50 +56,65 @@
 ---
 
 ## FR-P1: Patient Dashboard
-**Status:** ❌ NOT IMPLEMENTED (PWA)
+**Status:** ✅ IMPLEMENTED (PWA + API Integration)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Welcome header | ❌ NOT IMPLEMENTED | Personalized |
-| Upcoming appointments (next 3) | ❌ NOT IMPLEMENTED | Cards list |
-| Quick actions | ❌ NOT IMPLEMENTED | Book, reschedule |
-| Notifications list | ❌ NOT IMPLEMENTED | Basic feed |
+| Welcome header | ✅ IMPLEMENTED | Personalized with user avatar |
+| Upcoming appointments (next 3) | ✅ IMPLEMENTED | Fetched from `/api/appointments/patient/my` |
+| Quick actions | ✅ IMPLEMENTED | Book, My Appointments, Medical Records, Find Doctors |
+| Interactive welcome guide | ✅ IMPLEMENTED | Horizontal scrollable steps for new users |
+| Health summary card | ✅ IMPLEMENTED | Conditional display (only for users with data) |
+| Recent activity | ✅ IMPLEMENTED | Empty for new users, fetched from backend |
+| Bottom navigation | ✅ IMPLEMENTED | 5-tab navigation bar |
 
 ---
 
 ## FR-P2: My Appointments
-**Status:** ❌ NOT IMPLEMENTED (PWA)
+**Status:** ✅ IMPLEMENTED (PWA + API Integration)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Tabs: Upcoming/Past/Cancelled | ❌ NOT IMPLEMENTED | Filter client-side first |
-| Cancel appointment | ❌ NOT IMPLEMENTED | Status update endpoint |
-| Reschedule appointment | ❌ NOT IMPLEMENTED | Date/time picker |
+| Tabs: Upcoming/Past/Cancelled | ✅ IMPLEMENTED | Filter client-side first |
+| Appointment cards | ✅ IMPLEMENTED | Mobile-optimized layout |
+| Real-time data fetching | ✅ IMPLEMENTED | From `/api/appointments/patient/my` |
+| Empty state for new users | ✅ IMPLEMENTED | With booking CTA |
+| Loading states | ✅ IMPLEMENTED | Smooth animations |
+| Cancel appointment | ⚠️ PARTIALLY | UI ready, backend integration pending |
+| Reschedule appointment | ⚠️ PARTIALLY | UI ready, backend integration pending |
 | Add to calendar | ❌ NOT IMPLEMENTED | ICS download |
 
 ---
 
 ## FR-P3: Medical Records
-**Status:** ❌ NOT IMPLEMENTED (PWA)
+**Status:** ✅ IMPLEMENTED (PWA + API Integration)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Records list by date | ❌ NOT IMPLEMENTED | Use doctor notes structure |
-| Diagnosis/prescriptions/notes | ❌ NOT IMPLEMENTED | Read-only for patient |
-| Search/filter | ❌ NOT IMPLEMENTED | Client-side first |
-| PDF export | ❌ NOT IMPLEMENTED | Print-friendly |
+| Records list by date | ✅ IMPLEMENTED | Fetched from `/api/medical-records/patient/my` |
+| Diagnosis/prescriptions/notes | ✅ IMPLEMENTED | Read-only for patient with sheet detail view |
+| Search/filter | ✅ IMPLEMENTED | By doctor name, diagnosis, chief complaint |
+| Empty state for new users | ✅ IMPLEMENTED | No demo data shown |
+| Loading states | ✅ IMPLEMENTED | Smooth animations |
+| Lab results display | ✅ IMPLEMENTED | Conditional display |
+| Download/Share buttons | ✅ IMPLEMENTED | Placeholder functionality |
+| PDF export | ⚠️ PARTIALLY | UI ready, backend integration pending |
+| Responsive design | ✅ IMPLEMENTED | Mobile-optimized cards |
 
 ---
 
 ## FR-P4: Doctor Profiles & Search
-**Status:** ❌ NOT IMPLEMENTED (PWA)
+**Status:** ✅ IMPLEMENTED (PWA + API Integration)
 
 | Feature | Status | Notes |
 |---------|--------|-------|
-| Search with filters | ❌ NOT IMPLEMENTED | Specialization, rating |
-| Doctor cards and profiles | ❌ NOT IMPLEMENTED | Basic info |
+| Search with filters | ✅ IMPLEMENTED | Specialization, search bar |
+| Doctor cards and profiles | ✅ IMPLEMENTED | Basic info with avatar |
+| Book appointment from profile | ✅ IMPLEMENTED | Direct navigation to booking |
+| Available time slots | ✅ IMPLEMENTED | Integrated with booking flow |
+| Responsive design | ✅ IMPLEMENTED | Mobile-optimized list |
+| Loading states | ✅ IMPLEMENTED | Smooth animations |
 | Ratings & reviews | ❌ NOT IMPLEMENTED | Future enhancement |
-| Available time slots | ❌ NOT IMPLEMENTED | Integrate with booking |
 
 ---
 
@@ -128,10 +143,12 @@
 
 ---
 
-## 🎯 Roadmap (1-week)
+## 🎯 Roadmap (Remaining tasks)
 
-1. Create patient routes and skeleton pages under `web/src/components`.
-2. Implement login/registration UI and role gating.
-3. Wire appointments list and booking flow to existing APIs.
-4. Enable PWA install: manifest + service worker + install prompt.
-5. Add print-friendly medical records and basic CSV export.
+1. Implement cancel/reschedule appointment functionality
+2. Add PDF export for medical records
+3. Implement calendar integration (ICS download)
+4. Add ratings and reviews for doctors
+5. Enable PWA install: manifest + service worker + install prompt
+6. Add notification preferences in profile management
+7. Implement offline fallback pages

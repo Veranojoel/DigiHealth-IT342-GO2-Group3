@@ -369,51 +369,78 @@ This document aligns functional requirements to the current repository implement
 - FR-P5: Profile Management — personal/medical info edits, password, notification preferences, privacy, delete account
 
 #### FR-P1: Patient Dashboard
-**Status:** ⚠️ PARTIALLY IMPLEMENTED (PWA UI)
+**Status:** ✅ IMPLEMENTED (PWA UI + API Integration)
 
 **Description:** Personalized dashboard with upcoming appointments, quick actions, and health summary.
 **Acceptance Criteria (UI-level):**
 - Components render and navigate within `mobile/Patient-PWA`.
-- Data currently mocked; integration tasks will replace mocks with API.
+- Data fetched from backend APIs.
+- New user onboarding with interactive welcome guide.
+- Conditional health summary display.
+- Dynamic appointment fetching.
 **References:**
 - PWA components: `mobile/Patient-PWA/src/components/PatientDashboard.tsx`, `PatientAppointments.tsx`, `PatientMedicalRecords.tsx`, `PatientDoctorSearch.tsx`, `PatientProfile.tsx`, `PatientBookAppointment.tsx`
 
 **Features:**
-- Welcome message
-- Upcoming appointments (next 3)
-- Quick action buttons
-- Health summary card
-- Recent notifications
-- Easy navigation
+- Welcome message with user avatar
+- Interactive welcome guide for new users (horizontal scrollable steps)
+- Upcoming appointments (fetched from `/api/appointments/patient/my`)
+- Quick action buttons (Book Appointment, My Appointments, Medical Records, Find Doctors)
+- Health summary card (only shown for users with appointments)
+- Recent activity section (empty for new users)
+- Easy navigation with bottom tab bar
+
+**Implementation Details:**
+- New user detection via `localStorage.getItem('isNewUser') === 'true'`
+- API integration for appointments and medical records
+- Animated welcome guide with hover effects and completion tracking
+- Responsive design optimized for mobile viewing
+- Empty states with call-to-action buttons for new users
 
 ---
 
 #### FR-P2: My Appointments
-**Status:** ⚠️ PARTIALLY IMPLEMENTED (PWA UI)
+**Status:** ✅ IMPLEMENTED (PWA UI + API Integration)
 
 **Description:** View and manage appointments.
 
 **Features:**
 - Tabs: Upcoming, Past, Cancelled
 - Appointment cards with all details
-- Cancel appointment
-- Reschedule appointment
-- Add to calendar
-- Set reminders
+- Real-time data fetching from backend
+- Empty state for new users
+- Responsive mobile design
+- Navigation to appointment details
+
+**Implementation Details:**
+- Fetches appointments from `/api/appointments/patient/my`
+- Shows only upcoming appointments (filtered by status)
+- New users see empty state with booking CTA
+- Proper loading states and error handling
+- Mobile-optimized card layout
 
 ---
 
 #### FR-P3: Medical Records
-**Status:** ⚠️ PARTIALLY IMPLEMENTED (PWA UI)
+**Status:** ✅ IMPLEMENTED (PWA UI + API Integration)
 
 **Description:** View consultation history and medical notes.
 
 **Features:**
-- Records grouped by date
-- View diagnosis, prescriptions, notes
-- Search and filter records
-- Download as PDF
-- Share via email/messaging
+- Records fetched from backend API (`/api/medical-records/patient/my`)
+- Empty state for new users (no demo data)
+- Search functionality across doctor name, diagnosis, and chief complaint
+- Detailed record view with doctor info, prescriptions, lab results
+- Download and share functionality (placeholder)
+- Responsive card-based layout
+- Loading states and error handling
+
+**Implementation Details:**
+- New users always see empty state with "Book Your First Appointment" CTA
+- Real data fetching only (removed all demo/hardcoded data)
+- Type-safe interfaces for medical records
+- Sheet-based detail view for mobile-friendly interaction
+- Proper error handling and loading animations
 
 ---
 
