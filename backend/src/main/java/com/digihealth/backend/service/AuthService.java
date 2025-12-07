@@ -33,7 +33,9 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final DoctorWorkDayRepository doctorWorkDayRepository;
 
-        public AuthService(UserRepository userRepository, DoctorRepository doctorRepository, PatientRepository patientRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider, AuthenticationManager authenticationManager, DoctorWorkDayRepository doctorWorkDayRepository) {
+    public AuthService(UserRepository userRepository, DoctorRepository doctorRepository,
+            PatientRepository patientRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider,
+            AuthenticationManager authenticationManager, DoctorWorkDayRepository doctorWorkDayRepository) {
         this.userRepository = userRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
@@ -73,17 +75,22 @@ public class AuthService {
                 java.time.Period period = java.time.Period.between(dob, java.time.LocalDate.now());
                 int computedAge = Math.max(0, period.getYears());
                 patient.setAge(computedAge);
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         if (registerDto.getGender() != null) {
             String g = registerDto.getGender().trim().toUpperCase();
             com.digihealth.backend.entity.Gender genderEnum;
-            if ("MALE".equals(g)) genderEnum = com.digihealth.backend.entity.Gender.MALE;
-            else if ("FEMALE".equals(g)) genderEnum = com.digihealth.backend.entity.Gender.FEMALE;
-            else genderEnum = com.digihealth.backend.entity.Gender.OTHER;
+            if ("MALE".equals(g))
+                genderEnum = com.digihealth.backend.entity.Gender.MALE;
+            else if ("FEMALE".equals(g))
+                genderEnum = com.digihealth.backend.entity.Gender.FEMALE;
+            else
+                genderEnum = com.digihealth.backend.entity.Gender.OTHER;
             patient.setGender(genderEnum);
         }
-        if (registerDto.getStreet() != null || registerDto.getCity() != null || registerDto.getState() != null || registerDto.getPostalCode() != null || registerDto.getCountry() != null) {
+        if (registerDto.getStreet() != null || registerDto.getCity() != null || registerDto.getState() != null
+                || registerDto.getPostalCode() != null || registerDto.getCountry() != null) {
             com.digihealth.backend.entity.Address address = new com.digihealth.backend.entity.Address();
             address.setStreet(registerDto.getStreet());
             address.setCity(registerDto.getCity());
@@ -101,7 +108,7 @@ public class AuthService {
         }
 
         System.out.println("[AuthService.registerDoctor] Creating new user...");
-        
+
         User user = new User();
         user.setFullName(registerDto.getFullName());
         user.setEmail(registerDto.getEmail());
@@ -112,9 +119,9 @@ public class AuthService {
         user.setIsApproved(Boolean.FALSE);
 
         System.out.println("[AuthService.registerDoctor] User before save - ID: " + user.getId());
-        
+
         user = userRepository.save(user);
-        
+
         System.out.println("[AuthService.registerDoctor] User after save - ID: " + user.getId());
         System.out.println("[AuthService.registerDoctor] User after save - Email: " + user.getEmail());
 
@@ -124,7 +131,7 @@ public class AuthService {
         doctor.setLicenseNumber(registerDto.getLicenseNumber());
 
         doctor = doctorRepository.save(doctor);
-        
+
         System.out.println("[AuthService.registerDoctor] Doctor saved successfully for user ID: " + user.getId());
 
         if (registerDto.getWorkDays() != null && !registerDto.getWorkDays().isEmpty()) {
@@ -137,17 +144,18 @@ public class AuthService {
                     day = DayOfWeek.MON;
                 }
 
-                String range = null;
+                RegisterDto.DayAvailabilityDto avail = null;
                 if (registerDto.getAvailability() != null) {
-                    range = registerDto.getAvailability().get(dayString);
+                    avail = registerDto.getAvailability().get(dayString);
                 }
                 String start = "09:00";
                 String end = "17:00";
-                if (range != null && range.contains("-")) {
-                    String[] parts = range.split("-", 2);
-                    if (parts.length == 2) {
-                        start = parts[0].trim();
-                        end = parts[1].trim();
+                if (avail != null) {
+                    if (avail.getStartTime() != null) {
+                        start = avail.getStartTime();
+                    }
+                    if (avail.getEndTime() != null) {
+                        end = avail.getEndTime();
                     }
                 }
 
@@ -177,8 +185,7 @@ public class AuthService {
 
         try {
             Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(email, password)
-            );
+                    new UsernamePasswordAuthenticationToken(email, password));
             SecurityContextHolder.getContext().setAuthentication(authentication);
         } catch (Exception ex) {
             // Any authentication failure (including bad credentials) is reported as 401
@@ -186,15 +193,17 @@ public class AuthService {
         }
 
         User user = userRepository.findByEmail(email)
-            .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
         // Check if doctor is approved (only for DOCTOR role)
         if (user.getRole() == Role.DOCTOR && !Boolean.TRUE.equals(user.getIsApproved())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Doctor account is pending approval. Please contact administrator.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Doctor account is pending approval. Please contact administrator.");
         }
 
         if (!Boolean.TRUE.equals(user.getIsActive())) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account is deactivated. Contact administrator to reactivate.");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                    "Account is deactivated. Contact administrator to reactivate.");
         }
 
         // Critical debugging
@@ -202,14 +211,15 @@ public class AuthService {
         System.out.println("[AuthService.login]   ID: " + user.getId());
         System.out.println("[AuthService.login]   Email: " + user.getEmail());
         System.out.println("[AuthService.login]   Role: " + user.getRole());
-        
+
         // Ensure we never produce a token for an invalid user object
         if (user.getId() == null) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "User identifier is missing");
         }
 
         String token = tokenProvider.generateTokenFromUser(user);
-        System.out.println("[AuthService.login] Generated JWT token (first 50 chars): " + token.substring(0, Math.min(50, token.length())));
+        System.out.println("[AuthService.login] Generated JWT token (first 50 chars): "
+                + token.substring(0, Math.min(50, token.length())));
         System.out.println("[AuthService.login] Token should contain UUID: " + user.getId());
 
         return new LoginResponse(token, user);

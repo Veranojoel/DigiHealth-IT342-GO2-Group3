@@ -1,6 +1,6 @@
 /* =========================================
-   AuthLayout.css (Final Consolidated File)
-   ========================================= */
+    AuthLayout.css (Consolidated File with UI Enhancements)
+    ========================================= */
 
 /* === 0. KeyFrames === */
 @keyframes smoothPan {
@@ -286,7 +286,7 @@
   margin-bottom: 20px;
 }
 
-/* === 6. INPUTS & BUTTONS === */
+/* === 6. INPUTS & BUTTONS & GROUPING (Updated) === */
 
 .form-inputs {
   width: 100%;
@@ -299,6 +299,27 @@
   font-size: 14px;
   color: #0d1b2a;
   font-weight: 500;
+  margin-top: 12px; /* Space above each field group */
+}
+.form-inputs label:first-child {
+  margin-top: 0;
+}
+
+/* NEW: Two-Column Input Group */
+.input-group-half {
+  display: flex;
+  gap: 16px; /* Space between the two columns */
+  width: 100%;
+}
+
+.input-field {
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Each field takes up half the width */
+}
+
+.input-field label {
+  margin-top: 0; /* Labels inside the group are tightly bound */
 }
 
 /* Styling for all common input types (text, email, password, time, select) */
@@ -313,6 +334,7 @@
   outline: none;
   transition: all 0.2s;
   box-sizing: border-box;
+  margin-bottom: 6px; /* Space below the input, works with the 6px gap above */
 }
 
 .form-inputs input:focus,
@@ -367,7 +389,7 @@
 .back-btn,
 .next-btn {
   flex: 1;
-  height: 36px;
+  height: 44px; /* Increased height for better tap target */
   border-radius: 8px;
   font-size: 14px;
   cursor: pointer;
@@ -418,6 +440,7 @@
   gap: 8px;
   font-weight: 500;
   color: #0d1b2a;
+  width: 120px; /* Fix label width for alignment */
 }
 
 .day-label input[type="checkbox"] {
@@ -428,6 +451,12 @@
   border: 1px solid #d1d5dc;
 }
 
+/* NEW: Style for the day off label */
+.day-label .day-off {
+  color: #9ca3af;
+  font-weight: 400;
+}
+
 .time-inputs {
   display: flex;
   align-items: center;
@@ -435,18 +464,90 @@
 }
 
 .time-inputs input[type="time"] {
-  /* Uses base .form-inputs input style, just needs margin reset */
-  margin-bottom: 0;
-  width: 100px;
+  width: 90px;
   flex-grow: 0;
+  height: 36px; /* Slightly smaller time inputs */
+  margin-bottom: 0; /* Reset margin from general input rule */
 }
 
 .unavailable-text {
-  color: #9ca3af;
-  font-style: italic;
+  color: #7c7c7c;
+  font-weight: 500;
+  font-style: normal;
+  width: 188px; /* Match the width of the time inputs group */
+  text-align: right;
 }
 
-/* === 8. RESPONSIVE IMPROVEMENTS === */
+/* === 8. STEP PROGRESS INDICATOR (LINES REMOVED) === */
+
+.step-indicator {
+  display: flex;
+  justify-content: space-around; /* Distribute steps with more space */
+  align-items: flex-start;
+  width: 100%;
+  margin-bottom: 24px;
+  position: relative;
+  z-index: 10;
+  padding: 0 10px;
+  box-sizing: border-box;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  flex: 0 1 auto; /* Use auto width, no forced stretching */
+  padding: 0 10px; /* Add internal spacing between steps */
+}
+
+.step .circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background-color: #e5e7eb;
+  color: #6b7280;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  z-index: 2;
+}
+
+/* Remove the line element */
+.step .line {
+  display: none;
+}
+
+.step .title {
+  font-size: 12px;
+  margin-top: 6px;
+  color: #6b7280;
+  font-weight: 500;
+  text-align: center;
+  max-width: 80px; /* Give titles a maximum width */
+}
+
+/* Active Step Styles */
+.step.active .circle {
+  background: #0093e9;
+  color: white;
+  box-shadow: 0 0 0 3px rgba(0, 147, 233, 0.4);
+}
+
+.step.active .title {
+  color: #0093e9;
+  font-weight: 700;
+}
+
+/* Complete Step Styles */
+.step.complete .circle {
+  background: #80d0c7;
+  color: white;
+}
+
+/* === 9. RESPONSIVE IMPROVEMENTS (Updated) === */
 
 @media (max-width: 500px) {
   .form-card {
@@ -454,6 +555,13 @@
     padding: 24px;
   }
 
+  /* Input Group Stacking */
+  .input-group-half {
+    flex-direction: column; /* Stack password fields on small screens */
+    gap: 0;
+  }
+
+  /* Footer adjustments */
   .footer-top {
     flex-direction: column;
     gap: 8px;
@@ -463,5 +571,10 @@
     flex-direction: column;
     align-items: center;
     gap: 4px;
+  }
+
+  /* Step Indicator Stacking */
+  .step .title {
+    display: none; /* Hide titles to save space on mobile */
   }
 }

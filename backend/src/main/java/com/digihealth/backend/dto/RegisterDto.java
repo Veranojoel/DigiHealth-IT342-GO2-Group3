@@ -11,7 +11,31 @@ public class RegisterDto {
     private String licenseNumber;
     private String phoneNumber;
     private List<String> workDays;
-    private Map<String, String> availability;
+    private Map<String, DayAvailabilityDto> availability;
+
+    public static class DayAvailabilityDto {
+        private String startTime;
+        private String endTime;
+
+        public DayAvailabilityDto() {
+        }
+
+        public String getStartTime() {
+            return startTime;
+        }
+
+        public void setStartTime(String startTime) {
+            this.startTime = startTime;
+        }
+
+        public String getEndTime() {
+            return endTime;
+        }
+
+        public void setEndTime(String endTime) {
+            this.endTime = endTime;
+        }
+    }
 
     // Getters and Setters
 
@@ -71,11 +95,11 @@ public class RegisterDto {
         this.workDays = workDays;
     }
 
-    public Map<String, String> getAvailability() {
+    public Map<String, DayAvailabilityDto> getAvailability() {
         return availability;
     }
 
-    public void setAvailability(Map<String, String> availability) {
+    public void setAvailability(Map<String, DayAvailabilityDto> availability) {
         this.availability = availability;
     }
 }

@@ -1,8 +1,8 @@
-import { useEffect, useRef, useCallback } from 'react';
-import { Client } from '@stomp/stompjs/esm6';
-import SockJS from 'sockjs-client';
+import { useEffect, useRef, useCallback } from "react";
+import { Client } from "@stomp/stompjs";
+import SockJS from "sockjs-client";
 
-const WS_ENDPOINT = '/ws';
+const WS_ENDPOINT = "/ws";
 
 export const useAppointmentUpdates = (onUpdate) => {
   const clientRef = useRef(null);
@@ -12,7 +12,7 @@ export const useAppointmentUpdates = (onUpdate) => {
       webSocketFactory: () => new SockJS(WS_ENDPOINT),
       reconnectDelay: 5000,
       onConnect: () => {
-        client.subscribe('/topic/appointments', (message) => {
+        client.subscribe("/topic/appointments", (message) => {
           const appointment = JSON.parse(message.body);
           if (onUpdate) {
             onUpdate(appointment);
@@ -20,7 +20,7 @@ export const useAppointmentUpdates = (onUpdate) => {
         });
       },
       onStompError: (frame) => {
-        console.error('STOMP error:', frame);
+        console.error("STOMP error:", frame);
       },
     });
 

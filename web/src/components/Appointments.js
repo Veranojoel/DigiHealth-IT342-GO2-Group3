@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import './Appointments.css';
-import NewAppointmentModal from './NewAppointmentModal';
-import DoctorAppointmentDetails from './DoctorAppointmentDetails';
-import DoctorEditAppointment from './DoctorEditAppointment';
-import apiClient from '../api/client';
-import { useAppointmentUpdates } from '../hooks/useAppointmentUpdates';
+import React, { useState, useEffect } from "react";
+import "./PageStyling.css";
+import NewAppointmentModal from "./NewAppointmentModal";
+import DoctorAppointmentDetails from "./DoctorAppointmentDetails";
+import DoctorEditAppointment from "./DoctorEditAppointment";
+import apiClient from "../api/client";
+import { PageWrapper, PageMessage, PageFolder } from "./PageComponents";
+import { useAppointmentUpdates } from "../hooks/useAppointmentUpdates";
 
 const Appointments = () => {
   const [showModal, setShowModal] = useState(false);
@@ -15,9 +16,9 @@ const Appointments = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [liveUpdatedId, setLiveUpdatedId] = useState(null);
-  const [liveBanner, setLiveBanner] = useState('');
+  const [liveBanner, setLiveBanner] = useState("");
 
-  const APPOINTMENTS_URL = '/api/doctors/me/appointments';
+  const APPOINTMENTS_URL = "/api/doctors/me/appointments";
 
   const loadAppointments = async () => {
     try {
@@ -25,21 +26,23 @@ const Appointments = () => {
       const res = await apiClient.get(APPOINTMENTS_URL);
       setAppointments(res.data);
     } catch (err) {
-      setError('Failed to load appointments');
+      setError("Failed to load appointments");
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => { loadAppointments(); }, []);
+  useEffect(() => {
+    loadAppointments();
+  }, []);
 
   const onLiveUpdate = (appt) => {
     try {
       const id = appt?.appointmentId || appt?.id || null;
       if (id) {
         setLiveUpdatedId(id.toString());
-        setLiveBanner('Live update received');
-        setTimeout(() => setLiveBanner(''), 3000);
+        setLiveBanner("Live update received");
+        setTimeout(() => setLiveBanner(""), 3000);
       }
       loadAppointments();
     } catch {}
@@ -48,13 +51,19 @@ const Appointments = () => {
   const { disconnect } = useAppointmentUpdates(onLiveUpdate);
 
   const getStatusCounts = () => {
-    const counts = { all: appointments.length, confirmed: 0, pending: 0, completed: 0, cancelled: 0 };
-    appointments.forEach(appt => {
+    const counts = {
+      all: appointments.length,
+      confirmed: 0,
+      pending: 0,
+      completed: 0,
+      cancelled: 0,
+    };
+    appointments.forEach((appt) => {
       const status = appt.status?.toLowerCase();
-      if (status === 'confirmed') counts.confirmed++;
-      else if (status === 'pending') counts.pending++;
-      else if (status === 'completed') counts.completed++;
-      else if (status === 'cancelled') counts.cancelled++;
+      if (status === "confirmed") counts.confirmed++;
+      else if (status === "pending") counts.pending++;
+      else if (status === "completed") counts.completed++;
+      else if (status === "cancelled") counts.cancelled++;
     });
     return counts;
   };
@@ -65,23 +74,23 @@ const Appointments = () => {
   if (error) return <div>{error}</div>;
 
   const formatTime = (dateTime) => {
-    if (!dateTime) return 'N/A';
+    if (!dateTime) return "N/A";
     const date = new Date(dateTime);
-    return date.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
   };
 
   return (
-    <div className="appointments-container">
-      <main className="appointments-main">
-        <div className="appointments-header">
-          <h2>My Appointments</h2>
-          <p>View and manage your scheduled appointments</p>
-        </div>
+    <PageWrapper>
+      <PageMessage
+        title="Appointments"
+        message="Manage your scheduled appointments"
+      />
 
-        {liveBanner && (
-          <div className="live-banner">{liveBanner}</div>
-        )}
-
+      <PageFolder>
         <div className="stats-tabs">
           <div className="stat-tab active">
             <p>All Appointments</p>
@@ -104,28 +113,35 @@ const Appointments = () => {
             <span>{counts.cancelled}</span>
           </div>
         </div>
-
         <div className="card filter-card">
-            <div className="date-filter">
-                <img src="/assets/today-icon.svg" alt="Calendar" />
-                <div className="date-dropdown">
-                    <span>Today - Oct 20, 2025</span>
-                    <img src="/assets/today-dropdown.svg" alt="dropdown" />
-                </div>
+          <div className="date-filter">
+            <img src="/assets/today-icon.svg" alt="Calendar" />
+            <div className="date-dropdown">
+              <span>Today - Oct 20, 2025</span>
+              <img src="/assets/today-dropdown.svg" alt="dropdown" />
             </div>
-            <div className="view-toggle">
-                <button className="toggle-btn active"><img src="/assets/burger.svg" alt="List" /> List</button>
-                <button className="toggle-btn"><img src="/assets/calendar.svg" alt="Calendar" /> Calendar</button>
-            </div>
-            <button className="new-appointment-btn" onClick={() => setShowModal(true)}><img src="/assets/new.svg" alt="Add" /> New Appointment</button>
+          </div>
+          <div className="view-toggle">
+            <button className="toggle-btn active">
+              <img src="/assets/burger.svg" alt="List" /> List
+            </button>
+            <button className="toggle-btn">
+              <img src="/assets/calendar.svg" alt="Calendar" /> Calendar
+            </button>
+          </div>
+          <button
+            className="new-appointment-btn"
+            onClick={() => setShowModal(true)}
+          >
+            <img src="/assets/new.svg" alt="Add" /> New Appointment
+          </button>
         </div>
-
         <div className="card appointments-list-card">
           <div className="table-header">
             <h3>Appointments List</h3>
             <p>Showing {appointments.length} appointments</p>
           </div>
-          <div className="table-container">
+          <div className="page-table">
             <table>
               <thead>
                 <tr>
@@ -137,26 +153,54 @@ const Appointments = () => {
                 </tr>
               </thead>
               <tbody>
-                {appointments.map(appt => (
-                  <tr key={appt.id} onClick={() => { setSelected(appt); setShowDetails(true); }} className={`clickable-row ${liveUpdatedId && (appt.id === liveUpdatedId) ? 'row-live' : ''}`}>
-                    <td>{formatTime(appt.startDateTime || appt.appointmentTime)}</td>
-                    <td>{appt.patientName || 'N/A'}</td>
-                    <td>{appt.type || 'N/A'}</td>
-                    <td>{appt.doctorName || 'N/A'}</td>
-                    <td><span className={`status-badge ${appt.status?.toLowerCase() || 'unknown'}`}>{appt.status || 'Unknown'}</span></td>
+                {appointments.map((appt) => (
+                  <tr
+                    key={appt.id}
+                    onClick={() => {
+                      setSelected(appt);
+                      setShowDetails(true);
+                    }}
+                    className={`clickable-row ${
+                      liveUpdatedId && appt.id === liveUpdatedId
+                        ? "row-live"
+                        : ""
+                    }`}
+                  >
+                    <td>
+                      {formatTime(appt.startDateTime || appt.appointmentTime)}
+                    </td>
+                    <td>{appt.patientName || "N/A"}</td>
+                    <td>{appt.type || "N/A"}</td>
+                    <td>{appt.doctorName || "N/A"}</td>
+                    <td>
+                      <span
+                        className={`status-badge ${
+                          appt.status?.toLowerCase() || "unknown"
+                        }`}
+                      >
+                        {appt.status || "Unknown"}
+                      </span>
+                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
         </div>
-      </main>
-      <NewAppointmentModal show={showModal} onClose={() => setShowModal(false)} onCreated={() => loadAppointments()} />
+      </PageFolder>
+      <NewAppointmentModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onCreated={() => loadAppointments()}
+      />
       {showDetails && selected && (
         <DoctorAppointmentDetails
           appointment={selected}
           onClose={() => setShowDetails(false)}
-          onEdit={() => { setShowDetails(false); setShowEdit(true); }}
+          onEdit={() => {
+            setShowDetails(false);
+            setShowEdit(true);
+          }}
           onStatusUpdated={() => loadAppointments()}
         />
       )}
@@ -168,7 +212,7 @@ const Appointments = () => {
           onCancelled={() => loadAppointments()}
         />
       )}
-    </div>
+    </PageWrapper>
   );
 };
 

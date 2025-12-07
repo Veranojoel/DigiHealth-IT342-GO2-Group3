@@ -39,9 +39,11 @@ export const RegistrationStep1 = ({
   setFormData,
 }) => {
   const ensureDoctorPrefix = (name) => {
-    const trimmed = (name || '').trim();
-    if (!trimmed) return '';
-    return trimmed.toLowerCase().startsWith('dr.') ? trimmed.replace(/^dr\./i, 'Dr.') : `Dr. ${trimmed}`;
+    const trimmed = (name || "").trim();
+    if (!trimmed) return "";
+    return trimmed.toLowerCase().startsWith("dr.")
+      ? trimmed.replace(/^dr\./i, "Dr.")
+      : `Dr. ${trimmed}`;
   };
   return (
     <StepLayout
@@ -56,7 +58,12 @@ export const RegistrationStep1 = ({
         placeholder="Dr. Juan Dela Cruz"
         value={formData.fullName || ""}
         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-        onBlur={(e) => setFormData({ ...formData, fullName: ensureDoctorPrefix(e.target.value) })}
+        onBlur={(e) =>
+          setFormData({
+            ...formData,
+            fullName: ensureDoctorPrefix(e.target.value),
+          })
+        }
       />
 
       <label>Email Address *</label>
@@ -95,12 +102,12 @@ export const RegistrationStep2 = ({
   setFormData,
 }) => {
   const normalizePHDigits = (value) => {
-    const digits = (value || '').replace(/\D/g, '');
-    if (!digits) return '';
-    if (digits.startsWith('09')) {
+    const digits = (value || "").replace(/\D/g, "");
+    if (!digits) return "";
+    if (digits.startsWith("09")) {
       return digits.slice(1);
     }
-    if (digits.startsWith('63')) {
+    if (digits.startsWith("63")) {
       return digits.slice(2);
     }
     return digits;
@@ -108,12 +115,14 @@ export const RegistrationStep2 = ({
 
   const formatPHPhone = (value) => {
     let d = normalizePHDigits(value);
-    if (!d.startsWith('9')) d = '9' + d.replace(/^[^9]*/, '');
+    if (!d.startsWith("9")) d = "9" + d.replace(/^[^9]*/, "");
     d = d.slice(0, 10);
     const part1 = d.slice(0, 3);
     const part2 = d.slice(3, 6);
     const part3 = d.slice(6, 10);
-    return `+63${part1 ? ' ' + part1 : ''}${part2 ? ' ' + part2 : ''}${part3 ? ' ' + part3 : ''}`.trim();
+    return `+63${part1 ? " " + part1 : ""}${part2 ? " " + part2 : ""}${
+      part3 ? " " + part3 : ""
+    }`.trim();
   };
   return (
     <StepLayout
@@ -155,7 +164,10 @@ export const RegistrationStep2 = ({
         placeholder="+63 912 345 6789"
         value={formData.phoneNumber || ""}
         onChange={(e) =>
-          setFormData({ ...formData, phoneNumber: formatPHPhone(e.target.value) })
+          setFormData({
+            ...formData,
+            phoneNumber: formatPHPhone(e.target.value),
+          })
         }
       />
     </StepLayout>
@@ -178,11 +190,11 @@ export const RegistrationStep3 = ({
       // Remove day from workDays
       const updatedDays = workDays.filter((d) => d !== day);
       // Remove day from workHours
-      const {[day]: _, ...updatedHours} = workHours;
+      const { [day]: _, ...updatedHours } = workHours;
       setFormData({
         ...formData,
         workDays: updatedDays,
-        workHours: updatedHours
+        workHours: updatedHours,
       });
     } else {
       // Add day to workDays
@@ -191,8 +203,8 @@ export const RegistrationStep3 = ({
         workDays: [...workDays, day],
         workHours: {
           ...workHours,
-          [day]: { startTime: '09:00', endTime: '17:00' }
-        }
+          [day]: { startTime: "09:00", endTime: "17:00" },
+        },
       });
     }
   };
@@ -204,9 +216,9 @@ export const RegistrationStep3 = ({
         ...formData.workHours,
         [day]: {
           ...formData.workHours?.[day],
-          [field]: value
-        }
-      }
+          [field]: value,
+        },
+      },
     });
   };
 
@@ -242,14 +254,18 @@ export const RegistrationStep3 = ({
               <div className="time-inputs">
                 <input
                   type="time"
-                  value={formData.workHours?.[day]?.startTime || '09:00'}
-                  onChange={(e) => handleTimeChange(day, 'startTime', e.target.value)}
+                  value={formData.workHours?.[day]?.startTime || "09:00"}
+                  onChange={(e) =>
+                    handleTimeChange(day, "startTime", e.target.value)
+                  }
                 />
                 <span>to</span>
                 <input
                   type="time"
-                  value={formData.workHours?.[day]?.endTime || '17:00'}
-                  onChange={(e) => handleTimeChange(day, 'endTime', e.target.value)}
+                  value={formData.workHours?.[day]?.endTime || "17:00"}
+                  onChange={(e) =>
+                    handleTimeChange(day, "endTime", e.target.value)
+                  }
                 />
               </div>
             ) : (
