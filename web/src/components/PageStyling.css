@@ -1,19 +1,19 @@
 /* ------------------------- */
 /*       Global Styles       */
 /* ------------------------- */
+
 body {
   margin: 0;
   font-family: "Arial", sans-serif;
   background-color: #f0f2f5;
-  font-size: 16px;
 }
 
 /* ------------------------- */
 /*       Page Container      */
 /* ------------------------- */
 .page-container {
-  padding: 32px 24px;
-  width: 85%;
+  padding: min(4em, 8%);
+  width: 86%;
   max-width: 1600px;
 }
 
@@ -25,6 +25,7 @@ body {
   justify-content: center;
   align-items: start;
   min-height: 90vh;
+  min-height: 90dvh;
   font-family: "Arial", sans-serif;
   background: radial-gradient(
       circle at 10% 20%,
@@ -56,11 +57,11 @@ body {
   box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
   padding: 16px 24px 0;
   background-color: #ffffff;
-  width: 290px;
+  max-width: 290px;
 }
 
 .page-message h2 {
-  font-size: 24px;
+  font-size: clamp(0.5rem, 1.5rem, 2rem);
   color: #0d1b2a;
   margin: 0 0 8px 0;
 }
@@ -76,11 +77,16 @@ body {
 /* ------------------------- */
 .page-folder {
   border-radius: 0 10px 10px 10px;
-  padding: 16px 24px 30px;
+  padding: min(4.4em, 8%);
   background-color: #ffffff;
-  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+  box-shadow: 2px 1px 3px rgba(0, 0, 0, 0.1);
   border-left: 15px solid #4a90e2;
-  min-height: 500px;
+}
+
+@media screen and (max-width: 436px) {
+  .page-folder {
+    border-radius: 0 0 10px 10px;
+  }
 }
 
 /* ------------------------- */
@@ -104,9 +110,8 @@ body {
 
 .stats-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 24px;
-  margin-top: 32px;
 }
 
 .stat-card {
@@ -172,35 +177,6 @@ body {
   margin: 0;
 }
 
-.appointments-table-card {
-  background-color: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 14px;
-  padding: 25px;
-  margin-top: 32px;
-}
-
-.appointments-table-card .card-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 30px;
-}
-
-.appointment-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 34px;
-}
-
-.appointment-header h3 {
-  font-size: 16px;
-  color: #606060;
-  margin: 0;
-  font-weight: bold;
-}
-
 .view-all-btn {
   border: 1px solid #0093e9;
   color: #0093e9;
@@ -226,39 +202,6 @@ body {
   transition: background-color 0.2s;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-tbody tr:hover {
-  background-color: #f3f4f6; /* subtle hover */
-}
-
-thead {
-  background-color: #f9fafb;
-}
-
-th,
-td {
-  padding: 12px 8px;
-  text-align: left;
-  font-size: 14px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-th {
-  color: #0d1b2a;
-}
-
-td {
-  color: #606060;
-}
-
-tbody tr:last-child td {
-  border-bottom: none;
-}
-
 .status-badge {
   padding: 4px 8px;
   border-radius: 8px;
@@ -273,11 +216,11 @@ tbody tr:last-child td {
 
 /* === Patients Stylings === */
 
-.card {
+.patients-table-card {
   background-color: white;
   border: 1px solid #e0e0e0;
   border-radius: 14px;
-  padding: 25px;
+  padding: min(2.5em, 6%);
   margin-top: 32px;
 }
 
@@ -473,6 +416,35 @@ tbody tr:last-child td {
   cursor: pointer;
 }
 
+.appointments-table-card {
+  background-color: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 14px;
+  padding: 25px;
+  margin-top: 32px;
+}
+
+.appointments-table-card .card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 34px;
+}
+
+.appointment-header h3 {
+  font-size: 16px;
+  color: #606060;
+  margin: 0;
+  font-weight: bold;
+}
+
 .appointments-list-card .table-header {
   margin-bottom: 24px;
 }
@@ -480,33 +452,6 @@ tbody tr:last-child td {
 .appointments-list-card h3,
 .appointments-list-card p {
   margin: 0;
-}
-
-.table-container {
-  border: 1px solid #e0e0e0;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-thead {
-  background-color: #f9fafb;
-}
-
-th,
-td {
-  padding: 12px 8px;
-  text-align: left;
-  font-size: 14px;
-  border-bottom: 1px solid #e0e0e0;
-}
-
-tbody tr:last-child td {
-  border-bottom: none;
 }
 
 .status-badge {
@@ -519,4 +464,32 @@ tbody tr:last-child td {
   background-color: #d1fae5;
   color: #065f46;
   border: 1px solid #a7f3d0;
+}
+
+/* === Table Stylings === */
+
+.page-table {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background-color: #b3e5fc;
+}
+
+th,
+td {
+  padding: min(15px, 2%);
+  text-align: left;
+  font-size: clamp(0.75rem, 1rem, 1.25rem);
+  border-bottom: 1px solid #e0e0e0;
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
 }

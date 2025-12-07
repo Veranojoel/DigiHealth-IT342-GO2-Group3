@@ -36,7 +36,7 @@ const Patients = () => {
       />
 
       <PageFolder>
-        <div className="card search-card">
+        <div className="search-card">
           <div className="search-bar">
             <img src="/assets/search-icon.svg" alt="Search" />
             <input type="text" placeholder="Search by name, ID, or phone..." />
@@ -46,14 +46,14 @@ const Patients = () => {
             <img src="/assets/dropdownicon.svg" alt="Filter" />
           </div>
         </div>
-        <div className="card patients-table-card">
+        <div className="patients-table-card">
           <div className="table-header">
             <h3>Patient Records</h3>
             <p>
               Showing 1-{patients.length} of {patients.length} patients
             </p>
           </div>
-          <table>
+          <table className="page-table">
             <thead>
               <tr>
                 <th>Patient ID</th>

@@ -118,7 +118,7 @@ const Appointments = () => {
             <h3>Appointments List</h3>
             <p>Showing {appointments.length} appointments</p>
           </div>
-          <div className="table-container">
+          <div className="page-table">
             <table>
               <thead>
                 <tr>

@@ -122,7 +122,7 @@ const Dashboard = () => {
               View All
             </a>
           </div>
-          <table>
+          <table className="page-table">
             <thead>
               <tr>
                 <th>Time</th>
