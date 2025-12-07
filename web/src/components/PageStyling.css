@@ -12,7 +12,7 @@ body {
 /*       Page Container      */
 /* ------------------------- */
 .page-container {
-  padding: min(4em, 8%);
+  padding: min(4em, 9%);
   width: 86%;
   max-width: 1600px;
 }
@@ -77,7 +77,7 @@ body {
 /* ------------------------- */
 .page-folder {
   border-radius: 0 10px 10px 10px;
-  padding: min(4.4em, 8%);
+  padding: min(4em, 8%);
   background-color: #ffffff;
   box-shadow: 2px 1px 3px rgba(0, 0, 0, 0.1);
   border-left: 15px solid #4a90e2;
@@ -317,9 +317,8 @@ body {
 
 .stats-tabs {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 24px;
-  margin-top: 32px;
 }
 
 .stat-tab {
