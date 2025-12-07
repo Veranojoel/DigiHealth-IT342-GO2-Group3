@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import com.digihealth.backend.security.CustomUserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -25,7 +25,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private JwtTokenProvider tokenProvider;
 
     @Autowired
-    private UserDetailsService userDetailsService;
+    private CustomUserDetailsService userDetailsService;
 
     private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
@@ -44,15 +44,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 logger.debug("JwtAuthenticationFilter - Token valid, userId: {}", userId);
 
                 // Subject is the user ID (UUID). Resolve using loadUserById to align with token contents.
-                UserDetails userDetails;
-                if (userDetailsService instanceof com.digihealth.backend.security.CustomUserDetailsService) {
-                    com.digihealth.backend.security.CustomUserDetailsService custom =
-                            (com.digihealth.backend.security.CustomUserDetailsService) userDetailsService;
-                    userDetails = custom.loadUserById(java.util.UUID.fromString(userId));
-                } else {
-                    // Fallback to existing behavior if a different impl is wired
-                    userDetails = userDetailsService.loadUserByUsername(userId);
-                }
+                UserDetails userDetails = userDetailsService.loadUserById(java.util.UUID.fromString(userId));
                 UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 

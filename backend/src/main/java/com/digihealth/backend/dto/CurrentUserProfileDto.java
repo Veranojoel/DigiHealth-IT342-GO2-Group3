@@ -14,6 +14,20 @@ public class CurrentUserProfileDto {
     private Integer yearsOfExperience;
     private String professionalBio;
 
+    private Integer age;
+    private String gender;
+    private String allergies;
+    private String medicalConditions;
+    private String emergencyContactName;
+    private String emergencyContactPhone;
+    private String bloodType;
+    private java.time.LocalDate birthDate;
+    private String street;
+    private String city;
+    private String state;
+    private String postalCode;
+    private String country;
+
     // Explicit setters for tests
     public void setFullName(String fullName) {
         this.fullName = fullName;
@@ -50,4 +64,18 @@ public class CurrentUserProfileDto {
     public void setProfessionalBio(String professionalBio) {
         this.professionalBio = professionalBio;
     }
+
+    public void setAge(Integer age) { this.age = age; }
+    public void setGender(String gender) { this.gender = gender; }
+    public void setAllergies(String allergies) { this.allergies = allergies; }
+    public void setMedicalConditions(String medicalConditions) { this.medicalConditions = medicalConditions; }
+    public void setEmergencyContactName(String emergencyContactName) { this.emergencyContactName = emergencyContactName; }
+    public void setEmergencyContactPhone(String emergencyContactPhone) { this.emergencyContactPhone = emergencyContactPhone; }
+    public void setBloodType(String bloodType) { this.bloodType = bloodType; }
+    public void setBirthDate(java.time.LocalDate birthDate) { this.birthDate = birthDate; }
+    public void setStreet(String street) { this.street = street; }
+    public void setCity(String city) { this.city = city; }
+    public void setState(String state) { this.state = state; }
+    public void setPostalCode(String postalCode) { this.postalCode = postalCode; }
+    public void setCountry(String country) { this.country = country; }
 }

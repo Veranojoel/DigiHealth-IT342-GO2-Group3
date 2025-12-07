@@ -7,8 +7,7 @@ import org.hibernate.annotations.GenericGenerator;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
-import java.time.LocalTime;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -25,7 +24,7 @@ public class Doctor {
     private UUID doctorId;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private User user;
 
     @Column(unique = true, length = 50)
@@ -43,15 +42,8 @@ public class Doctor {
     @Column(columnDefinition = "TEXT")
     private String bio;
 
-    private LocalTime availableStartTime;
-
-    private LocalTime availableEndTime;
-
-    @ElementCollection(targetClass = DayOfWeek.class)
-    @Enumerated(EnumType.STRING)
-    @CollectionTable(name = "doctor_work_days", joinColumns = @JoinColumn(name = "doctor_id"))
-    @Column(name = "work_day")
-    private Set<DayOfWeek> workDays;
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<DoctorWorkDay> workDays;
 
     private Integer experienceYears;
 

@@ -1,31 +1,54 @@
 import React, { useState, useEffect } from "react";
 import "./PageStyling.css";
 import NewAppointmentModal from "./NewAppointmentModal";
+import DoctorAppointmentDetails from "./DoctorAppointmentDetails";
+import DoctorEditAppointment from "./DoctorEditAppointment";
 import apiClient from "../api/client";
 import { PageWrapper, PageMessage, PageFolder } from "./PageComponents";
+import { useAppointmentUpdates } from "../hooks/useAppointmentUpdates";
 
 const Appointments = () => {
   const [showModal, setShowModal] = useState(false);
+  const [selected, setSelected] = useState(null);
+  const [showDetails, setShowDetails] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
   const [appointments, setAppointments] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [liveUpdatedId, setLiveUpdatedId] = useState(null);
+  const [liveBanner, setLiveBanner] = useState("");
 
   const APPOINTMENTS_URL = "/api/doctors/me/appointments";
 
+  const loadAppointments = async () => {
+    try {
+      setLoading(true);
+      const res = await apiClient.get(APPOINTMENTS_URL);
+      setAppointments(res.data);
+    } catch (err) {
+      setError("Failed to load appointments");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchAppointments = async () => {
-      try {
-        setLoading(true);
-        const res = await apiClient.get(APPOINTMENTS_URL);
-        setAppointments(res.data);
-      } catch (err) {
-        setError("Failed to load appointments");
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchAppointments();
+    loadAppointments();
   }, []);
+
+  const onLiveUpdate = (appt) => {
+    try {
+      const id = appt?.appointmentId || appt?.id || null;
+      if (id) {
+        setLiveUpdatedId(id.toString());
+        setLiveBanner("Live update received");
+        setTimeout(() => setLiveBanner(""), 3000);
+      }
+      loadAppointments();
+    } catch {}
+  };
+
+  const { disconnect } = useAppointmentUpdates(onLiveUpdate);
 
   const getStatusCounts = () => {
     const counts = {
@@ -131,7 +154,18 @@ const Appointments = () => {
               </thead>
               <tbody>
                 {appointments.map((appt) => (
-                  <tr key={appt.id}>
+                  <tr
+                    key={appt.id}
+                    onClick={() => {
+                      setSelected(appt);
+                      setShowDetails(true);
+                    }}
+                    className={`clickable-row ${
+                      liveUpdatedId && appt.id === liveUpdatedId
+                        ? "row-live"
+                        : ""
+                    }`}
+                  >
                     <td>
                       {formatTime(appt.startDateTime || appt.appointmentTime)}
                     </td>
@@ -153,11 +187,31 @@ const Appointments = () => {
             </table>
           </div>
         </div>
-        <NewAppointmentModal
-          show={showModal}
-          onClose={() => setShowModal(false)}
-        />
       </PageFolder>
+      <NewAppointmentModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        onCreated={() => loadAppointments()}
+      />
+      {showDetails && selected && (
+        <DoctorAppointmentDetails
+          appointment={selected}
+          onClose={() => setShowDetails(false)}
+          onEdit={() => {
+            setShowDetails(false);
+            setShowEdit(true);
+          }}
+          onStatusUpdated={() => loadAppointments()}
+        />
+      )}
+      {showEdit && selected && (
+        <DoctorEditAppointment
+          appointment={selected}
+          onClose={() => setShowEdit(false)}
+          onSaved={() => loadAppointments()}
+          onCancelled={() => loadAppointments()}
+        />
+      )}
     </PageWrapper>
   );
 };

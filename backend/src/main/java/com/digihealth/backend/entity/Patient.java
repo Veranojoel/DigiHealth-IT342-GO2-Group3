@@ -23,7 +23,7 @@ public class Patient {
     private UUID patientId;
 
     @OneToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private User user;
 
     private Integer age;
@@ -36,6 +36,9 @@ public class Patient {
 
     @Column(columnDefinition = "TEXT")
     private String medicalConditions;
+
+    @Column(name = "current_medications", columnDefinition = "TEXT")
+    private String currentMedications;
 
     @Column(length = 100)
     private String emergencyContactName;
@@ -75,6 +78,10 @@ public class Patient {
 
     public String getMedicalConditions() {
         return medicalConditions;
+    }
+
+    public String getCurrentMedications() {
+        return currentMedications;
     }
 
     public String getEmergencyContactName() {
@@ -120,6 +127,10 @@ public class Patient {
 
     public void setMedicalConditions(String medicalConditions) {
         this.medicalConditions = medicalConditions;
+    }
+
+    public void setCurrentMedications(String currentMedications) {
+        this.currentMedications = currentMedications;
     }
 
     public void setEmergencyContactName(String emergencyContactName) {

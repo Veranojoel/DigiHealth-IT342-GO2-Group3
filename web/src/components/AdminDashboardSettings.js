@@ -7,6 +7,7 @@ const AdminDashboardSettings = () => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const fetchSettings = async () => {
     setLoading(true);
@@ -29,8 +30,12 @@ const AdminDashboardSettings = () => {
     try {
       const res = await apiClient.put('/api/admin/settings', next);
       setSettings(res.data);
+      setSuccess('Settings saved successfully!');
+      setTimeout(() => setSuccess(''), 5000);
+      setError('');
     } catch (e) {
       setError('Failed to save settings');
+      setSuccess('');
     }
   };
 
@@ -42,7 +47,8 @@ const AdminDashboardSettings = () => {
     <div className="settings-container">
       <AdminTabs />
 
-      {error && <div className="error-banner">{error}</div>}
+      {success && <div className="success-banner">{success}</div>}
+{error && <div className="error-banner">{error}</div>}
 
       {/* Clinic Information */}
       <section className="settings-section">

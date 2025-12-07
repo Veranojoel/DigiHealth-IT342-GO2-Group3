@@ -1,32 +1,5 @@
 import "./AuthLayout.css";
 
-// --- StepIndicator Component (NEW) ---
-const StepIndicator = ({ currentStep, totalSteps, stepTitles }) => {
-  return (
-    <div className="step-indicator">
-      {Array.from({ length: totalSteps }, (_, index) => {
-        const stepNum = index + 1;
-        const isActive = stepNum === currentStep;
-        const isComplete = stepNum < currentStep;
-
-        return (
-          <div
-            key={stepNum}
-            className={`step ${isActive ? "active" : ""} ${
-              isComplete ? "complete" : ""
-            }`}
-          >
-            <div className="circle">{isComplete ? "✓" : stepNum}</div>
-            <span className="title">{stepTitles[index]}</span>
-            {stepNum < totalSteps && <div className="line"></div>}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-// --- StepLayout Component (MODIFIED) ---
 const StepLayout = ({
   title,
   subtitle,
@@ -34,21 +7,9 @@ const StepLayout = ({
   onBack,
   onNext,
   nextLabel,
-  currentStep, // NEW PROP
-  totalSteps, // NEW PROP
-  stepTitles, // NEW PROP
 }) => {
   return (
     <div className="form-card">
-      {/* Step Indicator Integration */}
-      {totalSteps > 1 && (
-        <StepIndicator
-          currentStep={currentStep}
-          totalSteps={totalSteps}
-          stepTitles={stepTitles}
-        />
-      )}
-
       <p className="form-title">{title}</p>
       <p className="form-subtitle">{subtitle}</p>
 
@@ -71,87 +32,104 @@ const StepLayout = ({
   );
 };
 
-const STEP_TITLES = ["Basic", "Professional", "Availability"];
-const TOTAL_STEPS = 3;
-
-// --- RegistrationStep1 Component (MODIFIED for input grouping) ---
 export const RegistrationStep1 = ({
   onNext,
   onNavigateToLogin,
   formData,
   setFormData,
 }) => {
+  const ensureDoctorPrefix = (name) => {
+    const trimmed = (name || "").trim();
+    if (!trimmed) return "";
+    return trimmed.toLowerCase().startsWith("dr.")
+      ? trimmed.replace(/^dr\./i, "Dr.")
+      : `Dr. ${trimmed}`;
+  };
   return (
     <StepLayout
       title="Basic Information"
       subtitle="Create your doctor account"
       onBack={onNavigateToLogin}
       onNext={onNext}
-      currentStep={1}
-      totalSteps={TOTAL_STEPS}
-      stepTitles={STEP_TITLES}
     >
       <label>Full Name *</label>
       <input
         type="text"
-        placeholder="Dr. John Doe"
+        placeholder="Dr. Juan Dela Cruz"
         value={formData.fullName || ""}
         onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
+        onBlur={(e) =>
+          setFormData({
+            ...formData,
+            fullName: ensureDoctorPrefix(e.target.value),
+          })
+        }
       />
 
       <label>Email Address *</label>
       <input
         type="email"
-        placeholder="doctor@example.com"
+        placeholder="doctor.ph@example.com"
         value={formData.email || ""}
         onChange={(e) => setFormData({ ...formData, email: e.target.value })}
       />
 
-      {/* Input Group for two columns (Password & Confirm Password) */}
-      <div className="input-group-half">
-        <div className="input-field">
-          <label>Password *</label>
-          <input
-            type="password"
-            placeholder="Minimum 8 characters"
-            value={formData.password || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, password: e.target.value })
-            }
-          />
-        </div>
-        <div className="input-field">
-          <label>Confirm Password *</label>
-          <input
-            type="password"
-            placeholder="Re-enter password"
-            value={formData.confirmPassword || ""}
-            onChange={(e) =>
-              setFormData({ ...formData, confirmPassword: e.target.value })
-            }
-          />
-        </div>
-      </div>
+      <label>Password *</label>
+      <input
+        type="password"
+        placeholder="Minimum 8 characters"
+        value={formData.password || ""}
+        onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+      />
+
+      <label>Confirm Password *</label>
+      <input
+        type="password"
+        placeholder="Re-enter password"
+        value={formData.confirmPassword || ""}
+        onChange={(e) =>
+          setFormData({ ...formData, confirmPassword: e.target.value })
+        }
+      />
     </StepLayout>
   );
 };
 
-// --- RegistrationStep2 Component (Standard) ---
 export const RegistrationStep2 = ({
   onNext,
   onBack,
   formData,
   setFormData,
 }) => {
+  const normalizePHDigits = (value) => {
+    const digits = (value || "").replace(/\D/g, "");
+    if (!digits) return "";
+    if (digits.startsWith("09")) {
+      return digits.slice(1);
+    }
+    if (digits.startsWith("63")) {
+      return digits.slice(2);
+    }
+    return digits;
+  };
+
+  const formatPHPhone = (value) => {
+    let d = normalizePHDigits(value);
+    if (!d.startsWith("9")) d = "9" + d.replace(/^[^9]*/, "");
+    d = d.slice(0, 10);
+    const part1 = d.slice(0, 3);
+    const part2 = d.slice(3, 6);
+    const part3 = d.slice(6, 10);
+    return `+63${part1 ? " " + part1 : ""}${part2 ? " " + part2 : ""}${
+      part3 ? " " + part3 : ""
+    }`.trim();
+  };
   return (
     <StepLayout
       title="Professional Information"
       subtitle="Tell us about your practice"
       onBack={onBack}
       onNext={onNext}
-      currentStep={2}
-      totalSteps={TOTAL_STEPS}
-      stepTitles={STEP_TITLES}
     >
       <label>Specialization *</label>
       <select
@@ -173,7 +151,7 @@ export const RegistrationStep2 = ({
       <label>Medical License Number *</label>
       <input
         type="text"
-        placeholder="MD-12345"
+        placeholder="PRC-1234567"
         value={formData.licenseNumber || ""}
         onChange={(e) =>
           setFormData({ ...formData, licenseNumber: e.target.value })
@@ -183,17 +161,19 @@ export const RegistrationStep2 = ({
       <label>Phone Number *</label>
       <input
         type="text"
-        placeholder="+63"
+        placeholder="+63 912 345 6789"
         value={formData.phoneNumber || ""}
         onChange={(e) =>
-          setFormData({ ...formData, phoneNumber: e.target.value })
+          setFormData({
+            ...formData,
+            phoneNumber: formatPHPhone(e.target.value),
+          })
         }
       />
     </StepLayout>
   );
 };
 
-// --- RegistrationStep3 Component (MODIFIED for state handling of times) ---
 export const RegistrationStep3 = ({
   onBack,
   onSubmit,
@@ -202,51 +182,45 @@ export const RegistrationStep3 = ({
   isComplete,
   isSubmitting,
 }) => {
-  // Handles toggling the workday
   const toggleDay = (day) => {
-    const days = formData.workDays || [];
-    if (days.includes(day)) {
-      // Remove day
+    const workDays = formData.workDays || [];
+    const workHours = formData.workHours || {};
+
+    if (workDays.includes(day)) {
+      // Remove day from workDays
+      const updatedDays = workDays.filter((d) => d !== day);
+      // Remove day from workHours
+      const { [day]: _, ...updatedHours } = workHours;
       setFormData({
         ...formData,
-        workDays: days.filter((d) => d !== day),
-        availability: { ...formData.availability, [day]: undefined },
+        workDays: updatedDays,
+        workHours: updatedHours,
       });
     } else {
-      // Add day
-      setFormData({ ...formData, workDays: [...days, day] });
+      // Add day to workDays
+      setFormData({
+        ...formData,
+        workDays: [...workDays, day],
+        workHours: {
+          ...workHours,
+          [day]: { startTime: "09:00", endTime: "17:00" },
+        },
+      });
     }
   };
 
-  // Handles updating start/end times for a specific day
-  const handleTimeChange = (day, type, value) => {
-    const newAvailability = formData.availability || {};
-
-    // Create/update the day's object with default times if needed
-    const dayAvail = newAvailability[day] || {
-      startTime: "09:00",
-      endTime: "17:00",
-    };
-    dayAvail[type] = value;
-
+  const handleTimeChange = (day, field, value) => {
     setFormData({
       ...formData,
-      availability: {
-        ...newAvailability,
-        [day]: dayAvail,
+      workHours: {
+        ...formData.workHours,
+        [day]: {
+          ...formData.workHours?.[day],
+          [field]: value,
+        },
       },
     });
   };
-
-  const daysOfWeek = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
 
   return (
     <StepLayout
@@ -255,50 +229,50 @@ export const RegistrationStep3 = ({
       onBack={onBack}
       onNext={onSubmit}
       nextLabel={isSubmitting ? "Registering..." : "Complete Registration"}
-      currentStep={3}
-      totalSteps={TOTAL_STEPS}
-      stepTitles={STEP_TITLES}
     >
       <div className="availability-form">
-        {daysOfWeek.map((day) => {
-          const isWorkingDay = formData.workDays?.includes(day) || false;
-          const dayAvailability = formData.availability?.[day] || {};
-
-          return (
-            <div key={day} className="day-row">
-              <div className="day-label">
-                <input
-                  type="checkbox"
-                  checked={isWorkingDay}
-                  onChange={() => toggleDay(day)}
-                />
-                <label className={isWorkingDay ? "" : "day-off"}>{day}</label>
-              </div>
-
-              {isWorkingDay ? (
-                <div className="time-inputs">
-                  <input
-                    type="time"
-                    value={dayAvailability.startTime || "09:00"}
-                    onChange={(e) =>
-                      handleTimeChange(day, "startTime", e.target.value)
-                    }
-                  />
-                  <span>to</span>
-                  <input
-                    type="time"
-                    value={dayAvailability.endTime || "17:00"}
-                    onChange={(e) =>
-                      handleTimeChange(day, "endTime", e.target.value)
-                    }
-                  />
-                </div>
-              ) : (
-                <div className="unavailable-text">Day Off</div>
-              )}
+        {[
+          "Monday",
+          "Tuesday",
+          "Wednesday",
+          "Thursday",
+          "Friday",
+          "Saturday",
+          "Sunday",
+        ].map((day) => (
+          <div key={day} className="day-row">
+            <div className="day-label">
+              <input
+                type="checkbox"
+                checked={formData.workDays?.includes(day) || false}
+                onChange={() => toggleDay(day)}
+              />
+              <label>{day}</label>
             </div>
-          );
-        })}
+
+            {formData.workDays?.includes(day) ? (
+              <div className="time-inputs">
+                <input
+                  type="time"
+                  value={formData.workHours?.[day]?.startTime || "09:00"}
+                  onChange={(e) =>
+                    handleTimeChange(day, "startTime", e.target.value)
+                  }
+                />
+                <span>to</span>
+                <input
+                  type="time"
+                  value={formData.workHours?.[day]?.endTime || "17:00"}
+                  onChange={(e) =>
+                    handleTimeChange(day, "endTime", e.target.value)
+                  }
+                />
+              </div>
+            ) : (
+              <div className="unavailable-text">Unavailable</div>
+            )}
+          </div>
+        ))}
       </div>
     </StepLayout>
   );

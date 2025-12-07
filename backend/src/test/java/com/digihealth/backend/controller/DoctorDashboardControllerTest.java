@@ -4,6 +4,8 @@ import com.digihealth.backend.dto.DashboardSummaryDto;
 import com.digihealth.backend.dto.DoctorAppointmentDto;
 import com.digihealth.backend.dto.DoctorPatientDto;
 import com.digihealth.backend.dto.TodayAppointmentDto;
+import com.digihealth.backend.security.CustomUserDetailsService;
+import com.digihealth.backend.security.JwtTokenProvider;
 import com.digihealth.backend.service.DashboardService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -36,6 +38,27 @@ class DoctorDashboardControllerTest {
 
         @MockBean
         private JwtTokenProvider jwtTokenProvider;
+
+        @MockBean
+        private CustomUserDetailsService customUserDetailsService;
+
+        @MockBean
+        private com.digihealth.backend.service.DoctorService doctorService;
+
+        @MockBean
+        private com.digihealth.backend.repository.AppointmentRepository appointmentRepository;
+
+        @MockBean
+        private com.digihealth.backend.repository.DoctorRepository doctorRepository;
+
+        @MockBean
+        private com.digihealth.backend.repository.PatientRepository patientRepository;
+
+        @MockBean
+        private com.digihealth.backend.repository.UserRepository userRepository;
+
+        @MockBean
+        private com.digihealth.backend.repository.AdminSettingsRepository adminSettingsRepository;
 
         @Test
         @WithMockUser(username = "doctor@example.com", roles = { "DOCTOR" })
@@ -142,4 +165,5 @@ class DoctorDashboardControllerTest {
                                 .accept(MediaType.APPLICATION_JSON))
                                 .andExpect(status().is4xxClientError());
         }
+
 }

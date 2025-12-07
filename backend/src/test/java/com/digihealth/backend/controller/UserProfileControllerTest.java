@@ -2,6 +2,8 @@ package com.digihealth.backend.controller;
 
 import com.digihealth.backend.dto.CurrentUserProfileDto;
 import com.digihealth.backend.dto.CurrentUserProfileUpdateRequest;
+import com.digihealth.backend.security.CustomUserDetailsService;
+import com.digihealth.backend.security.JwtTokenProvider;
 import com.digihealth.backend.service.UserProfileService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -33,6 +35,9 @@ class UserProfileControllerTest {
 
         @MockBean
         private JwtTokenProvider jwtTokenProvider;
+
+        @MockBean
+        private CustomUserDetailsService customUserDetailsService;
 
         private CurrentUserProfileDto sampleProfile() {
                 CurrentUserProfileDto dto = new CurrentUserProfileDto();
@@ -90,7 +95,9 @@ class UserProfileControllerTest {
                                 "\"professionalBio\": \"Experienced cardiologist\" " +
                                 "}";
 
-                mockMvc.perform(put("/api/users/me").with(csrf())
+                mockMvc.perform(put("/api/users/me")
+                                .with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors
+                                                .csrf())
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(body))
                                 .andExpect(status().isOk())

@@ -74,7 +74,7 @@ export const AuthProvider = ({ children }) => {
     }
   }, []);
 
-  const login = async (email, password) => {
+  const login = async (email, password, options = {}) => {
     try {
       console.log("[AuthContext.login] Starting login for email:", email);
       const response = await apiClient.post("/api/auth/login", {
@@ -106,10 +106,17 @@ export const AuthProvider = ({ children }) => {
         throw new Error("Login response missing token");
       }
 
-      // Persist JWT for apiClient to use as Authorization: Bearer <token>
-      setToken(accessToken);
+      if (options && options.allowedRole) {
+        if (!user || user.role !== options.allowedRole) {
+          throw new Error(
+            options.allowedRole === "DOCTOR"
+              ? "Access denied. Only doctors can access the doctor portal"
+              : "Access denied"
+          );
+        }
+      }
 
-      // Store user data in localStorage and state
+      setToken(accessToken);
       if (user) {
         localStorage.setItem("user", JSON.stringify(user));
         setCurrentUser(user);

@@ -1,14 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../auth/auth';
 import apiClient from '../api/client';
 import AdminTabs from './AdminTabs';
+import AdminPatients from './AdminPatients';
+import AdminAppointments from './AdminAppointments';
+import AdminAnalytics from './AdminAnalytics';
 import './AdminDashboard.css';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { currentUser, isAuthenticated, loading: authLoading, logout } = useAuth();
-  const [activeTab, setActiveTab] = useState('doctors');
   const [pendingDoctors, setPendingDoctors] = useState([]);
   const [allDoctors, setAllDoctors] = useState([]);
   const [allPatients, setAllPatients] = useState([]);
@@ -16,6 +19,23 @@ const AdminDashboard = () => {
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
+
+  // Determine active tab based on current route (matching AdminTabs logic)
+  const getActiveTab = () => {
+    if (location.pathname === '/admin/dashboard' || location.pathname === '/admin') {
+      return 'doctors';
+    } else if (location.pathname === '/admin/patients') {
+      return 'patients';
+    } else if (location.pathname === '/admin/appointments') {
+      return 'appointments';
+    } else if (location.pathname === '/admin/analytics') {
+      return 'analytics';
+    }
+    return 'doctors';
+  };
+
+  const activeTab = getActiveTab();
 
   // Authentication guard
   useEffect(() => {
@@ -41,9 +61,13 @@ const AdminDashboard = () => {
         apiClient.get('/api/admin/patients')
       ]);
 
-      setPendingDoctors(pendingResponse.data);
-      setAllDoctors([...approvedResponse.data, ...pendingResponse.data]);
-      setAllPatients(patientsResponse.data);
+      const pending = Array.isArray(pendingResponse?.data) ? pendingResponse.data : [];
+      const approved = Array.isArray(approvedResponse?.data) ? approvedResponse.data : [];
+      const patients = Array.isArray(patientsResponse?.data) ? patientsResponse.data : [];
+
+      setPendingDoctors(pending);
+      setAllDoctors([...(approved || []), ...(pending || [])]);
+      setAllPatients(patients);
     } catch (err) {
       console.error('Failed to fetch admin data:', err);
       setError('Failed to load data. Please try again.');
@@ -56,6 +80,8 @@ const AdminDashboard = () => {
     try {
       await apiClient.put(`/api/admin/doctors/${doctorId}/approve`);
       fetchData(); // Refresh data
+      setSuccess('Doctor approved successfully');
+      setTimeout(() => setSuccess(''), 4000);
     } catch (err) {
       console.error('Failed to approve doctor:', err);
       setError('Failed to approve doctor. Please try again.');
@@ -66,9 +92,32 @@ const AdminDashboard = () => {
     try {
       await apiClient.put(`/api/admin/doctors/${doctorId}/reject`);
       fetchData(); // Refresh data
+      setSuccess('Doctor rejected successfully');
+      setTimeout(() => setSuccess(''), 4000);
     } catch (err) {
       console.error('Failed to reject doctor:', err);
       setError('Failed to reject doctor. Please try again.');
+    }
+  };
+
+  const handleToggleDoctorStatus = async (doctorId, isActive) => {
+    if (!window.confirm(`Are you sure you want to ${isActive ? 'deactivate' : 'reactivate'} this doctor?`)) {
+      return;
+    }
+
+    try {
+      setLoading(true);
+      const endpoint = isActive ? '/deactivate' : '/reactivate';
+      await apiClient.put(`/api/admin/users/${doctorId}${endpoint}`);
+      fetchData(); // Refresh data
+      setError(''); // Clear any previous errors
+      setSuccess(isActive ? 'Doctor deactivated successfully' : 'Doctor reactivated successfully');
+      setTimeout(() => setSuccess(''), 4000);
+    } catch (err) {
+      console.error('Failed to toggle doctor status:', err);
+      setError(err.response?.data?.error || 'Failed to toggle doctor status. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,31 +133,12 @@ const AdminDashboard = () => {
 
   // Remove old demo data setup - this is now in fetchData()
 
-  const handleApprove = (doctorId) => {
-    console.log('Approve doctor:', doctorId);
-    handleApproveDoctor(doctorId);
-  };
-
-  const handleReject = (doctorId) => {
-    console.log('Reject doctor:', doctorId);
-    handleRejectDoctor(doctorId);
-  };
-
   const handleLogout = () => {
     logout();
     navigate('/admin/login');
   };
 
-  // Filter patients based on search term and status
-  const filteredPatients = allPatients.filter(patient => {
-    const matchesSearch = patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         patient.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         patient.id.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesStatus = statusFilter === 'all' || patient.status.toLowerCase() === statusFilter.toLowerCase();
-    
-    return matchesSearch && matchesStatus;
-  });
+  // Keep patient filters in AdminPatients to avoid duplicate filtering and type issues
 
   const handleExportPatients = () => {
     console.log('Export patients data');
@@ -119,25 +149,25 @@ const AdminDashboard = () => {
       label: 'Total Doctors',
       value: allDoctors.length.toString(),
       subtitle: `${pendingDoctors.length} pending approval`,
-      icon: '/assets/Admin assets/Doctor-4.svg'
+      icon: '/assets/Admin-assets/Doctor-4.svg'
     },
     {
       label: 'Total Patients',
       value: allPatients.length.toString(),
       subtitle: 'Registered users',
-      icon: '/assets/Admin assets/Total Patients.svg'
+      icon: '/assets/Admin-assets/Total-Patients.svg'
     },
     {
       label: 'Active Appointments',
       value: '0',
       subtitle: 'Loading...',
-      icon: '/assets/Admin assets/Active Appointments.svg'
+      icon: '/assets/Admin-assets/Active-Appointments.svg'
     },
     {
       label: 'System Activity',
       value: '98%',
       subtitle: '↗ System uptime',
-      icon: '/assets/Admin assets/Analytics.svg'
+      icon: '/assets/Admin-assets/Analytics.svg'
     }
   ];
 
@@ -163,7 +193,7 @@ const AdminDashboard = () => {
             </div>
           </div>
           <button className="logout-btn" onClick={handleLogout}>
-            <img src="/assets/Admin assets/Logout.svg" alt="logout" className="logout-icon-img" />
+            <img src="/assets/Admin-assets/Logout.svg" alt="logout" className="logout-icon-img" />
             Logout
           </button>
         </div>
@@ -174,6 +204,12 @@ const AdminDashboard = () => {
         <div className="error-banner">
           <span className="error-icon">❌</span>
           <span className="error-text">{error}</span>
+        </div>
+      )}
+      {success && (
+        <div className="success-banner">
+          <span className="success-icon">✅</span>
+          <span className="success-text">{success}</span>
         </div>
       )}
 
@@ -235,10 +271,10 @@ const AdminDashboard = () => {
                         <td>{doctor.email}</td>
                         <td>{new Date(doctor.createdAt || Date.now()).toLocaleDateString()}</td>
                         <td className="actions-cell">
-                          <button className="action-btn approve" onClick={() => handleApprove(doctor.id)}>
+                          <button className="action-btn approve" onClick={() => handleApproveDoctor(doctor.id)}>
                             ✓ Approve
                           </button>
-                          <button className="action-btn reject" onClick={() => handleReject(doctor.id)}>
+                          <button className="action-btn reject" onClick={() => handleRejectDoctor(doctor.id)}>
                             ✕ Reject
                           </button>
                         </td>
@@ -264,8 +300,9 @@ const AdminDashboard = () => {
                       <th>Specialization</th>
                       <th>Email</th>
                       <th>Phone</th>
-                      <th>Status</th>
-                      <th>Registered</th>
+                      <th>Approval</th>
+                      <th>Active Status</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -281,7 +318,22 @@ const AdminDashboard = () => {
                             ● {doctor.isApproved ? 'Approved' : 'Pending'}
                           </span>
                         </td>
-                        <td>{new Date(doctor.createdAt || Date.now()).toLocaleDateString()}</td>
+                        <td>
+                          <span className={`status-badge ${doctor.isActive ? 'active' : 'inactive'}`}>
+                            ● {doctor.isActive ? 'Active' : 'Inactive'}
+                          </span>
+                        </td>
+                        <td className="actions-cell">
+                          {doctor.isApproved && (
+                            <button 
+                              className={`action-btn ${doctor.isActive ? 'deactivate' : 'reactivate'}`}
+                              onClick={() => handleToggleDoctorStatus(doctor.id, doctor.isActive)}
+                              disabled={loading}
+                            >
+                              {doctor.isActive ? 'Deactivate' : 'Reactivate'}
+                            </button>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -297,15 +349,16 @@ const AdminDashboard = () => {
               <h2>Patients</h2>
               <p className="section-description">Patient management interface</p>
             </div>
-            <div className="redirect-notice">
-              <p>Redirecting to dedicated patients page...</p>
-              <button 
-                className="action-btn view" 
-                onClick={() => navigate('/admin/patients')}
-              >
-                Go to Patients Page
-              </button>
-            </div>
+            <AdminPatients
+              patients={allPatients}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              statusFilter={statusFilter}
+              setStatusFilter={setStatusFilter}
+              handleExportPatients={handleExportPatients}
+              onRefresh={fetchData}
+              nested={true}
+            />
           </section>
         )}
 
@@ -313,8 +366,9 @@ const AdminDashboard = () => {
           <section className="content-section">
             <div className="section-header">
               <h2>Appointments</h2>
-              <p className="section-description">Coming soon - Appointment management interface</p>
+              <p className="section-description">Appointment management interface</p>
             </div>
+            <AdminAppointments nested={true} />
           </section>
         )}
 
@@ -322,8 +376,9 @@ const AdminDashboard = () => {
           <section className="content-section">
             <div className="section-header">
               <h2>Analytics</h2>
-              <p className="section-description">Coming soon - Analytics and reporting interface</p>
+              <p className="section-description">Analytics and reporting interface</p>
             </div>
+            <AdminAnalytics nested={true} />
           </section>
         )}
       </div>

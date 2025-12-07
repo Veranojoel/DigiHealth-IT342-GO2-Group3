@@ -30,8 +30,7 @@ public class UserProfileService {
 
     @Transactional(readOnly = true)
     public UserProfileResponse getUserProfile(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = resolveUserByIdOrPatientId(userId);
 
         UserProfileResponse response = new UserProfileResponse();
         response.setUserId(user.getId());
@@ -45,7 +44,7 @@ public class UserProfileService {
         if (user.getRole() == Role.PATIENT) {
             patientRepository.findByUser(user).ifPresent(patient -> {
                 response.setAge(patient.getAge());
-                response.setGender(patient.getGender().name());
+                response.setGender(patient.getGender() != null ? patient.getGender().name() : null);
                 response.setAllergies(patient.getAllergies());
                 response.setMedicalConditions(patient.getMedicalConditions());
                 response.setEmergencyContactName(patient.getEmergencyContactName());
@@ -69,8 +68,9 @@ public class UserProfileService {
 
     @Transactional
     public UserProfileResponse updateUserProfile(UUID userId, UserProfileUpdateRequest request) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        System.out.println("[UserProfileService.updateUserProfile] userId=" + userId);
+        User user = resolveUserByIdOrPatientId(userId);
+        System.out.println("[UserProfileService.updateUserProfile] Loaded user=" + user.getEmail() + ", role=" + user.getRole());
 
         // For current model, map updated name into fullName
         if (request.getFirstName() != null || request.getLastName() != null) {
@@ -81,10 +81,12 @@ public class UserProfileService {
                 user.setFullName(combined);
             }
         }
+        System.out.println("[UserProfileService.updateUserProfile] Updating phoneNumber to=" + request.getPhoneNumber());
         user.setPhoneNumber(request.getPhoneNumber());
         // No dedicated profileImageUrl field on User; ignore or extend entity if needed
 
         if (user.getRole() == Role.PATIENT) {
+            System.out.println("[UserProfileService.updateUserProfile] Updating patient fields");
             Patient patient = patientRepository.findByUser(user)
                     .orElseGet(() -> {
                         Patient newPatient = new Patient();
@@ -92,38 +94,66 @@ public class UserProfileService {
                         return newPatient;
                     });
 
-            patient.setAge(request.getAge());
-            patient.setGender(Gender.valueOf(request.getGender()));
-            patient.setAllergies(request.getAllergies());
-            patient.setMedicalConditions(request.getMedicalConditions());
-            patient.setEmergencyContactName(request.getEmergencyContactName());
-            patient.setEmergencyContactPhone(request.getEmergencyContactPhone());
-            patient.setBloodType(request.getBloodType());
-            patient.setBirthDate(request.getBirthDate());
+            if (request.getAge() != null) {
+                patient.setAge(request.getAge());
+            }
+            if (request.getGender() != null) {
+                try {
+                    patient.setGender(Gender.valueOf(request.getGender().trim().toUpperCase()));
+                } catch (Exception ignored) {}
+            }
+            if (request.getAllergies() != null) {
+                patient.setAllergies(request.getAllergies());
+            }
+            if (request.getMedicalConditions() != null) {
+                patient.setMedicalConditions(request.getMedicalConditions());
+            }
+            if (request.getEmergencyContactName() != null) {
+                patient.setEmergencyContactName(request.getEmergencyContactName());
+            }
+            if (request.getEmergencyContactPhone() != null) {
+                patient.setEmergencyContactPhone(request.getEmergencyContactPhone());
+            }
+            if (request.getBloodType() != null) {
+                patient.setBloodType(request.getBloodType());
+            }
+            if (request.getBirthDate() != null) {
+                patient.setBirthDate(request.getBirthDate());
+            }
 
             Address address = patient.getAddress() == null ? new Address() : patient.getAddress();
-            address.setStreet(request.getStreet());
-            address.setCity(request.getCity());
-            address.setState(request.getState());
-            address.setPostalCode(request.getPostalCode());
-            address.setCountry(request.getCountry());
+            if (request.getStreet() != null) address.setStreet(request.getStreet());
+            if (request.getCity() != null) address.setCity(request.getCity());
+            if (request.getState() != null) address.setState(request.getState());
+            if (request.getPostalCode() != null) address.setPostalCode(request.getPostalCode());
+            if (request.getCountry() != null) address.setCountry(request.getCountry());
             patient.setAddress(address);
 
+            System.out.println("[UserProfileService.updateUserProfile] Saving patient entity");
             patientRepository.save(patient);
         }
 
+        System.out.println("[UserProfileService.updateUserProfile] Saving user entity");
         userRepository.save(user);
 
+        System.out.println("[UserProfileService.updateUserProfile] Returning updated profile");
         return getUserProfile(userId);
     }
 
     @Transactional
     public void deleteUserProfile(UUID userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+        User user = resolveUserByIdOrPatientId(userId);
 
         user.setIsActive(false);
         userRepository.save(user);
+    }
+
+    private User resolveUserByIdOrPatientId(UUID id) {
+        System.out.println("[UserProfileService] resolveUserByIdOrPatientId id=" + id);
+        return userRepository.findById(id)
+                .orElseGet(() -> patientRepository.findById(id)
+                        .map(Patient::getUser)
+                        .orElseThrow(() -> new RuntimeException("User not found")));
     }
 
     @Transactional(readOnly = true)
@@ -164,6 +194,28 @@ public class UserProfileService {
                 dto.setMedicalLicenseNumber(doctor.getLicenseNumber());
                 dto.setYearsOfExperience(doctor.getExperienceYears());
                 dto.setProfessionalBio(doctor.getBio());
+            });
+        }
+
+        if (user.getRole() == Role.PATIENT) {
+            patientRepository.findByUser(user).ifPresent(patient -> {
+                dto.setAge(patient.getAge());
+                dto.setGender(patient.getGender() != null ? patient.getGender().name() : null);
+                dto.setAllergies(patient.getAllergies());
+                dto.setMedicalConditions(patient.getMedicalConditions());
+                dto.setEmergencyContactName(patient.getEmergencyContactName());
+                dto.setEmergencyContactPhone(patient.getEmergencyContactPhone());
+                dto.setBloodType(patient.getBloodType());
+                dto.setBirthDate(patient.getBirthDate());
+
+                Address address = patient.getAddress();
+                if (address != null) {
+                    dto.setStreet(address.getStreet());
+                    dto.setCity(address.getCity());
+                    dto.setState(address.getState());
+                    dto.setPostalCode(address.getPostalCode());
+                    dto.setCountry(address.getCountry());
+                }
             });
         }
 
@@ -209,6 +261,36 @@ public class UserProfileService {
             }
 
             doctorRepository.save(doctor);
+        }
+
+        if (user.getRole() == Role.PATIENT) {
+            Patient patient = patientRepository.findByUser(user)
+                    .orElseGet(() -> {
+                        Patient newPatient = new Patient();
+                        newPatient.setUser(user);
+                        return newPatient;
+                    });
+
+            if (request.getAge() != null) patient.setAge(request.getAge());
+            if (request.getGender() != null) {
+                try { patient.setGender(Gender.valueOf(request.getGender().trim().toUpperCase())); } catch (Exception ignored) {}
+            }
+            if (request.getAllergies() != null) patient.setAllergies(request.getAllergies());
+            if (request.getMedicalConditions() != null) patient.setMedicalConditions(request.getMedicalConditions());
+            if (request.getEmergencyContactName() != null) patient.setEmergencyContactName(request.getEmergencyContactName());
+            if (request.getEmergencyContactPhone() != null) patient.setEmergencyContactPhone(request.getEmergencyContactPhone());
+            if (request.getBloodType() != null) patient.setBloodType(request.getBloodType());
+            if (request.getBirthDate() != null) patient.setBirthDate(request.getBirthDate());
+
+            Address address = patient.getAddress() == null ? new Address() : patient.getAddress();
+            if (request.getStreet() != null) address.setStreet(request.getStreet());
+            if (request.getCity() != null) address.setCity(request.getCity());
+            if (request.getState() != null) address.setState(request.getState());
+            if (request.getPostalCode() != null) address.setPostalCode(request.getPostalCode());
+            if (request.getCountry() != null) address.setCountry(request.getCountry());
+            patient.setAddress(address);
+
+            patientRepository.save(patient);
         }
 
         userRepository.save(user);

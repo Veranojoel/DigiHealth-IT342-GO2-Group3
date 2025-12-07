@@ -26,9 +26,7 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
     setSubmitting(true);
 
     try {
-      console.log("[LoginScreen] Attempting login with email:", email);
-      await login(email, password);
-      console.log("[LoginScreen] Login successful, navigating to dashboard");
+      await login(email, password, { allowedRole: "DOCTOR" });
       navigate("/dashboard");
     } catch (error) {
       console.error("[LoginScreen] Login error:", error);
@@ -57,7 +55,8 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
       } else {
         setErrorMsg(
           backendMessage ||
-            "Login failed. Please check your connection and try again."
+            error.message ||
+            "Invalid email or password. Please try again."
         );
       }
       console.log("[LoginScreen] Error message set:", setErrorMsg);
