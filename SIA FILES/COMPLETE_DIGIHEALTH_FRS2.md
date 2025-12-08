@@ -64,7 +64,7 @@ This document aligns functional requirements to the current repository implement
 - Email/password login API | ✅ IMPLEMENTED
 - JWT-based secure session | ✅ IMPLEMENTED
 - Redirect to patient dashboard (PWA UI) | ✅ IMPLEMENTED
-- Google OAuth 2.0 login | NOT IMPLEMENTED
+- Google OAuth 2.0 login | ✅ IMPLEMENTED
 
 **Implementation Approach:**
 - Patient login is implemented in `mobile/Patient-PWA/src/components/PatientLogin.tsx` using `fetch` to call `POST /api/auth/login`. On success, stores `accessToken` (JWT) and `user` in `localStorage`, then navigates to the dashboard.
@@ -73,11 +73,15 @@ This document aligns functional requirements to the current repository implement
 - Valid credentials return a JWT and current user payload.
 - Doctors must be approved to log in; deactivated users are blocked.
 - Token is attached to subsequent API calls via `Authorization: Bearer <token>`.
+- Google sign-in validates Google id_token and audience (client ID), checks intended role, and returns structured error payload `{ status, error, message }` on failure.
+- Unregistered Google accounts return `400` with message `Account is not registered. Please sign up.`
+- Duplicate registrations are blocked via normalized email uniqueness and DB constraint.
 
 **References:**
 - PWA: `mobile/Patient-PWA/src/components/PatientLogin.tsx:22-51`
-- Controller: `backend/src/main/java/com/digihealth/backend/controller/AuthController.java:21-25`
-- Service: `backend/src/main/java/com/digihealth/backend/service/AuthService.java:125-176`
+- Controller: `backend/src/main/java/com/digihealth/backend/controller/AuthController.java:32-44`
+- Service (email/password): `backend/src/main/java/com/digihealth/backend/service/AuthService.java:222-275`
+- Service (Google login): `backend/src/main/java/com/digihealth/backend/service/AuthService.java:56-87`
 - Security: `backend/src/main/java/com/digihealth/backend/security/JwtAuthenticationFilter.java`
 
 ---

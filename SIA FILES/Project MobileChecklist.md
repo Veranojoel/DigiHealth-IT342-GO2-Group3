@@ -1,6 +1,6 @@
 # 📋 DIGIHEALTH PATIENT PWA IMPLEMENTATION CHECKLIST
 
-**Last Updated:** 2025-12-05
+**Last Updated:** 2025-12-08
 **Scope:** Patient-facing Progressive Web App (PWA) delivered via the existing `web/` codebase
 
 ---
@@ -37,7 +37,7 @@
 | Feature | Status | Notes |
 |---------|--------|-------|
 | Login screen (email/password) | ✅ IMPLEMENTED | Stores JWT in localStorage |
-| Google OAuth 2.0 login | ❌ NOT IMPLEMENTED | Optional enhancement |
+| Google OAuth 2.0 login | ✅ IMPLEMENTED | Web + Patient PWA; structured errors; duplicates blocked |
 | JWT session handling | ✅ IMPLEMENTED | Authorization: Bearer <token> |
 | Redirect to patient dashboard | ✅ IMPLEMENTED | Navigates after login |
 
