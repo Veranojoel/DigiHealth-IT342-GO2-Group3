@@ -263,17 +263,17 @@
 .tabs-navigation {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
   border-radius: 14px;
-  background: #ececf0;
-  padding: 4px 3px;
+  background: #b3e5fc;
+  padding: min(1em, 6%);
   margin: 16px 32px 24px;
 }
 
 .tab-button {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 12px;
   border: 1px solid transparent;
   border-radius: 14px;
@@ -284,6 +284,11 @@
   font-size: 14px;
   font-weight: 600;
   white-space: nowrap;
+}
+
+.tab-button:hover {
+  background: #e1f5fe;
+  cursor: pointer;
 }
 
 .tab-button.active {
