@@ -8,6 +8,9 @@ import com.digihealth.backend.dto.RegisterPatientDto;
 import com.digihealth.backend.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
+import java.util.HashMap;
+import java.util.Map;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,9 +30,17 @@ public class AuthController {
     }
 
     @PostMapping("/google-login")
-    public ResponseEntity<LoginResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
-        LoginResponse response = authService.googleLogin(request);
-        return ResponseEntity.ok(response);
+    public ResponseEntity<?> googleLogin(@RequestBody GoogleLoginRequest request) {
+        try {
+            LoginResponse response = authService.googleLogin(request);
+            return ResponseEntity.ok(response);
+        } catch (ResponseStatusException ex) {
+            Map<String, Object> body = new HashMap<>();
+            body.put("status", ex.getStatus().value());
+            body.put("error", ex.getStatus().toString());
+            body.put("message", ex.getReason());
+            return ResponseEntity.status(ex.getStatus()).body(body);
+        }
     }
 
     @PostMapping("/register")

@@ -28,6 +28,7 @@ public class User {
 
     // Basic auth and identity
     private String fullName;
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
     /**

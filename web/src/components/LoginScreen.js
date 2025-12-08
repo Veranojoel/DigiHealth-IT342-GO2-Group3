@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import AuthLayout from "./AuthLayout";
 import { useAuth } from "../auth/auth";
+import { getErrorMessage } from "../api/client";
 import { useNavigate, useLocation } from "react-router-dom";
 
 export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
@@ -26,8 +27,22 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
       await googleLogin(credentialResponse.credential, "DOCTOR", { allowedRole: "DOCTOR" });
       navigate("/dashboard");
     } catch (error) {
-      console.error("Google login error:", error);
-      setErrorMsg(error.message || "Google login failed. Please try again.");
+      const backendMessage = getErrorMessage(error) || "Google login failed. Please try again.";
+      if (backendMessage === "Bad Request") {
+        setErrorMsg("No doctor account found for this Google account. Please register first (link below).");
+        return;
+      }
+      if (backendMessage.includes("No account found") || backendMessage.includes("complete registration")) {
+        setErrorMsg("No doctor account found for this Google account. Please register first (link below).");
+      } else if (backendMessage.includes("pending approval") || error.response?.status === 403) {
+        setErrorMsg(
+          "Your doctor account is pending approval. Please wait for an administrator to approve your registration before logging in. This typically takes 24-48 hours. Contact support if this takes longer."
+        );
+      } else if (error.response?.status === 401) {
+        setErrorMsg("Invalid credentials. Please try again.");
+      } else {
+        setErrorMsg(backendMessage);
+      }
     }
   };
 

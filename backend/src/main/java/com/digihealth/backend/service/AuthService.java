@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.springframework.dao.DataIntegrityViolationException;
 import java.util.Map;
 
 @Service
@@ -70,43 +71,17 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid client ID");
         }
 
-        String email = (String) tokenInfo.get("email");
+        String email = normalizeEmail((String) tokenInfo.get("email"));
         String fullName = (String) tokenInfo.get("name");
 
-        // Find or create user
+        // Find existing user only (no auto-registration on login)
         var optUser = userRepository.findByEmail(email);
-        User user;
-        if (optUser.isPresent()) {
-            user = optUser.get();
-            // Role check for existing users
-            if (request.getIntendedRole() != null && !request.getIntendedRole().equals(user.getRole().name())) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Existing user role mismatch");
-            }
-        } else {
-            // Auto-register new user
-            user = new User();
-            user.setEmail(email);
-            user.setFullName(fullName);
-            user.setPasswordHash(null); // OAuth user, no password
-            user.setIsActive(true);
-
-            Role role = Role.valueOf(request.getIntendedRole());
-            user.setRole(role);
-
-            if (role == Role.DOCTOR) {
-                user.setIsApproved(false);
-                Doctor doctor = new Doctor();
-                doctor.setUser(user);
-                doctorRepository.save(doctor);
-            } else if (role == Role.PATIENT) {
-                Patient patient = new Patient();
-                patient.setUser(user);
-                patientRepository.save(patient);
-            } else {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role: " + request.getIntendedRole());
-            }
-
-            user = userRepository.save(user);
+        User user = optUser.orElseThrow(() -> 
+            new ResponseStatusException(HttpStatus.BAD_REQUEST, "Account is not registered. Please sign up."));
+        
+        // Role check for existing users
+        if (request.getIntendedRole() != null && !request.getIntendedRole().equals(user.getRole().name())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Existing user role mismatch");
         }
 
         // Authorization checks
@@ -121,19 +96,27 @@ public class AuthService {
         return new LoginResponse(token, user);
     }
     public void registerUser(com.digihealth.backend.dto.RegisterPatientDto registerDto) {
-        if (userRepository.existsByEmail(registerDto.getEmail())) {
+        String emailNorm = normalizeEmail(registerDto.getEmail());
+        if (emailNorm == null || emailNorm.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
+        }
+        if (userRepository.existsByEmail(emailNorm)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
 
         User user = new User();
         user.setFullName(registerDto.getFullName());
-        user.setEmail(registerDto.getEmail());
+        user.setEmail(emailNorm);
         user.setPhoneNumber(registerDto.getPhoneNumber());
         user.setPasswordHash(passwordEncoder.encode(registerDto.getPassword()));
         user.setRole(Role.PATIENT); // Default role for registration
         user.setIsActive(Boolean.TRUE);
 
-        userRepository.save(user);
+        try {
+            userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+        }
 
         com.digihealth.backend.entity.Patient patient = new com.digihealth.backend.entity.Patient();
         patient.setUser(user);
@@ -178,7 +161,11 @@ public class AuthService {
     }
 
     public void registerDoctor(RegisterDto registerDto) {
-        if (userRepository.existsByEmail(registerDto.getEmail())) {
+        String emailNorm = normalizeEmail(registerDto.getEmail());
+        if (emailNorm == null || emailNorm.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email is required");
+        }
+        if (userRepository.existsByEmail(emailNorm)) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
         }
 
@@ -186,7 +173,7 @@ public class AuthService {
 
         User user = new User();
         user.setFullName(registerDto.getFullName());
-        user.setEmail(registerDto.getEmail());
+        user.setEmail(emailNorm);
         user.setPasswordHash(passwordEncoder.encode(registerDto.getPassword()));
         user.setPhoneNumber(registerDto.getPhoneNumber());
         user.setRole(Role.DOCTOR); // Set role to DOCTOR
@@ -195,7 +182,11 @@ public class AuthService {
 
         System.out.println("[AuthService.registerDoctor] User before save - ID: " + user.getId());
 
-        user = userRepository.save(user);
+        try {
+            user = userRepository.save(user);
+        } catch (DataIntegrityViolationException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");
+        }
 
         System.out.println("[AuthService.registerDoctor] User after save - ID: " + user.getId());
         System.out.println("[AuthService.registerDoctor] User after save - Email: " + user.getEmail());
@@ -251,7 +242,7 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email and password are required");
         }
 
-        String email = loginRequest.getEmail();
+        String email = normalizeEmail(loginRequest.getEmail());
         String password = loginRequest.getPassword();
 
         if (email == null || email.trim().isEmpty() || password == null || password.trim().isEmpty()) {
@@ -298,5 +289,10 @@ public class AuthService {
         System.out.println("[AuthService.login] Token should contain UUID: " + user.getId());
 
         return new LoginResponse(token, user);
+    }
+
+    private String normalizeEmail(String email) {
+        if (email == null) return null;
+        return email.trim().toLowerCase();
     }
 }
