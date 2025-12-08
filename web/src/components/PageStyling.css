@@ -89,6 +89,15 @@ body {
   }
 }
 
+.page-folder2 {
+  border-radius: 0 0 10px 10px;
+  padding: min(4em, 8%);
+  background-color: #ffffff;
+  box-shadow: 2px 1px 3px rgba(0, 0, 0, 0.1);
+  border-top: 30px solid #1f2937;
+  border-bottom: 30px solid #1f2937;
+}
+
 /* ------------------------- */
 /*        Animations          */
 /* ------------------------- */

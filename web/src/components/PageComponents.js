@@ -21,3 +21,7 @@ export function PageMessage({ title, message, children }) {
 export function PageFolder({ children }) {
   return <div className="page-folder">{children}</div>;
 }
+
+export function PageFolder2({ children }) {
+  return <div className="page-folder2">{children}</div>;
+}
