@@ -1,11 +1,14 @@
 package com.digihealth.backend.service;
 
+import com.digihealth.backend.dto.GoogleLoginRequest;
 import com.digihealth.backend.dto.LoginRequest;
 import com.digihealth.backend.dto.LoginResponse;
 import com.digihealth.backend.dto.RegisterDto;
+import com.digihealth.backend.dto.RegisterPatientDto;
 import com.digihealth.backend.entity.Doctor;
 import com.digihealth.backend.entity.DayOfWeek;
 import com.digihealth.backend.entity.DoctorWorkDay;
+import com.digihealth.backend.entity.Patient;
 import com.digihealth.backend.entity.Role;
 import com.digihealth.backend.entity.User;
 import com.digihealth.backend.repository.DoctorRepository;
@@ -14,13 +17,16 @@ import com.digihealth.backend.repository.UserRepository;
 import com.digihealth.backend.repository.DoctorWorkDayRepository;
 import com.digihealth.backend.security.JwtTokenProvider;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import java.util.Map;
 
 @Service
 public class AuthService {
@@ -33,6 +39,9 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final DoctorWorkDayRepository doctorWorkDayRepository;
 
+    @Value("${spring.security.oauth2.client.registration.google.client-id}")
+    private String googleClientId;
+
     public AuthService(UserRepository userRepository, DoctorRepository doctorRepository,
             PatientRepository patientRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider,
             AuthenticationManager authenticationManager, DoctorWorkDayRepository doctorWorkDayRepository) {
@@ -44,7 +53,73 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
         this.doctorWorkDayRepository = doctorWorkDayRepository;
     }
+    public LoginResponse googleLogin(GoogleLoginRequest request) {
+        // Verify Google id_token
+        RestTemplate restTemplate = new RestTemplate();
+        String url = "https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=" + request.getIdToken();
+        @SuppressWarnings("unchecked")
+        Map<String, Object> tokenInfo = restTemplate.getForObject(url, Map.class);
 
+        if (tokenInfo == null || !"true".equals(String.valueOf(tokenInfo.get("email_verified")))) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid Google token");
+        }
+
+        String aud = String.valueOf(tokenInfo.get("aud"));
+        String expectedClientId = googleClientId;
+        if (expectedClientId == null || expectedClientId.isBlank() || !expectedClientId.equals(aud)) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid client ID");
+        }
+
+        String email = (String) tokenInfo.get("email");
+        String fullName = (String) tokenInfo.get("name");
+
+        // Find or create user
+        var optUser = userRepository.findByEmail(email);
+        User user;
+        if (optUser.isPresent()) {
+            user = optUser.get();
+            // Role check for existing users
+            if (request.getIntendedRole() != null && !request.getIntendedRole().equals(user.getRole().name())) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Existing user role mismatch");
+            }
+        } else {
+            // Auto-register new user
+            user = new User();
+            user.setEmail(email);
+            user.setFullName(fullName);
+            user.setPasswordHash(null); // OAuth user, no password
+            user.setIsActive(true);
+
+            Role role = Role.valueOf(request.getIntendedRole());
+            user.setRole(role);
+
+            if (role == Role.DOCTOR) {
+                user.setIsApproved(false);
+                Doctor doctor = new Doctor();
+                doctor.setUser(user);
+                doctorRepository.save(doctor);
+            } else if (role == Role.PATIENT) {
+                Patient patient = new Patient();
+                patient.setUser(user);
+                patientRepository.save(patient);
+            } else {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid role: " + request.getIntendedRole());
+            }
+
+            user = userRepository.save(user);
+        }
+
+        // Authorization checks
+        if (!Boolean.TRUE.equals(user.getIsActive())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Account deactivated");
+        }
+        if (user.getRole() == Role.DOCTOR && !Boolean.TRUE.equals(user.getIsApproved())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Doctor pending approval");
+        }
+
+        String token = tokenProvider.generateTokenFromUser(user);
+        return new LoginResponse(token, user);
+    }
     public void registerUser(com.digihealth.backend.dto.RegisterPatientDto registerDto) {
         if (userRepository.existsByEmail(registerDto.getEmail())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Email already exists");

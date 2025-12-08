@@ -1,14 +1,13 @@
 import axios from "axios";
 
-const host =
-  typeof window !== "undefined" ? window.location.hostname : "localhost";
+const host = typeof window !== "undefined" ? window.location.hostname : "localhost";
 const isLocalHost = host === "localhost" || host === "127.0.0.1";
 const envBase = process.env.REACT_APP_API_BASE_URL;
-const envPointsToLocal =
-  envBase && (envBase.includes("localhost") || envBase.includes("127.0.0.1"));
+const envPointsToLocal = envBase && (envBase.includes("localhost") || envBase.includes("127.0.0.1"));
+const apiPort = process.env.REACT_APP_API_PORT || "8080";
 export const API_BASE_URL =
   !envBase || (!isLocalHost && envPointsToLocal)
-    ? `http://${host}:8080`
+    ? `http://${host}:${apiPort}`
     : envBase;
 
 // Create a preconfigured Axios instance
@@ -107,8 +106,23 @@ apiClient.interceptors.response.use(
 export default apiClient;
 
 // Auth helpers
+export const googleLogin = async (idToken, intendedRole) => {
+  const response = await apiClient.post("/api/auth/google-login", {
+    idToken,
+    intendedRole,
+  });
+
+  const { accessToken, user } = response.data;
+
+  if (!accessToken) {
+    throw new Error("Google login response missing token");
+  }
+
+  return { token: accessToken, user, raw: response.data };
+};
 
 export const login = async (email, password) => {
+// Auth helpers&#10;&#10;export const googleLogin = async (idToken, intendedRole) => {&#10;  const response = await apiClient.post(\"/api/auth/google-login\", {&#10;    idToken,&#10;    intendedRole&#10;  });&#10;&#10;  const { accessToken, user } = response.data;&#10;&#10;  if (!accessToken) {&#10;    throw new Error(\"Google login response missing token\");&#10;  }&#10;&#10;  return { token: accessToken, user, raw: response.data };&#10;};&#10;&#10;export const login = async (email, password) => {
   const response = await apiClient.post("/api/auth/login", {
     email,
     password,
@@ -142,7 +156,7 @@ export const registerDoctor = async (registrationData) => {
       workHours[day] && workHours[day].endTime
         ? workHours[day].endTime
         : "17:00";
-    availability[day] = `${start}-${end}`;
+    availability[day] = { startTime: start, endTime: end };
   });
   const payload = { ...registrationData, availability };
   delete payload.workHours;

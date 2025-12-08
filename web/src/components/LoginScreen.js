@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import AuthLayout from "./AuthLayout"; // Import the new base
+import { GoogleLogin } from "@react-oauth/google";
+import AuthLayout from "./AuthLayout";
 import { useAuth } from "../auth/auth";
 import { useNavigate, useLocation } from "react-router-dom";
 
@@ -11,7 +12,7 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
 
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
 
   // Show approval message from registration
   useEffect(() => {
@@ -19,6 +20,16 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
       setErrorMsg(location.state.message);
     }
   }, [location.state]);
+
+  const handleGoogleSuccess = async (credentialResponse) => {
+    try {
+      await googleLogin(credentialResponse.credential, "DOCTOR", { allowedRole: "DOCTOR" });
+      navigate("/dashboard");
+    } catch (error) {
+      console.error("Google login error:", error);
+      setErrorMsg(error.message || "Google login failed. Please try again.");
+    }
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -69,10 +80,18 @@ export default function DigiHealthLoginScreen({ onNavigateToRegister }) {
     <AuthLayout>
       <form className="form-card login-card-override" onSubmit={handleLogin}>
         <p className="welcome-text">Welcome Back</p>
-        <button type="button" className="google-btn">
-          <img alt="Google Icon" src="/assets/DoctorLogin.svg" />
-          Continue with Google
-        </button>
+        <GoogleLogin
+          onSuccess={handleGoogleSuccess}
+          onError={() => {
+            setErrorMsg("Google login failed. Please try again.");
+          }}
+          theme="filled_blue"
+          size="large"
+          text="signin_with"
+          shape="rectangular"
+          width="100%"
+          className="google-btn"
+        />
         <div className="divider-container">
           <div className="divider-line" />
           <p className="divider-text">Or login with email</p>

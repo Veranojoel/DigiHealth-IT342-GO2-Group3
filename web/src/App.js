@@ -1,4 +1,5 @@
 import React from "react";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 import {
   BrowserRouter as Router,
   Routes,
@@ -119,12 +120,15 @@ const AppRoutes = () => {
 };
 
 function App() {
+  const clientId = process.env.REACT_APP_GOOGLE_CLIENT_ID || "5854467795-4t9mgg506vvr88bl7j66i5mb0m87jtil.apps.googleusercontent.com";
   return (
-    <SettingsProvider>
-      <Router>
-        <AppRoutes />
-      </Router>
-    </SettingsProvider>
+    <GoogleOAuthProvider clientId={clientId}>
+      <SettingsProvider>
+        <Router>
+          <AppRoutes />
+        </Router>
+      </SettingsProvider>
+    </GoogleOAuthProvider>
   );
 }
 

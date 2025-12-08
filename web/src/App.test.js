@@ -1,8 +1,25 @@
 import { render, screen } from '@testing-library/react';
-import App from './App';
 
-test('renders learn react link', () => {
+jest.mock('./api/client', () => ({
+  default: {
+    get: jest.fn(),
+    post: jest.fn(),
+    put: jest.fn(),
+  },
+}));
+
+jest.mock('@react-oauth/google', () => ({
+  GoogleOAuthProvider: ({ children }) => children,
+  GoogleLogin: () => null,
+}));
+
+jest.mock('./auth/auth', () => ({
+  useAuth: () => ({ isAuthenticated: false, loading: false, currentUser: null })
+}));
+
+const App = require('./App').default;
+
+test('renders login screen for unauthenticated users', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  expect(screen.getByText('Welcome Back')).toBeInTheDocument();
 });

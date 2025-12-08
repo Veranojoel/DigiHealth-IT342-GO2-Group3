@@ -12,6 +12,27 @@ jest.mock('../api/client', () => ({
   },
 }));
 
+jest.mock('../auth/auth', () => ({
+  useAuth: () => ({
+    currentUser: {
+      fullName: 'Dr. Sarah Smith',
+      email: 'sarah@example.com',
+      phone: '+1234567890',
+      role: 'Doctor',
+      department: 'Internal Medicine',
+      specialization: 'General Practitioner',
+      medicalLicenseNumber: 'LIC12345',
+      yearsOfExperience: '10',
+      professionalBio: 'Experienced doctor'
+    },
+    loading: false,
+    updateProfile: async (payload) => {
+      const res = await apiClient.put('/api/users/me', payload);
+      return res.data;
+    },
+  })
+}));
+
 describe('ProfileSettings', () => {
   beforeEach(() => {
     jest.clearAllMocks();

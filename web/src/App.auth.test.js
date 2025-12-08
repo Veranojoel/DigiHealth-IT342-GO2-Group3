@@ -1,8 +1,24 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { App } from './App';
 import apiClient from './api/client';
+
+jest.mock('./api/client', () => ({
+  default: {
+    get: jest.fn(),
+  },
+}));
+
+jest.mock('@react-oauth/google', () => ({
+  GoogleOAuthProvider: ({ children }) => children,
+  GoogleLogin: () => null,
+}));
+
+jest.mock('./auth/auth', () => ({
+  useAuth: () => ({ isAuthenticated: true, loading: false, currentUser: { role: 'DOCTOR', fullName: 'Dr. Test' } })
+}));
+
+const App = require('./App').default;
 
 // Mock localStorage
 const localStorageMock = {
@@ -14,11 +30,6 @@ const localStorageMock = {
 global.localStorage = localStorageMock;
 
 // Mock apiClient
-jest.mock('./api/client', () => ({
-  default: {
-    get: jest.fn(),
-  },
-}));
 
 describe('App Routing and Authentication', () => {
   beforeEach(() => {
