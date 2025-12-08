@@ -1,14 +1,20 @@
 import React from 'react';
 import { render, screen, waitFor } from '@testing-library/react';
-import Patients from './Patients';
 import apiClient from '../api/client';
 
-// Mock apiClient
 jest.mock('../api/client', () => ({
   default: {
     get: jest.fn(),
   },
 }));
+
+jest.mock('../auth/auth', () => ({
+  useAuth: () => ({ currentUser: { role: 'DOCTOR', fullName: 'Dr. Test' } })
+}));
+
+const Patients = require('./Patients').default;
+
+// Mock apiClient
 
 describe('Patients', () => {
   beforeEach(() => {

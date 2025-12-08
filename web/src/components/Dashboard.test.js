@@ -10,6 +10,10 @@ jest.mock('../api/client', () => ({
   },
 }));
 
+jest.mock('../auth/auth', () => ({
+  useAuth: () => ({ currentUser: { fullName: 'Dr. Test', role: 'DOCTOR' } })
+}));
+
 describe('Dashboard', () => {
   beforeEach(() => {
     jest.clearAllMocks();

@@ -1,5 +1,6 @@
 package com.digihealth.backend.controller;
 
+import com.digihealth.backend.dto.GoogleLoginRequest;
 import com.digihealth.backend.dto.LoginRequest;
 import com.digihealth.backend.dto.LoginResponse;
 import com.digihealth.backend.dto.RegisterDto;
@@ -22,6 +23,12 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<LoginResponse> login(@RequestBody LoginRequest loginRequest) {
         LoginResponse response = authService.login(loginRequest);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/google-login")
+    public ResponseEntity<LoginResponse> googleLogin(@RequestBody GoogleLoginRequest request) {
+        LoginResponse response = authService.googleLogin(request);
         return ResponseEntity.ok(response);
     }
 

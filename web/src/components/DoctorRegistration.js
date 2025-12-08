@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { GoogleLogin } from '@react-oauth/google';
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/auth";
 import {
@@ -10,11 +11,12 @@ import SuccessModal from "./SuccessModal";
 import AuthLayout from "./AuthLayout"; // Import the new base
 import "./AuthLayout.css";
 
+
 import { registerDoctor } from "../api/client";
 
 const DoctorRegistration = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, googleLogin } = useAuth();
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({});
   const [showModal, setShowModal] = useState(false);
@@ -132,6 +134,42 @@ const DoctorRegistration = () => {
 
   return (
     <AuthLayout>
+      <div style={{ marginBottom: "12px" }}>
+        <GoogleLogin
+          onSuccess={(credentialResponse) => {
+            try {
+              const token = credentialResponse.credential;
+              const payload = token.split(".")[1];
+              const decoded = JSON.parse(
+                decodeURIComponent(
+                  atob(payload.replace(/-/g, "+").replace(/_/g, "/")).split("").map(function(c){
+                    return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+                  }).join("")
+                )
+              );
+              const name = decoded.name || `${decoded.given_name || ""} ${decoded.family_name || ""}`.trim();
+              const email = decoded.email || "";
+              setFormData({
+                ...formData,
+                fullName: name || formData.fullName || "",
+                email: email || formData.email || "",
+              });
+              setErrorMsg("");
+            } catch (error) {
+              setErrorMsg("Failed to read Google profile. Please enter details manually.");
+            }
+          }}
+          onError={() => {
+            setErrorMsg("Google login failed. Please try again.");
+          }}
+          theme="filled_blue"
+          size="large"
+          text="signup_with"
+          shape="rectangular"
+          width="100%"
+          className="google-btn"
+        />
+      </div>
       {errorMsg && <div className="error-message">{errorMsg}</div>}
 
       {/* Render the current registration step */}

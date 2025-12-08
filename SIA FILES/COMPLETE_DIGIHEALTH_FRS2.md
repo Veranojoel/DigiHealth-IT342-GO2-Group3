@@ -136,8 +136,8 @@ This document aligns functional requirements to the current repository implement
 - Controller endpoints: `backend/src/main/java/com/digihealth/backend/controller/DoctorDashboardController.java:46–56`
 
 **Gaps to MVP:**
-- Google OAuth 2.0 login | ❌ NOT IMPLEMENTED
-- Visual indicators for real-time updates in all doctor views | ✅ IMPLEMENTED
+ - Google OAuth 2.0 login | ✅ IMPLEMENTED
+ - Visual indicators for real-time updates in all doctor views | ✅ IMPLEMENTED
 
 ---
 

@@ -100,10 +100,10 @@ export const AuthProvider = ({ children }) => {
 
       if (!accessToken) {
         console.error(
-          "[AuthContext.login] ERROR: Login response missing accessToken"
+          "[AuthContext.googleLogin] ERROR: Google login response missing accessToken"
         );
-        console.error("[AuthContext.login] Response data:", response.data);
-        throw new Error("Login response missing token");
+        console.error("[AuthContext.googleLogin] Response data:", response.data);
+        throw new Error("Google login response missing token");
       }
 
       if (options && options.allowedRole) {
@@ -120,10 +120,10 @@ export const AuthProvider = ({ children }) => {
       if (user) {
         localStorage.setItem("user", JSON.stringify(user));
         setCurrentUser(user);
-        console.log("[AuthContext.login] Token and user saved successfully");
+        console.log("[AuthContext.googleLogin] Token and user saved successfully");
       } else {
         console.warn(
-          "[AuthContext.login] User data missing from response, token saved only"
+          "[AuthContext.googleLogin] User data missing from response, token saved only"
         );
       }
 
@@ -150,6 +150,41 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const googleLogin = async (idToken, intendedRole = "DOCTOR", options = {}) => {
+    try {
+      const response = await apiClient.post("/api/auth/google-login", {
+        idToken,
+        intendedRole,
+      });
+
+      const { accessToken, user } = response.data;
+
+      if (!accessToken) {
+        throw new Error("Google login response missing token");
+      }
+
+      if (options && options.allowedRole) {
+        if (!user || user.role !== options.allowedRole) {
+          throw new Error(
+            options.allowedRole === "DOCTOR"
+              ? "Access denied. Only doctors can access the doctor portal"
+              : "Access denied"
+          );
+        }
+      }
+
+      setToken(accessToken);
+      if (user) {
+        localStorage.setItem("user", JSON.stringify(user));
+        setCurrentUser(user);
+      }
+
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  };
+
   const updateProfile = async (profileData) => {
     try {
       const response = await apiClient.put("/api/users/me", profileData);
@@ -172,6 +207,7 @@ export const AuthProvider = ({ children }) => {
     currentUser,
     setCurrentUser,
     login,
+    googleLogin,
     logout,
     updateProfile,
     isAuthenticated: !!currentUser,

@@ -332,27 +332,4 @@ public class AdminController {
     }
   }
 
-  /**
-   * Get global admin settings (singleton ID=1)
-   * GET /api/admin/settings
-   */
-  @GetMapping("/settings")
-  public ResponseEntity<AdminSettings> getAdminSettings() {
-        return adminSettingsRepository.findById(1L)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
-    }
-
-    /**
-     * Update global admin settings (singleton ID=1, admin-only)
-     * PUT /api/admin/settings
-     */
-    @PutMapping("/settings")
-    public ResponseEntity<AdminSettings> updateAdminSettings(@RequestBody AdminSettings settings) {
-        if (settings.getId() == null || !settings.getId().equals(1L)) {
-            return ResponseEntity.badRequest().body(null);
-        }
-        AdminSettings saved = adminSettingsRepository.save(settings);
-        return ResponseEntity.ok(saved);
-    }
 }
