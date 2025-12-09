@@ -176,6 +176,8 @@ public class AuthService {
         user.setEmail(emailNorm);
         user.setPasswordHash(passwordEncoder.encode(registerDto.getPassword()));
         user.setPhoneNumber(registerDto.getPhoneNumber());
+        user.setSpecialization(registerDto.getSpecialization());
+        user.setLicenseNumber(registerDto.getLicenseNumber());
         user.setRole(Role.DOCTOR); // Set role to DOCTOR
         user.setIsActive(Boolean.TRUE);
         user.setIsApproved(Boolean.FALSE);
@@ -195,13 +197,16 @@ public class AuthService {
         doctor.setUser(user);
         doctor.setSpecialization(registerDto.getSpecialization());
         doctor.setLicenseNumber(registerDto.getLicenseNumber());
+        doctor.setExperienceYears(registerDto.getExperienceYears());
+        doctor.setHospitalAffiliation(registerDto.getHospitalAffiliation());
+        doctor.setBio(registerDto.getBio());
 
         doctor = doctorRepository.save(doctor);
 
         System.out.println("[AuthService.registerDoctor] Doctor saved successfully for user ID: " + user.getId());
 
+        java.util.List<DoctorWorkDay> workDays = new java.util.ArrayList<>();
         if (registerDto.getWorkDays() != null && !registerDto.getWorkDays().isEmpty()) {
-            java.util.List<DoctorWorkDay> workDays = new java.util.ArrayList<>();
             for (String dayString : registerDto.getWorkDays()) {
                 DayOfWeek day;
                 try {
@@ -232,9 +237,20 @@ public class AuthService {
                 dwd.setAvailableEndTime(end);
                 workDays.add(dwd);
             }
-            doctorWorkDayRepository.saveAll(workDays);
+        } else {
+            java.util.List<DayOfWeek> defaultDays = java.util.List.of(DayOfWeek.MON, DayOfWeek.TUE, DayOfWeek.WED, DayOfWeek.THU, DayOfWeek.FRI);
+            for (DayOfWeek day : defaultDays) {
+                DoctorWorkDay dwd = new DoctorWorkDay();
+                dwd.setDoctor(doctor);
+                dwd.setWorkDay(day);
+                dwd.setAvailableStartTime("09:00");
+                dwd.setAvailableEndTime("17:00");
+                workDays.add(dwd);
+            }
         }
-    }
+        doctorWorkDayRepository.saveAll(workDays);
+        }
+    
 
     public LoginResponse login(LoginRequest loginRequest) {
         // Defensive null check to avoid 500s on malformed/missing body

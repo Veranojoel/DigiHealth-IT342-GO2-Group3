@@ -140,12 +140,12 @@ public class AppointmentController {
       DoctorWorkDay workDay = doctorWorkDayRepository.findByDoctorAndWorkDay(doctor, workDayEnum)
               .stream().findFirst().orElse(null);
 
-      if (workDay == null) {
-        return ResponseEntity.badRequest().body("Doctor does not work on the selected day");
+      if (workDay == null && (workDayEnum == DayOfWeek.SAT || workDayEnum == DayOfWeek.SUN)) {
+        return ResponseEntity.badRequest().body("Doctor does not work on weekends");
       }
 
-      String startStr = workDay.getAvailableStartTime() != null ? workDay.getAvailableStartTime() : "09:00";
-      String endStr = workDay.getAvailableEndTime() != null ? workDay.getAvailableEndTime() : "17:00";
+      String startStr = (workDay != null && workDay.getAvailableStartTime() != null) ? workDay.getAvailableStartTime() : "09:00";
+      String endStr = (workDay != null && workDay.getAvailableEndTime() != null) ? workDay.getAvailableEndTime() : "17:00";
       java.time.LocalTime start = java.time.LocalTime.parse(startStr);
       java.time.LocalTime end = java.time.LocalTime.parse(endStr);
 
@@ -245,12 +245,18 @@ public class AppointmentController {
             DoctorWorkDay workDay = doctorWorkDayRepository.findByDoctorAndWorkDay(doctor, workDayEnum)
                     .stream().findFirst().orElse(null);
 
+            String startStr;
+            String endStr;
             if (workDay == null) {
-                return ResponseEntity.ok(java.util.Collections.emptyList());
+                if (workDayEnum == DayOfWeek.SAT || workDayEnum == DayOfWeek.SUN) {
+                    return ResponseEntity.ok(java.util.Collections.emptyList());
+                }
+                startStr = "09:00";
+                endStr = "17:00";
+            } else {
+                startStr = workDay.getAvailableStartTime() != null ? workDay.getAvailableStartTime() : "09:00";
+                endStr = workDay.getAvailableEndTime() != null ? workDay.getAvailableEndTime() : "17:00";
             }
-
-            String startStr = workDay.getAvailableStartTime() != null ? workDay.getAvailableStartTime() : "09:00";
-            String endStr = workDay.getAvailableEndTime() != null ? workDay.getAvailableEndTime() : "17:00";
 
             java.time.LocalTime start = java.time.LocalTime.parse(startStr);
             java.time.LocalTime end = java.time.LocalTime.parse(endStr);
@@ -262,6 +268,32 @@ public class AppointmentController {
 
       AdminSettings settings = adminSettingsRepository.findById(1L).orElse(null);
       int slotMinutes = settings != null && settings.getAppointmentSlotMinutes() != null ? settings.getAppointmentSlotMinutes() : 30;
+      boolean allowSameDay = settings == null || Boolean.TRUE.equals(settings.getAllowSameDayBooking());
+      Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 24;
+
+      java.time.LocalDate today = java.time.LocalDate.now();
+      java.time.LocalDateTime now = java.time.LocalDateTime.now();
+
+      if (!allowSameDay && date.equals(today)) {
+        return ResponseEntity.ok(java.util.Collections.emptyList());
+      }
+
+      if (date.equals(today)) {
+        java.time.LocalDateTime earliest = now.plusHours(minAdvanceHours);
+        java.time.LocalTime earliestTime = earliest.toLocalTime();
+        int rem = earliestTime.getMinute() % slotMinutes;
+        if (rem != 0) {
+          earliestTime = earliestTime.plusMinutes(slotMinutes - rem);
+        }
+        if (earliestTime.isAfter(start)) {
+          start = earliestTime;
+        }
+      }
+
+      int startRem = start.getMinute() % slotMinutes;
+      if (startRem != 0) {
+        start = start.plusMinutes(slotMinutes - startRem);
+      }
 
       java.util.List<String> slots = new java.util.ArrayList<>();
       java.time.LocalTime t = start;
@@ -305,6 +337,18 @@ public class AppointmentController {
                     .orElseThrow(() -> new RuntimeException("Doctor profile not found"));
 
             java.util.List<DoctorWorkDay> days = doctorWorkDayRepository.findByDoctor(doctor);
+            if (days.isEmpty()) {
+                java.util.List<DoctorWorkDay> defaults = new java.util.ArrayList<>();
+                for (DayOfWeek d : java.util.List.of(DayOfWeek.MON, DayOfWeek.TUE, DayOfWeek.WED, DayOfWeek.THU, DayOfWeek.FRI)) {
+                    DoctorWorkDay dwd = new DoctorWorkDay();
+                    dwd.setDoctor(doctor);
+                    dwd.setWorkDay(d);
+                    dwd.setAvailableStartTime("09:00");
+                    dwd.setAvailableEndTime("17:00");
+                    defaults.add(dwd);
+                }
+                days = doctorWorkDayRepository.saveAll(defaults);
+            }
             java.util.List<String> workDays = days.stream()
                     .map(d -> d.getWorkDay().name())
                     .collect(Collectors.toList());
@@ -319,11 +363,15 @@ public class AppointmentController {
 
             AdminSettings settings = adminSettingsRepository.findById(1L).orElse(null);
             int slotMinutes = settings != null && settings.getAppointmentSlotMinutes() != null ? settings.getAppointmentSlotMinutes() : 30;
+            Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 24;
+            boolean allowSameDay = settings == null || Boolean.TRUE.equals(settings.getAllowSameDayBooking());
 
             Map<String, Object> payload = new java.util.HashMap<>();
             payload.put("workDays", workDays);
             payload.put("hours", hours);
             payload.put("slotMinutes", slotMinutes);
+            payload.put("minAdvanceHours", minAdvanceHours);
+            payload.put("allowSameDayBooking", allowSameDay);
 
             return ResponseEntity.ok(payload);
         } catch (Exception e) {
@@ -347,8 +395,14 @@ public class AppointmentController {
                     .orElseThrow(() -> new RuntimeException("Appointment not found"));
 
             appointment.setStatus(AppointmentStatus.valueOf(statusUpdate.getStatus()));
+            if (statusUpdate.getReason() != null && !statusUpdate.getReason().isBlank() && "CANCELLED".equalsIgnoreCase(statusUpdate.getStatus())) {
+                String existing = appointment.getNotes();
+                String reason = statusUpdate.getReason();
+                String combined = (existing != null && !existing.isBlank()) ? (existing + "\n\nCancelled Reason: " + reason) : ("Cancelled Reason: " + reason);
+                appointment.setNotes(combined);
+            }
             Appointment updated = appointmentRepository.save(appointment);
-        
+    
         appointmentNotificationService.notifyAppointmentStatusChange(updated);
 
         return ResponseEntity.ok(updated);
@@ -364,11 +418,24 @@ public class AppointmentController {
     @GetMapping("/doctors")
     public ResponseEntity<?> getAllDoctors() {
         try {
-            List<User> doctors = userRepository.findAll().stream()
-                    .filter(u -> u.getRole().name().equals("DOCTOR"))
-                    .filter(User::getIsApproved)
-                    .toList();
-            return ResponseEntity.ok(doctors);
+            List<Doctor> doctorEntities = doctorRepository.findAll();
+            List<Map<String, Object>> payload = doctorEntities.stream()
+                    .filter(d -> d.getUser() != null && d.getUser().getRole().name().equals("DOCTOR"))
+                    .filter(d -> Boolean.TRUE.equals(d.getUser().getIsApproved()))
+                    .map(d -> {
+                        Map<String, Object> m = new java.util.HashMap<>();
+                        m.put("id", d.getUser().getId());
+                        m.put("fullName", d.getUser().getFullName());
+                        String spec = d.getUser().getSpecialization() != null ? d.getUser().getSpecialization() : d.getSpecialization();
+                        m.put("specialization", spec);
+                        m.put("experienceYears", d.getExperienceYears());
+                        m.put("hospitalAffiliation", d.getHospitalAffiliation());
+                        String city = d.getAddress() != null ? d.getAddress().getCity() : null;
+                        m.put("addressCity", city);
+                        return m;
+                    })
+                    .collect(java.util.stream.Collectors.toList());
+            return ResponseEntity.ok(payload);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error retrieving doctors: " + e.getMessage());
         }

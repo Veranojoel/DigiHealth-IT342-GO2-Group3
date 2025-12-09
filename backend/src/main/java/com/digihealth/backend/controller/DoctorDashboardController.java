@@ -202,6 +202,8 @@ public class DoctorDashboardController {
         dto.setDoctorName(appointment.getDoctor().getUser().getFullName());
         dto.setType("Consultation");
         dto.setStatus(appointment.getStatus().name());
+        dto.setNotes(appointment.getNotes());
+        dto.setSymptoms(appointment.getSymptoms());
         return dto;
     }
 

@@ -83,6 +83,8 @@ public class SecurityConfig {
                 .antMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**").permitAll()
                 // Public auth endpoints used by the frontend (canonical)
                 .antMatchers("/api/auth/**").permitAll()
+                // Allow WebSocket handshake endpoints (SockJS uses /ws/** including /ws/info)
+                .antMatchers("/ws/**").permitAll()
                 .antMatchers("/api/admin/**").hasRole("ADMIN")
                 // Enforce ROLE-based access at HTTP level for critical domains
                 .antMatchers("/api/doctors/**").hasRole("DOCTOR")

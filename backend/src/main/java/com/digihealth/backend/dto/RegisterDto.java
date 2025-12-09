@@ -12,6 +12,9 @@ public class RegisterDto {
     private String phoneNumber;
     private List<String> workDays;
     private Map<String, DayAvailabilityDto> availability;
+    private Integer experienceYears;
+    private String hospitalAffiliation;
+    private String bio;
 
     public static class DayAvailabilityDto {
         private String startTime;
@@ -101,5 +104,29 @@ public class RegisterDto {
 
     public void setAvailability(Map<String, DayAvailabilityDto> availability) {
         this.availability = availability;
+    }
+
+    public Integer getExperienceYears() {
+        return experienceYears;
+    }
+
+    public void setExperienceYears(Integer experienceYears) {
+        this.experienceYears = experienceYears;
+    }
+
+    public String getHospitalAffiliation() {
+        return hospitalAffiliation;
+    }
+
+    public void setHospitalAffiliation(String hospitalAffiliation) {
+        this.hospitalAffiliation = hospitalAffiliation;
+    }
+
+    public String getBio() {
+        return bio;
+    }
+
+    public void setBio(String bio) {
+        this.bio = bio;
     }
 }

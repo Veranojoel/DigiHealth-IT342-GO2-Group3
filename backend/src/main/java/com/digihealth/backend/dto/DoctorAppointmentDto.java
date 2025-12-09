@@ -11,6 +11,8 @@ public class DoctorAppointmentDto {
     private String doctorName;
     private String type;
     private String status;
+    private String notes;
+    private String symptoms;
 
     // Explicit setters for tests
     public void setId(String id) {
@@ -39,5 +41,13 @@ public class DoctorAppointmentDto {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
+    }
+
+    public void setSymptoms(String symptoms) {
+        this.symptoms = symptoms;
     }
 }
