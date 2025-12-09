@@ -26,6 +26,7 @@ import AdminPatients from "./components/AdminPatients";
 import AdminAppointments from "./components/AdminAppointments";
 import AdminAnalytics from "./components/AdminAnalytics";
 import AdminDashboardSettings from "./components/AdminDashboardSettings";
+import AdminMonitoring from "./components/AdminMonitoring";
 import { SettingsProvider } from "./context/SettingsContext";
 
 const RoleGuard = ({ role, children }) => {
@@ -59,6 +60,7 @@ const AppRoutes = () => {
       <Route path="/admin/patients" element={<RoleGuard role="ADMIN"><AdminPatients /></RoleGuard>} />
       <Route path="/admin/appointments" element={<RoleGuard role="ADMIN"><AdminAppointments /></RoleGuard>} />
       <Route path="/admin/analytics" element={<RoleGuard role="ADMIN"><AdminAnalytics /></RoleGuard>} />
+      <Route path="/admin/monitoring" element={<RoleGuard role="ADMIN"><AdminMonitoring /></RoleGuard>} />
       <Route path="/admin/settings" element={<RoleGuard role="ADMIN"><AdminDashboardSettings /></RoleGuard>} />
 
       {/* Doctor Routes - Auth protected */}
