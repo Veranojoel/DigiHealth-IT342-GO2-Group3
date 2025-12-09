@@ -120,8 +120,8 @@ const DoctorAppointmentDetails = ({ appointment, onClose, onEdit, onStatusUpdate
 
           <div className="row">
             <div className="col">
-              <label>Notes</label>
-              <div className="value">{appointment.notes || '—'}</div>
+              <label>Reason for Visit</label>
+              <div className="value">{appointment.notes || appointment.symptoms || '—'}</div>
             </div>
           </div>
       </div>

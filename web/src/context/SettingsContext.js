@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import apiClient from '../api/client';
+import { useAuth } from '../auth/auth';
 
 const SettingsContext = createContext();
 
@@ -14,14 +15,18 @@ export const useSettings = () => {
 export const SettingsProvider = ({ children }) => {
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(true);
+  const { currentUser } = useAuth();
 
   const fetchSettings = async () => {
     try {
+      if (!currentUser || currentUser.role !== 'ADMIN') {
+        setSettings({ clinicName: 'DigiHealth' });
+        return;
+      }
       const res = await apiClient.get('/api/admin/settings');
       setSettings(res.data);
     } catch (e) {
-      console.warn('Failed to load clinic settings:', e);
-      setSettings({ clinicName: 'DigiHealth' }); // Fallback
+      setSettings({ clinicName: 'DigiHealth' });
     } finally {
       setLoading(false);
     }
@@ -29,14 +34,14 @@ export const SettingsProvider = ({ children }) => {
 
   useEffect(() => {
     fetchSettings();
-  }, []);
+  }, [currentUser]);
 
   // Refresh on window focus (e.g., after admin saves settings)
   useEffect(() => {
     const handleFocus = () => fetchSettings();
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
-  }, []);
+  }, [currentUser]);
 
   return (
     <SettingsContext.Provider value={{ settings, loading, refetch: fetchSettings }}>

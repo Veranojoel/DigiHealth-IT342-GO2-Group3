@@ -1,8 +1,9 @@
 import { useEffect, useRef, useCallback } from "react";
 import { Client } from "@stomp/stompjs";
 import SockJS from "sockjs-client";
+import { API_BASE_URL } from "../api/client";
 
-const WS_ENDPOINT = "/ws";
+const WS_ENDPOINT = `${API_BASE_URL}/ws`;
 
 export const useAppointmentUpdates = (onUpdate) => {
   const clientRef = useRef(null);

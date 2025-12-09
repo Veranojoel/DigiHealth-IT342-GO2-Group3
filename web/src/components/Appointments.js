@@ -17,6 +17,9 @@ const Appointments = () => {
   const [error, setError] = useState(null);
   const [liveUpdatedId, setLiveUpdatedId] = useState(null);
   const [liveBanner, setLiveBanner] = useState("");
+  const [selectedDate, setSelectedDate] = useState(() => new Date());
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [viewMode, setViewMode] = useState('list');
 
   const APPOINTMENTS_URL = "/api/doctors/me/appointments";
 
@@ -117,15 +120,18 @@ const Appointments = () => {
           <div className="date-filter">
             <img src="/assets/today-icon.svg" alt="Calendar" />
             <div className="date-dropdown">
-              <span>Today - Oct 20, 2025</span>
+              <span onClick={() => setShowDatePicker(true)} style={{cursor:'pointer'}}>
+                {selectedDate.toDateString().includes(new Date().toDateString()) ? 'Today - ' : ''}
+                {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+              </span>
               <img src="/assets/today-dropdown.svg" alt="dropdown" />
             </div>
           </div>
           <div className="view-toggle">
-            <button className="toggle-btn active">
+            <button className={`toggle-btn ${viewMode==='list' ? 'active' : ''}`} onClick={() => setViewMode('list')}>
               <img src="/assets/burger.svg" alt="List" /> List
             </button>
-            <button className="toggle-btn">
+            <button className={`toggle-btn ${viewMode==='calendar' ? 'active' : ''}`} onClick={() => setViewMode('calendar')}>
               <img src="/assets/calendar.svg" alt="Calendar" /> Calendar
             </button>
           </div>
@@ -136,10 +142,30 @@ const Appointments = () => {
             <img src="/assets/new.svg" alt="Add" /> New Appointment
           </button>
         </div>
+        {showDatePicker && (
+          <div className="card" style={{ padding: '12px' }}>
+            <input
+              type="date"
+              value={selectedDate.toLocaleDateString('en-CA')}
+              onChange={(e) => {
+                const parts = e.target.value.split('-');
+                const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+                setSelectedDate(d);
+                setShowDatePicker(false);
+              }}
+            />
+          </div>
+        )}
+        {viewMode === 'list' && (
         <div className="card appointments-list-card">
           <div className="table-header">
             <h3>Appointments List</h3>
-            <p>Showing {appointments.length} appointments</p>
+            <p>Showing {appointments.filter(a => {
+              try {
+                const dt = new Date(a.startDateTime);
+                return dt.toLocaleDateString('en-CA') === selectedDate.toLocaleDateString('en-CA');
+              } catch { return true; }
+            }).length} appointments</p>
           </div>
           <div className="page-table">
             <table>
@@ -153,7 +179,12 @@ const Appointments = () => {
                 </tr>
               </thead>
               <tbody>
-                {appointments.map((appt) => (
+                {appointments.filter(a => {
+                  try {
+                    const dt = new Date(a.startDateTime);
+                    return dt.toLocaleDateString('en-CA') === selectedDate.toLocaleDateString('en-CA');
+                  } catch { return true; }
+                }).map((appt) => (
                   <tr
                     key={appt.id}
                     onClick={() => {
@@ -187,6 +218,36 @@ const Appointments = () => {
             </table>
           </div>
         </div>
+        )}
+        {viewMode === 'calendar' && (
+          <div className="card appointments-list-card">
+            <div className="table-header"><h3>Calendar View</h3></div>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(7, 1fr)', gap: '8px' }}>
+              {[...Array(35)].map((_, i) => {
+                const first = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1);
+                const startDay = first.getDay();
+                const dayNum = i - startDay + 1;
+                const cellDate = new Date(selectedDate.getFullYear(), selectedDate.getMonth(), dayNum);
+                const valid = dayNum > 0 && dayNum <= new Date(selectedDate.getFullYear(), selectedDate.getMonth()+1, 0).getDate();
+                const count = valid ? appointments.filter(a => {
+                  try { return new Date(a.startDateTime).toLocaleDateString('en-CA') === cellDate.toLocaleDateString('en-CA'); } catch { return false; }
+                }).length : 0;
+                return (
+                  <div key={i} className={`calendar-cell ${valid ? '' : 'disabled'}`} style={{ border: '1px solid #eee', padding: '8px', borderRadius: '6px' }}>
+                    {valid ? (
+                      <div>
+                        <div style={{ fontWeight: '600' }}>{cellDate.getDate()}</div>
+                        <div style={{ fontSize: '12px', color: '#555' }}>{count} appt</div>
+                      </div>
+                    ) : (
+                      <div>&nbsp;</div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
       </PageFolder>
       <NewAppointmentModal
         show={showModal}

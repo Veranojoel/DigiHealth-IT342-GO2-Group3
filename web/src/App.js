@@ -95,7 +95,7 @@ const AppRoutes = () => {
       >
         <Route index element={<Navigate to="/dashboard" replace />} />
         <Route path="dashboard" element={<Dashboard />} />
-        <Route path="appointments" element={<Appointments />} />
+        <Route path="appointments" element={<ErrorBoundary><Appointments /></ErrorBoundary>} />
         <Route path="patients" element={<Patients />} />
         <Route
           path="profile-settings/security"
