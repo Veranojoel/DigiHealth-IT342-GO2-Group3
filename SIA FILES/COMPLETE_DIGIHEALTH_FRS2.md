@@ -170,7 +170,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## FR-6: Appointment Management
-**Status:** ✅ FULLY IMPLEMENTED (Core flows + rescheduling)
+**Status:** ✅ FULLY IMPLEMENTED (Core flows + rescheduling, error boundary, stable live updates)
 
 **Description:** View and manage appointments.
 
@@ -192,7 +192,9 @@ This document aligns functional requirements to the current repository implement
 - Backend:
   - `backend/src/main/java/com/digihealth/backend/controller/AppointmentController.java:136–153` (status update)
   - `backend/src/main/java/com/digihealth/backend/service/AppointmentNotificationService.java:15–24` (broadcast)
-  - `backend/src/main/java/com/digihealth/backend/config/WebSocketConfig.java:9–23`
+- `backend/src/main/java/com/digihealth/backend/config/WebSocketConfig.java:9–23`
+ - `backend/src/main/java/com/digihealth/backend/config/WebSocketConfig.java:9–23`
+ - `backend/src/main/java/com/digihealth/backend/config/SecurityConfig.java:78–86` (permit `/ws/**` SockJS handshake)
   - `backend/src/main/java/com/digihealth/backend/controller/DoctorDashboardController.java:114–140` (doctor creates appointment)
   - `backend/src/main/java/com/digihealth/backend/controller/DoctorDashboardController.java:142–178` (doctor updates appointment)
 
@@ -206,8 +208,13 @@ This document aligns functional requirements to the current repository implement
 
 **Gaps to MVP:**
 - Auto prompt to capture notes when marking appointment completed | ✅ IMPLEMENTED
-- Centralized error handling (frontend interceptor) | ✅ IMPLEMENTED
-- Real-time visual indicators in doctor Appointments view | ✅ IMPLEMENTED
+- Centralized error handling (frontend interceptor + route error boundary) | ✅ IMPLEMENTED
+- Real-time visual indicators and stable WebSocket connection | ✅ IMPLEMENTED
+
+**Recent Stabilizations (2025-12-10):**
+- WebSocket handshake endpoints permitted in security policy to fix 401 on `/ws/info`.
+- Frontend SockJS client now connects to absolute backend URL to avoid dev proxy aborts.
+- Appointments route wrapped with an error boundary to prevent white-screen on runtime errors.
 
 ---
 
@@ -364,7 +371,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## Patient PWA FR-P1 to FR-P5
-**Status:** ⚠️ PARTIALLY IMPLEMENTED (UI scaffold; backend integration pending)
+**Status:** ⚠️ PARTIALLY IMPLEMENTED (UI live; incremental enhancements pending)
 
 - FR-P1: Patient Dashboard — welcome, upcoming appointments, quick actions, notifications
 - FR-P2: My Appointments — upcoming/past/cancelled tabs, cancel/reschedule, reminders, calendar
@@ -412,6 +419,7 @@ This document aligns functional requirements to the current repository implement
 - Tabs: Upcoming, Past, Cancelled
 - Appointment cards with all details
 - Real-time data fetching from backend
+ - Real-time backend stability improvements (WS handshake opened; PWA continues to use HTTP fetch)
 - Empty state for new users
 - Responsive mobile design
 - Navigation to appointment details

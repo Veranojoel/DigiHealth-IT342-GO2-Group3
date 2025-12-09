@@ -80,8 +80,8 @@
 | Real-time data fetching | ✅ IMPLEMENTED | From `/api/appointments/patient/my` |
 | Empty state for new users | ✅ IMPLEMENTED | With booking CTA |
 | Loading states | ✅ IMPLEMENTED | Smooth animations |
-| Cancel appointment | ⚠️ PARTIALLY | UI ready, backend integration pending |
-| Reschedule appointment | ⚠️ PARTIALLY | UI ready, backend integration pending |
+| Cancel appointment | ⚠️ PARTIALLY | UI ready; backend cancel endpoint integrated for doctor; patient cancel wiring pending |
+| Reschedule appointment | ⚠️ PARTIALLY | UI ready; patient reschedule wiring pending |
 | Add to calendar | ❌ NOT IMPLEMENTED | ICS download |
 
 ---
@@ -137,7 +137,7 @@
 | Item | Status | Notes |
 |------|--------|-------|
 | Web manifest tuning | ❌ NOT IMPLEMENTED | Name, colors, icons |
-| Service worker registration | ❌ NOT IMPLEMENTED | Cache shell + assets |
+| Service worker registration | ❌ NOT IMPLEMENTED | Cache shell + assets (planned) |
 | Install prompt UX | ❌ NOT IMPLEMENTED | Detect and present |
 | Offline fallback | ❌ NOT IMPLEMENTED | Basic offline page |
 
@@ -145,10 +145,16 @@
 
 ## 🎯 Roadmap (Remaining tasks)
 
-1. Implement cancel/reschedule appointment functionality
+1. Implement patient cancel/reschedule appointment functionality
 2. Add PDF export for medical records
 3. Implement calendar integration (ICS download)
 4. Add ratings and reviews for doctors
 5. Enable PWA install: manifest + service worker + install prompt
 6. Add notification preferences in profile management
 7. Implement offline fallback pages
+---
+
+## 🔧 Recent Backend Stability Improvements (2025-12-10)
+- WebSocket/SockJS handshake allowed for `/ws/**` to eliminate 401 errors.
+- Frontend uses absolute backend URL for SockJS, preventing dev proxy aborts.
+- These changes improve live updates reliability across web; Patient PWA continues using HTTP fetch for appointments.
