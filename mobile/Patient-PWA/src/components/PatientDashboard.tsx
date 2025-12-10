@@ -54,33 +54,58 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
   }, []);
 
   const fetchRecentActivities = async () => {
-    // For now, return empty array since backend endpoint doesn't exist
-    // This can be implemented later when backend adds the endpoint
-    setRecentActivities([]);
-    
-    // Optional: If you want to show demo data for testing, uncomment below:
-    /*
-    if (upcomingAppointments.length > 0) {
-      // Only show demo activities for users with appointments (not new users)
-      const demoActivities = [
-        {
-          id: '1',
-          title: 'Appointment Completed',
-          description: 'Dr. Sarah Johnson - General Checkup',
-          type: 'appointment',
-          timestamp: '2 days ago'
+    const token = localStorage.getItem('accessToken');
+    try {
+      const res = await fetch(`${API_BASE}/api/appointments/patient/my`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
         },
-        {
-          id: '2', 
-          title: 'Medical Records Updated',
-          description: 'Lab results added by Dr. Michael Chen',
-          type: 'record',
-          timestamp: '5 days ago'
-        }
-      ];
-      setRecentActivities(demoActivities);
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const activities = (data || [])
+          .sort((a: any, b: any) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
+          .slice(0, 5)
+          .map((a: any) => {
+            let title = 'Appointment Update';
+            let description = `Dr. ${a.doctor?.user?.fullName}`;
+            let type = 'appointment';
+            
+            if (a.status === 'CANCELLED') {
+              title = 'Appointment Cancelled';
+              // Extract reason if possible, otherwise generic
+               if (a.notes && a.notes.includes('Cancelled Reason:')) {
+                  const parts = a.notes.split('Cancelled Reason:');
+                  const reason = parts[parts.length - 1].trim();
+                  description = `Reason: ${reason}`;
+               } else {
+                  description = `Cancelled appointment with Dr. ${a.doctor?.user?.fullName}`;
+               }
+            } else if (a.status === 'COMPLETED') {
+              title = 'Appointment Completed';
+              description = `Completed checkup with Dr. ${a.doctor?.user?.fullName}`;
+            } else if (a.status === 'CONFIRMED') {
+              title = 'Appointment Confirmed';
+              description = `Confirmed with Dr. ${a.doctor?.user?.fullName}`;
+            } else if (a.status === 'SCHEDULED') {
+                title = 'Appointment Scheduled';
+                description = `Scheduled with Dr. ${a.doctor?.user?.fullName}`;
+            }
+
+            return {
+              id: a.appointmentId,
+              title,
+              description,
+              type,
+              timestamp: new Date(a.updatedAt || a.createdAt).toLocaleDateString()
+            };
+          });
+        setRecentActivities(activities);
+      }
+    } catch (error) {
+      console.error('Error fetching activities:', error);
     }
-    */
   };
 
   const fetchUpcomingAppointments = async () => {
@@ -190,7 +215,6 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
       currentScreen={currentScreen}
       onNavigate={handleNavigation}
       patient={patient}
-      notificationCount={3}
     >
       <style>{`
         @keyframes slideIn {

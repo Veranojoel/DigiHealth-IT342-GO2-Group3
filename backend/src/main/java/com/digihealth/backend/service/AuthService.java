@@ -16,6 +16,7 @@ import com.digihealth.backend.repository.PatientRepository;
 import com.digihealth.backend.repository.UserRepository;
 import com.digihealth.backend.repository.DoctorWorkDayRepository;
 import com.digihealth.backend.security.JwtTokenProvider;
+import com.digihealth.backend.service.NotificationService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -39,13 +40,14 @@ public class AuthService {
     private final JwtTokenProvider tokenProvider;
     private final AuthenticationManager authenticationManager;
     private final DoctorWorkDayRepository doctorWorkDayRepository;
+    private final NotificationService notificationService;
 
     @Value("${spring.security.oauth2.client.registration.google.client-id}")
     private String googleClientId;
 
     public AuthService(UserRepository userRepository, DoctorRepository doctorRepository,
             PatientRepository patientRepository, PasswordEncoder passwordEncoder, JwtTokenProvider tokenProvider,
-            AuthenticationManager authenticationManager, DoctorWorkDayRepository doctorWorkDayRepository) {
+            AuthenticationManager authenticationManager, DoctorWorkDayRepository doctorWorkDayRepository, NotificationService notificationService) {
         this.userRepository = userRepository;
         this.doctorRepository = doctorRepository;
         this.patientRepository = patientRepository;
@@ -53,6 +55,7 @@ public class AuthService {
         this.tokenProvider = tokenProvider;
         this.authenticationManager = authenticationManager;
         this.doctorWorkDayRepository = doctorWorkDayRepository;
+        this.notificationService = notificationService;
     }
     public LoginResponse googleLogin(GoogleLoginRequest request) {
         // Verify Google id_token
@@ -158,6 +161,7 @@ public class AuthService {
             patient.setAddress(address);
         }
         patientRepository.save(patient);
+        notificationService.notifyNewPatient(patient);
     }
 
     public void registerDoctor(RegisterDto registerDto) {

@@ -10,6 +10,7 @@ import { PatientDoctorSearch } from './components/PatientDoctorSearch';
 import { PatientProfile } from './components/PatientProfile';
 import { PatientBookAppointment } from './components/PatientBookAppointment';
 import { Button } from './components/ui/button';
+import { NotificationProvider } from './context/NotificationContext';
 
 export type Screen = 'login' | 'register' | 'dashboard' | 'appointments' | 'patient-records' | 'search' | 'patient-profile' | 'book-appointment' | 'doctor-profile';
 
@@ -71,29 +72,37 @@ function App() {
   const renderScreen = () => {
     // Patient is logged in - show patient portal
     if (isLoggedIn) {
-      switch (currentScreen) {
-        case 'dashboard':
-          return <PatientDashboard patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
-        case 'appointments':
-          return <PatientAppointments patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
-        case 'patient-records':
-          return <PatientMedicalRecords patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
-        case 'search':
-          return <PatientDoctorSearch patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
-        case 'patient-profile':
-          return <PatientProfile patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
-        case 'book-appointment':
-          return (
-            <PatientBookAppointment
-              doctor={selectedDoctor}
-              patient={currentUser}
-              onBack={() => navigateToScreen(selectedDoctor ? 'search' : 'dashboard')}
-              onComplete={() => navigateToScreen('appointments')}
-            />
-          );
-        default:
-          return <PatientDashboard patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
-      }
+      const screenContent = (() => {
+        switch (currentScreen) {
+          case 'dashboard':
+            return <PatientDashboard patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
+          case 'appointments':
+            return <PatientAppointments patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
+          case 'patient-records':
+            return <PatientMedicalRecords patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
+          case 'search':
+            return <PatientDoctorSearch patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
+          case 'patient-profile':
+            return <PatientProfile patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
+          case 'book-appointment':
+            return (
+              <PatientBookAppointment
+                doctor={selectedDoctor}
+                patient={currentUser}
+                onBack={() => navigateToScreen(selectedDoctor ? 'search' : 'dashboard')}
+                onComplete={() => navigateToScreen('appointments')}
+              />
+            );
+          default:
+            return <PatientDashboard patient={currentUser} onNavigate={navigateToScreen} onLogout={handleLogout} />;
+        }
+      })();
+
+      return (
+        <NotificationProvider>
+          {screenContent}
+        </NotificationProvider>
+      );
     }
 
     // Login/registration flow
