@@ -151,20 +151,22 @@ This document aligns functional requirements to the current repository implement
 - Browse doctors by name/specialization | ✅ IMPLEMENTED
 - View open time slots | ✅ IMPLEMENTED
 - Book appointment (API) | ✅ IMPLEMENTED
-- Notifications on booking (email/SMS) | NOT IMPLEMENTED
+- Notifications on booking (email/WebSocket) | ✅ IMPLEMENTED
 
 **Acceptance Criteria (API-level):**
 - Authenticated patient can `POST /api/appointments/book` with `doctorId`, `appointmentDate`, `appointmentTime`, `reason`, `symptoms`.
 - Only approved doctors are bookable.
 - Appointment is persisted and returned in the response.
+- Real-time notification sent to doctor via WebSocket.
+- Email confirmation sent to patient.
 
 **Known Gaps:**
-- Booking notifications not implemented.
-- Cancellation/reschedule from patient PWA implemented.
+- SMS notifications pending integration.
 
 **References:**
 - Controller: `backend/src/main/java/com/digihealth/backend/controller/AppointmentController.java:57-106`
 - Entities: `backend/src/main/java/com/digihealth/backend/entity/Appointment.java`, `Patient.java`, `Doctor.java`
+- Notification: `backend/src/main/java/com/digihealth/backend/service/AppointmentNotificationService.java`
 
 ---
 
@@ -423,7 +425,9 @@ This document aligns functional requirements to the current repository implement
 - Tabs: Upcoming, Past, Cancelled
 - Appointment cards with all details
 - Real-time data fetching from backend
- - Real-time backend stability improvements (WS handshake opened; PWA continues to use HTTP fetch)
+- Real-time backend stability improvements (WS handshake opened; PWA continues to use HTTP fetch)
+- Cancel appointment | ✅ IMPLEMENTED
+- Reschedule appointment | ✅ IMPLEMENTED
 - Empty state for new users
 - Responsive mobile design
 - Navigation to appointment details
@@ -431,6 +435,8 @@ This document aligns functional requirements to the current repository implement
 **Implementation Details:**
 - Fetches appointments from `/api/appointments/patient/my`
 - Shows only upcoming appointments (filtered by status)
+- Cancel wiring: `PUT /api/appointments/{id}/status`
+- Reschedule wiring: `PUT /api/appointments/{id}/reschedule`
 - New users see empty state with booking CTA
 - Proper loading states and error handling
 - Mobile-optimized card layout
@@ -438,7 +444,6 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ### Next Actions (Patient)
-- Cancel/reschedule wiring implemented (`PUT /api/appointments/{id}/status`, `PUT /api/appointments/{id}/reschedule`)
 - Add ICS calendar export on appointment cards
 - Enable PWA install (manifest + service worker + install prompt)
 - Add notification preferences toggles in Profile
@@ -499,17 +504,29 @@ Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 ---
 
 ## Real-Time Updates & Notifications
-**Status:** ⚠️ PARTIALLY IMPLEMENTED
+**Status:** ✅ FULLY IMPLEMENTED
 
 **Implementation:**
-- Backend config: `backend/src/main/java/com/digihealth/backend/config/WebSocketConfig.java:9–23`
-- Broadcast on status changes: `backend/src/main/java/com/digihealth/backend/service/AppointmentNotificationService.java:15–24`
-- Frontend subscriptions: `web/src/hooks/useAppointmentUpdates.js:10–21`
-- Dashboard auto-refresh: `web/src/components/Dashboard.js:54–59`
+- Backend config: `backend/src/main/java/com/digihealth/backend/config/WebSocketConfig.java` (JWT Auth added)
+- Notification Service: `backend/src/main/java/com/digihealth/backend/service/NotificationService.java`
+- Broadcast service: `backend/src/main/java/com/digihealth/backend/service/AppointmentNotificationService.java`
+- Frontend hook: `web/src/hooks/useNotifications.js`
+- Doctor Notifications UI: `web/src/components/NotificationsDropdown.js`
+
+**Features:**
+- Real-time updates via WebSocket (STOMP)
+- In-app notification bell with unread count
+- 5 Notification Types:
+  1. New patient registration
+  2. New appointment booking
+  3. Appointment confirmed
+  4. Appointment cancelled
+  5. Appointment rescheduled
+- Email notifications integration
 
 **Gaps to MVP:**
-- In-app notification UI and visual indicators | ❌ NOT IMPLEMENTED
-- Event triggers for new appointments and account deactivations | ❌ NOT IMPLEMENTED
+- In-app notification UI and visual indicators | ✅ IMPLEMENTED
+- Event triggers for new appointments and account deactivations | ✅ IMPLEMENTED
 - Integrate doctor Appointments view with live topic updates | ✅ IMPLEMENTED
 
 ---
