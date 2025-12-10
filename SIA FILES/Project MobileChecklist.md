@@ -1,6 +1,6 @@
 # 📋 DIGIHEALTH PATIENT PWA IMPLEMENTATION CHECKLIST
 
-**Last Updated:** 2025-12-08
+**Last Updated:** 2025-12-10
 **Scope:** Patient-facing Progressive Web App (PWA) delivered via the existing `web/` codebase
 
 ---
@@ -80,8 +80,8 @@
 | Real-time data fetching | ✅ IMPLEMENTED | From `/api/appointments/patient/my` |
 | Empty state for new users | ✅ IMPLEMENTED | With booking CTA |
 | Loading states | ✅ IMPLEMENTED | Smooth animations |
-| Cancel appointment | ⚠️ PARTIALLY | UI ready; backend cancel endpoint integrated for doctor; patient cancel wiring pending |
-| Reschedule appointment | ⚠️ PARTIALLY | UI ready; patient reschedule wiring pending |
+| Cancel appointment | ✅ IMPLEMENTED | Patient wiring to `PUT /api/appointments/{id}/status` |
+| Reschedule appointment | ✅ IMPLEMENTED | Patient wiring to `PUT /api/appointments/{id}/reschedule` |
 | Add to calendar | ❌ NOT IMPLEMENTED | ICS download |
 
 ---
@@ -132,14 +132,14 @@
 ---
 
 ## 📱 PWA Readiness
-**Status:** ❌ NOT IMPLEMENTED
+**Status:** ⚠️ PARTIALLY IMPLEMENTED
 
 | Item | Status | Notes |
 |------|--------|-------|
-| Web manifest tuning | ❌ NOT IMPLEMENTED | Name, colors, icons |
-| Service worker registration | ❌ NOT IMPLEMENTED | Cache shell + assets (planned) |
-| Install prompt UX | ❌ NOT IMPLEMENTED | Detect and present |
-| Offline fallback | ❌ NOT IMPLEMENTED | Basic offline page |
+| Web manifest tuning | ✅ IMPLEMENTED | Name, colors, icons |
+| Service worker registration | ✅ IMPLEMENTED | Registers `/service-worker.js` in `index.html` |
+| Install prompt UX | ⚠️ PARTIALLY IMPLEMENTED | Basic install works; prompt UI pending |
+| Offline fallback | ✅ IMPLEMENTED | `public/offline.html` served when offline |
 
 ---
 
