@@ -55,6 +55,12 @@ public class AppointmentController {
   @Autowired
   private AdminSettingsRepository adminSettingsRepository;
 
+  @Autowired
+  private com.digihealth.backend.repository.AuditLogRepository auditLogRepository;
+
+  @Autowired
+  private com.digihealth.backend.service.EmailService emailService;
+
 
 
     /**
@@ -408,6 +414,122 @@ public class AppointmentController {
         return ResponseEntity.ok(updated);
     } catch (Exception e) {
             return ResponseEntity.badRequest().body("Error updating appointment: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Reschedule an appointment (patient-owned)
+     * PUT /api/appointments/{appointmentId}/reschedule
+     * {
+     *   "appointmentDate": "2025-02-20",
+     *   "appointmentTime": "09:00",
+     *   "reason": "Need a later time"
+     * }
+     */
+    @PutMapping("/{appointmentId}/reschedule")
+    @PreAuthorize("hasRole('PATIENT')")
+    public ResponseEntity<?> rescheduleAppointment(
+            @PathVariable UUID appointmentId,
+            @RequestBody com.digihealth.backend.dto.AppointmentRescheduleRequest req) {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String email = auth.getName();
+            User patientUser = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("Patient user not found"));
+
+            Appointment appointment = appointmentRepository.findById(appointmentId)
+                    .orElseThrow(() -> new RuntimeException("Appointment not found"));
+
+            if (appointment.getPatient() == null || !appointment.getPatient().getUser().getId().equals(patientUser.getId())) {
+                return ResponseEntity.status(403).body("Access denied: can only reschedule your own appointment");
+            }
+
+            if (req.getAppointmentDate() == null || req.getAppointmentTime() == null) {
+                return ResponseEntity.badRequest().body("appointmentDate and appointmentTime are required");
+            }
+
+            java.time.LocalDate newDate = req.getAppointmentDate();
+            java.time.LocalTime newTime = req.getAppointmentTime();
+
+            Doctor doctor = appointment.getDoctor();
+            if (doctor == null || doctor.getUser() == null) {
+                return ResponseEntity.badRequest().body("Doctor not associated with appointment");
+            }
+
+            AdminSettings settings = adminSettingsRepository.findById(1L).orElse(null);
+            Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 24;
+            boolean allowSameDay = settings == null || Boolean.TRUE.equals(settings.getAllowSameDayBooking());
+            int slotMinutes = settings != null && settings.getAppointmentSlotMinutes() != null ? settings.getAppointmentSlotMinutes() : 30;
+
+            java.time.LocalDate today = java.time.LocalDate.now();
+            java.time.LocalDateTime now = java.time.LocalDateTime.now();
+            java.time.LocalDateTime newDateTime = java.time.LocalDateTime.of(newDate, newTime);
+
+            if (!allowSameDay && newDate.equals(today)) {
+                return ResponseEntity.badRequest().body("Same-day rescheduling is not allowed");
+            }
+
+            long hoursUntil = java.time.Duration.between(now, newDateTime).toHours();
+            if (hoursUntil < minAdvanceHours) {
+                return ResponseEntity.badRequest().body("Reschedule must be at least " + minAdvanceHours + " hours in advance");
+            }
+
+            String abbr = newDate.getDayOfWeek().name().substring(0, 3);
+            com.digihealth.backend.entity.DayOfWeek workDayEnum = com.digihealth.backend.entity.DayOfWeek.valueOf(abbr);
+            com.digihealth.backend.entity.DoctorWorkDay workDay = doctorWorkDayRepository.findByDoctorAndWorkDay(doctor, workDayEnum)
+                    .stream().findFirst().orElse(null);
+
+            String startStr = (workDay != null && workDay.getAvailableStartTime() != null) ? workDay.getAvailableStartTime() : "09:00";
+            String endStr = (workDay != null && workDay.getAvailableEndTime() != null) ? workDay.getAvailableEndTime() : "17:00";
+            java.time.LocalTime start = java.time.LocalTime.parse(startStr);
+            java.time.LocalTime end = java.time.LocalTime.parse(endStr);
+
+            if (newTime.isBefore(start) || !newTime.isBefore(end)) {
+                return ResponseEntity.badRequest().body("Selected time is outside doctor's working hours");
+            }
+
+            if (newTime.getMinute() % slotMinutes != 0) {
+                return ResponseEntity.badRequest().body("Selected time is not aligned to " + slotMinutes + "-minute slots");
+            }
+
+            java.util.List<Appointment> existingOnDay = appointmentRepository.findByDoctorAndAppointmentDate(doctor, newDate);
+            boolean timeTaken = existingOnDay.stream()
+                    .filter(a -> !a.getAppointmentId().equals(appointment.getAppointmentId()))
+                    .anyMatch(a -> a.getAppointmentTime().equals(newTime));
+            if (timeTaken) {
+                return ResponseEntity.badRequest().body("Time slot already booked");
+            }
+
+            java.time.LocalDate oldDate = appointment.getAppointmentDate();
+            java.time.LocalTime oldTime = appointment.getAppointmentTime();
+
+            appointment.setAppointmentDate(newDate);
+            appointment.setAppointmentTime(newTime);
+            if (req.getReason() != null && !req.getReason().isBlank()) {
+                String existing = appointment.getNotes();
+                String r = req.getReason();
+                String combined = (existing != null && !existing.isBlank()) ? (existing + "\n\nReschedule Reason: " + r) : ("Reschedule Reason: " + r);
+                appointment.setNotes(combined);
+            }
+
+            Appointment updated = appointmentRepository.save(appointment);
+
+            com.digihealth.backend.entity.AuditLog log = new com.digihealth.backend.entity.AuditLog();
+            log.setOperation("RESCHEDULE_APPOINTMENT");
+            log.setActorUserEmail(email);
+            log.setResourceType("Appointment");
+            log.setResourceId(updated.getAppointmentId().toString());
+            log.setCreatedAt(java.time.LocalDateTime.now());
+            auditLogRepository.save(log);
+
+            appointmentNotificationService.notifyAppointmentStatusChange(updated);
+            try {
+                emailService.sendRescheduleEmails(updated, oldDate, oldTime);
+            } catch (Exception ignored) {}
+
+            return ResponseEntity.ok(updated);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Error rescheduling appointment: " + e.getMessage());
         }
     }
 
