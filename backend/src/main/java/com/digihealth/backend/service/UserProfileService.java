@@ -13,6 +13,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.util.StringUtils;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 import java.util.UUID;
 
@@ -38,7 +45,7 @@ public class UserProfileService {
         response.setFirstName(user.getFullName()); // or split if needed
         response.setLastName(null);
         response.setPhoneNumber(user.getPhoneNumber());
-        response.setProfileImageUrl(null);
+        response.setProfileImageUrl(user.getProfileImageUrl());
         response.setRole(user.getRole());
 
         if (user.getRole() == Role.PATIENT) {
@@ -185,6 +192,7 @@ public class UserProfileService {
         dto.setFullName(user.getFullName());
         dto.setEmail(user.getEmail());
         dto.setPhone(user.getPhoneNumber());
+        dto.setProfileImageUrl(user.getProfileImageUrl());
         dto.setRole(user.getRole().name());
 
         if (user.getRole() == Role.DOCTOR) {
@@ -296,5 +304,39 @@ public class UserProfileService {
         userRepository.save(user);
 
         return getCurrentUserProfile();
+    }
+
+    @Transactional
+    public String uploadProfileImage(MultipartFile file) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        try {
+            // Ensure uploads directory exists
+            Path uploadDir = Paths.get("./uploads");
+            if (!Files.exists(uploadDir)) {
+                Files.createDirectories(uploadDir);
+            }
+
+            // Generate unique filename
+            String originalName = file.getOriginalFilename();
+            String fileName = StringUtils.cleanPath(originalName != null ? originalName : "profile_image.jpg");
+            String uniqueFileName = java.util.UUID.randomUUID().toString() + "_" + fileName;
+            Path targetLocation = uploadDir.resolve(uniqueFileName);
+
+            // Copy file
+            Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
+
+            // Update user profile
+            String fileUrl = "/uploads/" + uniqueFileName;
+            user.setProfileImageUrl(fileUrl);
+            userRepository.save(user);
+
+            return fileUrl;
+        } catch (IOException ex) {
+            throw new RuntimeException("Could not store file " + file.getOriginalFilename() + ". Please try again!", ex);
+        }
     }
 }

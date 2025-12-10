@@ -86,3 +86,5 @@ pnpm-debug.log*
 *.log
 coverage/
 *.tsbuildinfo
+
+backend/uploads/

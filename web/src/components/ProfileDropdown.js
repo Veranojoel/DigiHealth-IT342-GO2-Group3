@@ -23,13 +23,8 @@ const ProfileDropdown = () => {
         <Link to="/profile-settings" className="dropdown-item">
           Profile Settings
         </Link>
-        <Link to="/preferences" className="dropdown-item">Preferences</Link>
-      </div>
-      <div className="dropdown-divider"></div>
-      <div className="dropdown-section">
-        <button className="dropdown-item logout-btn" onClick={handleLogout}>
-          <img src="/assets/logout.svg" alt="Logout" />
-          <span>Logout</span>
+        <button onClick={handleLogout} className="dropdown-item logout-button">
+          Logout
         </button>
       </div>
     </div>

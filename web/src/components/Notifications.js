@@ -62,19 +62,6 @@ const Notifications = () => {
         <div className="card-content">
           <div className="notification-item">
             <div className="notification-item-icon-wrapper">
-              <img src="/assets/email-icon.svg" alt="Email Notifications" />
-            </div>
-            <div className="notification-item-text">
-              <p className="notification-item-title">Email Notifications</p>
-              <p className="notification-item-subtitle">Receive important updates via email</p>
-            </div>
-            <div className="toggle-switch active">
-              <div className="toggle-handle"></div>
-            </div>
-          </div>
-          <hr />
-          <div className="notification-item">
-            <div className="notification-item-icon-wrapper">
               <img src="/assets/appointments-nav-icon.svg" alt="Appointment Reminders" />
             </div>
             <div className="notification-item-text">
@@ -108,19 +95,6 @@ const Notifications = () => {
               <p className="notification-item-subtitle">Important system and security notifications</p>
             </div>
             <div className="toggle-switch active">
-              <div className="toggle-handle"></div>
-            </div>
-          </div>
-          <hr />
-          <div className="notification-item">
-            <div className="notification-item-icon-wrapper">
-              <img src="/assets/dashboard-icon.svg" alt="Weekly Reports" />
-            </div>
-            <div className="notification-item-text">
-              <p className="notification-item-title">Weekly Reports</p>
-              <p className="notification-item-subtitle">Receive weekly summary of clinic activities</p>
-            </div>
-            <div className="toggle-switch">
               <div className="toggle-handle"></div>
             </div>
           </div>

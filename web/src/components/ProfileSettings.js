@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import './ProfileSettings.css';
 import { Link, useLocation } from 'react-router-dom';
+import apiClient from '../api/client';
 import SecuritySettings from './SecuritySettings';
 import Notifications from './Notifications';
 import Schedule from './Schedule';
@@ -8,11 +9,24 @@ import { useAuth } from '../auth/auth';
 
 const ProfileSettings = () => {
   const location = useLocation();
-  const { currentUser, loading, updateProfile } = useAuth();
+  const { currentUser, loading, updateProfile, setCurrentUser } = useAuth();
   const [isEditing, setIsEditing] = useState(false);
   const [formData, setFormData] = useState({});
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const fileInputRef = React.useRef(null);
+
+  const calculateCompletion = () => {
+    if (!currentUser) return 0;
+    const fields = [
+      'fullName', 'email', 'phone', 'specialization', 
+      'medicalLicenseNumber', 'yearsOfExperience', 'professionalBio'
+    ];
+    const filled = fields.filter(field => currentUser[field] && currentUser[field].toString().trim() !== '');
+    return Math.round((filled.length / fields.length) * 100);
+  };
+
+  const completionPercentage = calculateCompletion();
 
   if (loading) {
     return <div>Loading profile...</div>;
@@ -25,8 +39,48 @@ const ProfileSettings = () => {
       phoneNumber: currentUser.phone || '',
       specialization: currentUser.specialization || '',
       medicalLicenseNumber: currentUser.medicalLicenseNumber || '',
+      yearsOfExperience: currentUser.yearsOfExperience || '',
       professionalBio: currentUser.professionalBio || '',
     });
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current.click();
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      const formData = new FormData();
+      formData.append('file', file);
+      try {
+        // Use full URL if the backend returns a relative path
+        const response = await apiClient.post('/api/users/me/profile-image', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        });
+        const { profileImageUrl } = response.data;
+        setCurrentUser({ ...currentUser, profileImageUrl });
+        setMessage('Profile picture updated successfully!');
+      } catch (error) {
+        console.error('Failed to upload image:', error);
+        setMessage('Failed to upload profile picture. Please try again.');
+      }
+    }
+  };
+
+  const getProfileImageUrl = (url) => {
+    if (!url) return "/assets/profile-pic.svg";
+    if (url.startsWith('http')) return url;
+    
+    // Hardcode backend URL to ensure correct port 8080 usage
+    // This avoids issues where apiClient.defaults.baseURL might be misconfigured or pointing to proxy
+    const backendUrl = 'http://localhost:8080';
+    
+    // Ensure URL starts with /
+    const normalizedUrl = url.startsWith('/') ? url : `/${url}`;
+    return `${backendUrl}${normalizedUrl}`;
   };
 
   const handleSave = async () => {
@@ -106,10 +160,22 @@ const ProfileSettings = () => {
 
           <div className="profile-header-content">
             <div className="profile-pic-wrapper">
-              <img src="/assets/profile-pic.svg" alt="Profile" className="profile-pic" />
-              <div className="camera-icon-wrapper">
+              <img 
+                src={getProfileImageUrl(currentUser.profileImageUrl)} 
+                alt="Profile" 
+                className="profile-pic" 
+                onError={(e) => { e.target.onerror = null; e.target.src = "/assets/profile-pic.svg"; }}
+              />
+              <div className="camera-icon-wrapper" onClick={handleImageClick} style={{ cursor: 'pointer' }}>
                 <img src="/assets/camera-icon.svg" alt="Camera" />
               </div>
+              <input 
+                type="file" 
+                ref={fileInputRef} 
+                style={{ display: 'none' }} 
+                accept="image/*" 
+                onChange={handleImageChange} 
+              />
             </div>
             <div className="doctor-info">
               <p className="doctor-name">{currentUser.fullName}</p>
@@ -165,10 +231,6 @@ const ProfileSettings = () => {
             </div>
             <div className="card-content">
               <div className="input-group">
-                <label>Department</label>
-                <input type="text" value={currentUser.department || 'N/A'} readOnly />
-              </div>
-              <div className="input-group">
                 <label>Specialization</label>
                 <input type="text" name="specialization" value={isEditing ? formData.specialization : (currentUser.specialization || '')} onChange={handleChange} readOnly={!isEditing} />
               </div>
@@ -178,7 +240,7 @@ const ProfileSettings = () => {
               </div>
               <div className="input-group">
                 <label>Years of Experience</label>
-                <input type="text" value={currentUser.yearsOfExperience || 'N/A'} readOnly />
+                <input type="text" name="yearsOfExperience" value={isEditing ? formData.yearsOfExperience : (currentUser.yearsOfExperience || 'N/A')} onChange={handleChange} readOnly={!isEditing} />
               </div>
               <div className="input-group full-width">
                 <label>Professional Bio</label>

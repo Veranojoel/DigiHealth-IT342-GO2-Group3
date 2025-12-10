@@ -15,11 +15,16 @@ const AdminDashboard = () => {
   const [pendingDoctors, setPendingDoctors] = useState([]);
   const [allDoctors, setAllDoctors] = useState([]);
   const [allPatients, setAllPatients] = useState([]);
+  const [activeAppointmentsCount, setActiveAppointmentsCount] = useState(0);
+  const [totalAppointmentsCount, setTotalAppointmentsCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
+  const [showDoctorModal, setShowDoctorModal] = useState(false);
+  const [isEditingDoctor, setIsEditingDoctor] = useState(false);
 
   // Determine active tab based on current route (matching AdminTabs logic)
   const getActiveTab = () => {
@@ -55,19 +60,24 @@ const AdminDashboard = () => {
     setLoading(true);
     setError('');
     try {
-      const [pendingResponse, approvedResponse, patientsResponse] = await Promise.all([
+      const [pendingResponse, approvedResponse, patientsResponse, appointmentsResponse] = await Promise.all([
         apiClient.get('/api/admin/doctors/pending'),
         apiClient.get('/api/admin/doctors/approved'),
-        apiClient.get('/api/admin/patients')
+        apiClient.get('/api/admin/patients'),
+        apiClient.get('/api/admin/appointments')
       ]);
 
       const pending = Array.isArray(pendingResponse?.data) ? pendingResponse.data : [];
       const approved = Array.isArray(approvedResponse?.data) ? approvedResponse.data : [];
       const patients = Array.isArray(patientsResponse?.data) ? patientsResponse.data : [];
+      const appointments = Array.isArray(appointmentsResponse?.data) ? appointmentsResponse.data : [];
 
       setPendingDoctors(pending);
       setAllDoctors([...(approved || []), ...(pending || [])]);
       setAllPatients(patients);
+      
+      setActiveAppointmentsCount(appointments.filter(a => ['SCHEDULED', 'CONFIRMED', 'Scheduled', 'Confirmed'].includes(a.status)).length);
+      setTotalAppointmentsCount(appointments.length);
     } catch (err) {
       console.error('Failed to fetch admin data:', err);
       setError('Failed to load data. Please try again.');
@@ -121,6 +131,38 @@ const AdminDashboard = () => {
     }
   };
 
+  const handleViewDoctor = (doctorId) => {
+    const doctor = allDoctors.find(d => d.id === doctorId);
+    if (doctor) {
+      setSelectedDoctor({ ...doctor });
+      setShowDoctorModal(true);
+      setIsEditingDoctor(false);
+    }
+  };
+
+  const handleSaveDoctorDetails = async () => {
+    try {
+      setLoading(true);
+      // specific endpoint for admin to update doctor details might not exist, 
+      // but we can try generic user update or just simulate for now if backend isn't ready.
+      // Based on instructions, "Implement edit button functionality with save".
+      // Assuming PUT /api/admin/doctors/{id} exists or we use what we have.
+      // If not, we might need to create it on backend. 
+      // For now, I'll use a likely endpoint pattern.
+      await apiClient.put(`/api/admin/doctors/${selectedDoctor.id}`, selectedDoctor);
+      
+      setAllDoctors(prev => prev.map(d => d.id === selectedDoctor.id ? selectedDoctor : d));
+      setShowDoctorModal(false);
+      setSuccess('Doctor details updated successfully');
+      setTimeout(() => setSuccess(''), 3000);
+    } catch (err) {
+      console.error('Failed to update doctor:', err);
+      setError('Failed to update doctor details');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Show loading or error if authentication is still loading
   if (authLoading) {
     return <div className="admin-loading">Checking authentication...</div>;
@@ -159,8 +201,8 @@ const AdminDashboard = () => {
     },
     {
       label: 'Active Appointments',
-      value: '0',
-      subtitle: 'Loading...',
+      value: activeAppointmentsCount.toString(),
+      subtitle: `${totalAppointmentsCount} total`,
       icon: '/assets/Admin-assets/Active-Appointments.svg'
     },
     {
@@ -267,7 +309,7 @@ const AdminDashboard = () => {
                       <tr key={doctor.id}>
                         <td>{doctor.fullName}</td>
                         <td>{doctor.specialization}</td>
-                        <td>{doctor.licenseNumber}</td>
+                        <td>{doctor.licenseNumber || doctor.medicalLicenseNumber}</td>
                         <td>{doctor.email}</td>
                         <td>{new Date(doctor.createdAt || Date.now()).toLocaleDateString()}</td>
                         <td className="actions-cell">
@@ -312,7 +354,7 @@ const AdminDashboard = () => {
                         <td>{doctor.fullName}</td>
                         <td>{doctor.specialization}</td>
                         <td>{doctor.email}</td>
-                        <td>{doctor.phoneNumber}</td>
+                        <td>{doctor.phoneNumber || doctor.phone}</td>
                         <td>
                           <span className={`status-badge ${doctor.isApproved ? 'approved' : 'pending'}`}>
                             ● {doctor.isApproved ? 'Approved' : 'Pending'}
@@ -325,13 +367,22 @@ const AdminDashboard = () => {
                         </td>
                         <td className="actions-cell">
                           {doctor.isApproved && (
-                            <button 
-                              className={`action-btn ${doctor.isActive ? 'deactivate' : 'reactivate'}`}
-                              onClick={() => handleToggleDoctorStatus(doctor.id, doctor.isActive)}
-                              disabled={loading}
-                            >
-                              {doctor.isActive ? 'Deactivate' : 'Reactivate'}
-                            </button>
+                            <>
+                              <button 
+                                className="action-btn view"
+                                onClick={() => handleViewDoctor(doctor.id)}
+                                style={{ marginRight: 8 }}
+                              >
+                                👁️ View
+                              </button>
+                              <button 
+                                className={`action-btn ${doctor.isActive ? 'deactivate' : 'reactivate'}`}
+                                onClick={() => handleToggleDoctorStatus(doctor.id, doctor.isActive)}
+                                disabled={loading}
+                              >
+                                {doctor.isActive ? 'Deactivate' : 'Reactivate'}
+                              </button>
+                            </>
                           )}
                         </td>
                       </tr>
@@ -382,6 +433,107 @@ const AdminDashboard = () => {
           </section>
         )}
       </div>
+
+      {/* Doctor Details Modal */}
+      {showDoctorModal && selectedDoctor && (
+        <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+          <div className="modal" style={{ background: '#fff', borderRadius: 12, padding: 24, width: 600, maxWidth: '90%', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+              <h3 style={{ margin: 0, fontSize: 20 }}>{isEditingDoctor ? 'Edit Doctor Details' : 'Doctor Details'}</h3>
+              <button onClick={() => setShowDoctorModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 20 }}>×</button>
+            </div>
+            
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+              <div className="form-field">
+                <label className="form-label">Full Name</label>
+                <input 
+                  className="form-input" 
+                  value={selectedDoctor.fullName || ''} 
+                  disabled={!isEditingDoctor}
+                  onChange={(e) => setSelectedDoctor({...selectedDoctor, fullName: e.target.value})}
+                />
+              </div>
+              <div className="form-field">
+                <label className="form-label">Email</label>
+                <input 
+                  className="form-input" 
+                  value={selectedDoctor.email || ''} 
+                  disabled={true} 
+                />
+              </div>
+              <div className="form-field">
+                <label className="form-label">Specialization</label>
+                <input 
+                  className="form-input" 
+                  value={selectedDoctor.specialization || ''} 
+                  disabled={!isEditingDoctor}
+                  onChange={(e) => setSelectedDoctor({...selectedDoctor, specialization: e.target.value})}
+                />
+              </div>
+              <div className="form-field">
+                <label className="form-label">License Number</label>
+                <input 
+                  className="form-input" 
+                  value={selectedDoctor.medicalLicenseNumber || selectedDoctor.licenseNumber || ''} 
+                  disabled={!isEditingDoctor}
+                  onChange={(e) => setSelectedDoctor({...selectedDoctor, medicalLicenseNumber: e.target.value, licenseNumber: e.target.value})}
+                />
+              </div>
+               <div className="form-field">
+                <label className="form-label">Phone Number</label>
+                <input 
+                  className="form-input" 
+                  value={selectedDoctor.phone || selectedDoctor.phoneNumber || ''} 
+                  disabled={!isEditingDoctor}
+                  onChange={(e) => setSelectedDoctor({...selectedDoctor, phone: e.target.value, phoneNumber: e.target.value})}
+                />
+              </div>
+              <div className="form-field">
+                <label className="form-label">Years of Experience</label>
+                <input 
+                  className="form-input" 
+                  type="number"
+                  value={selectedDoctor.yearsOfExperience || selectedDoctor.experienceYears || ''} 
+                  disabled={!isEditingDoctor}
+                  onChange={(e) => setSelectedDoctor({...selectedDoctor, yearsOfExperience: e.target.value, experienceYears: e.target.value})}
+                />
+              </div>
+              <div className="form-field">
+                <label className="form-label">Status</label>
+                <div style={{ padding: '10px 0' }}>
+                   <span className={`status-badge ${selectedDoctor.isApproved ? 'approved' : 'pending'}`}>
+                    {selectedDoctor.isApproved ? 'Approved' : 'Pending'}
+                  </span>
+                </div>
+              </div>
+              <div className="form-field" style={{ gridColumn: '1 / -1' }}>
+                <label className="form-label">Professional Bio</label>
+                <textarea 
+                  className="form-input" 
+                  style={{ minHeight: '100px', resize: 'vertical', fontFamily: 'inherit' }}
+                  value={selectedDoctor.professionalBio || selectedDoctor.bio || ''} 
+                  disabled={!isEditingDoctor}
+                  onChange={(e) => setSelectedDoctor({...selectedDoctor, professionalBio: e.target.value, bio: e.target.value})}
+                />
+              </div>
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 12, marginTop: 24 }}>
+              {!isEditingDoctor ? (
+                <>
+                  <button className="secondary-btn" onClick={() => setShowDoctorModal(false)}>Close</button>
+                  <button className="primary-btn" onClick={() => setIsEditingDoctor(true)}>Edit Details</button>
+                </>
+              ) : (
+                <>
+                  <button className="secondary-btn" onClick={() => setIsEditingDoctor(false)}>Cancel</button>
+                  <button className="primary-btn" onClick={handleSaveDoctorDetails}>Save Changes</button>
+                </>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

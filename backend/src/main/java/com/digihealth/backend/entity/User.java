@@ -45,6 +45,7 @@ public class User {
 
     // Shared contact fields
     private String phoneNumber;
+    private String profileImageUrl;
 
     // Role for access control
     @Enumerated(EnumType.STRING)

@@ -7,6 +7,7 @@ public class CurrentUserProfileDto {
     private String fullName;
     private String email;
     private String phone;
+    private String profileImageUrl;
     private String role;
     private String department;
     private String specialization;

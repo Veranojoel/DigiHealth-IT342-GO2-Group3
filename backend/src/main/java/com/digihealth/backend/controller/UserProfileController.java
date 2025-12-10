@@ -8,7 +8,10 @@ import com.digihealth.backend.service.UserProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -46,5 +49,11 @@ public class UserProfileController {
     public ResponseEntity<CurrentUserProfileDto> updateCurrentUserProfile(@RequestBody CurrentUserProfileUpdateRequest request) {
         CurrentUserProfileDto updatedProfile = userProfileService.updateCurrentUserProfile(request);
         return ResponseEntity.ok(updatedProfile);
+    }
+
+    @PostMapping("/users/me/profile-image")
+    public ResponseEntity<Map<String, String>> uploadProfileImage(@RequestParam("file") MultipartFile file) {
+        String fileUrl = userProfileService.uploadProfileImage(file);
+        return ResponseEntity.ok(Collections.singletonMap("profileImageUrl", fileUrl));
     }
 }

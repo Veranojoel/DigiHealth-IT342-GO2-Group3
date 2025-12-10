@@ -1,9 +1,14 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../auth/auth';
 import apiClient from '../api/client';
 import AdminTabs from './AdminTabs';
+import './AdminDashboard.css';
 import './AdminDashboardSettings.css';
 
 const AdminDashboardSettings = () => {
+  const navigate = useNavigate();
+  const { logout } = useAuth();
   const [settings, setSettings] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -43,16 +48,48 @@ const AdminDashboardSettings = () => {
     return <div className="settings-container">Loading settings...</div>;
   }
 
-  return (
-    <div className="settings-container">
-      <div className="settings-header" style={{ marginBottom: 12 }}>
-        <h2 className="settings-title">Settings</h2>
-        <p className="settings-subtitle">Configure clinic, appointments, notifications, and system</p>
-      </div>
-      <AdminTabs />
+  const handleLogout = () => {
+    logout();
+    navigate('/admin/login');
+  };
 
-      {success && <div className="success-banner">{success}</div>}
-{error && <div className="error-banner">{error}</div>}
+  return (
+    <div className="admin-dashboard-container">
+       {/* Header */}
+       <header className="admin-header">
+        <div className="header-left">
+          <div className="logo-section">
+            <div className="logo-circle">D</div>
+          </div>
+          <div className="header-title">
+            <h1>DigiHealth Admin</h1>
+            <p>System Administration Panel</p>
+          </div>
+        </div>
+        <div className="header-right">
+          <div className="user-info">
+            <div className="user-avatar">SA</div>
+            <div className="user-details">
+              <p className="user-name">System Administrator</p>
+              <p className="user-email">admin@digihealth.com</p>
+            </div>
+          </div>
+          <button className="logout-btn" onClick={handleLogout}>
+            <img src="/assets/Admin-assets/Logout.svg" alt="logout" className="logout-icon-img" />
+            Logout
+          </button>
+        </div>
+      </header>
+      
+      <div className="settings-container">
+        <div className="settings-header" style={{ marginBottom: 12 }}>
+          <h2 className="settings-title">Settings</h2>
+          <p className="settings-subtitle">Configure clinic, appointments, notifications, and system</p>
+        </div>
+        <AdminTabs />
+
+        {success && <div className="success-banner">{success}</div>}
+        {error && <div className="error-banner">{error}</div>}
 
       {/* Clinic Information */}
       <section className="settings-section">
@@ -220,6 +257,7 @@ const AdminDashboardSettings = () => {
           </div>
         </div>
       </section>
+    </div>
     </div>
   );
 };

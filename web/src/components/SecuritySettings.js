@@ -55,12 +55,19 @@ const SecuritySettings = () => {
         currentPassword,
         newPassword
       });
-      setMessage('Password updated successfully!');
+      // Use alert as requested instead of inline message causing render issues
+      alert('Password updated successfully!');
+      // Reset form
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+      // Optional: clear message if any
+      setMessage('');
     } catch (error) {
-      setMessage(error.response?.data?.message || 'Failed to update password. Please try again.');
+      console.error('Password update error:', error);
+      const errorMsg = error.response?.data?.message || 'Failed to update password. Please try again.';
+      // Ensure error message is a string to prevent React rendering crashes
+      setMessage(typeof errorMsg === 'string' ? errorMsg : JSON.stringify(errorMsg));
     } finally {
       setIsSubmitting(false);
     }
@@ -181,28 +188,6 @@ const SecuritySettings = () => {
               <img src="/assets/save-changes-icon.svg" alt="Update Password" />
               {isSubmitting ? 'Updating...' : 'Update Password'}
             </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="card two-factor-auth-card">
-        <div className="card-header">
-          <img src="/assets/shield.svg" alt="Two-Factor Authentication" />
-          <p className="card-title">Two-Factor Authentication</p>
-          <p className="card-description">Add an extra layer of security to your account</p>
-        </div>
-        <div className="card-content">
-          <div className="two-factor-auth-toggle-card">
-            <div className="two-factor-auth-icon-wrapper">
-              <img src="/assets/security.svg" alt="Enable Two-Factor Authentication" />
-            </div>
-            <div className="two-factor-auth-text">
-              <p className="two-factor-auth-title">Enable Two-Factor Authentication</p>
-              <p className="two-factor-auth-subtitle">Secure your account with SMS or authenticator app verification</p>
-            </div>
-            <div className="toggle-switch">
-              <div className="toggle-handle"></div>
-            </div>
           </div>
         </div>
       </div>
