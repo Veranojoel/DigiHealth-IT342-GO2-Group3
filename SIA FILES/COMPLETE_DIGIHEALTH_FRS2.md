@@ -27,7 +27,7 @@ This document aligns functional requirements to the current repository implement
 **Features:**
 - Email/password registration API | ✅ IMPLEMENTED
 - Patient endpoint `POST /api/auth/register-patient` | ✅ IMPLEMENTED
-- Google OAuth 2.0 registration | NOT IMPLEMENTED
+- Google OAuth 2.0 registration | ✅ IMPLEMENTED
 - Capture medical profile (age, gender, allergies, conditions) | ✅ IMPLEMENTED
 - Registration confirmation email | NOT IMPLEMENTED
 
@@ -160,7 +160,7 @@ This document aligns functional requirements to the current repository implement
 
 **Known Gaps:**
 - Booking notifications not implemented.
-- Cancellation/reschedule from patient PWA not implemented.
+- Cancellation/reschedule from patient PWA implemented.
 
 **References:**
 - Controller: `backend/src/main/java/com/digihealth/backend/controller/AppointmentController.java:57-106`
@@ -438,7 +438,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ### Next Actions (Patient)
-- Implement patient cancel/reschedule wiring to backend `PUT /api/appointments/{id}/status`
+- Cancel/reschedule wiring implemented (`PUT /api/appointments/{id}/status`, `PUT /api/appointments/{id}/reschedule`)
 - Add ICS calendar export on appointment cards
 - Enable PWA install (manifest + service worker + install prompt)
 - Add notification preferences toggles in Profile
@@ -524,7 +524,7 @@ Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 **Gaps:**
 - Role-based restriction for `/api/admin/**` | ✅ IMPLEMENTED
 - Google OAuth 2.0 integration | ✅ IMPLEMENTED
-- Audit logging for sensitive actions | ❌ NOT IMPLEMENTED
+- Audit logging for sensitive actions | ✅ IMPLEMENTED
 - Consistent error handling and input validation across endpoints | ❌ NOT IMPLEMENTED
 
 ---
