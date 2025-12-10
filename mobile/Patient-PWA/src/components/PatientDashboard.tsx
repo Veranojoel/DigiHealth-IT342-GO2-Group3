@@ -240,11 +240,10 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
         {/* Welcome Guide for New Users - Horizontal Compact */}
         {showWelcomeGuide && (
           <Card 
-            className={`shadow-lg border-blue-100 transition-all duration-500 ${
+            className={`shadow-lg border-blue-100 dark:border-blue-900 transition-all duration-500 bg-gradient-to-br from-blue-50 to-cyan-50 dark:from-blue-950/40 dark:to-cyan-950/40 ${
               guideVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
             }`}
             style={{
-              background: 'linear-gradient(135deg, #f0f9ff 0%, #e6f7ff 100%)',
               borderLeft: '4px solid #3b82f6'
             }}
           >
@@ -255,15 +254,15 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
                     <span className="text-white">👋</span>
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold text-blue-900">Get Started</h3>
-                    <p className="text-xs text-blue-700">Complete onboarding steps</p>
+                    <h3 className="text-sm font-bold text-blue-900 dark:text-blue-100">Get Started</h3>
+                    <p className="text-xs text-blue-700 dark:text-blue-300">Complete onboarding steps</p>
                   </div>
                 </div>
                 <Button
                   variant="ghost"
                   size="sm"
                   onClick={handleDismissWelcome}
-                  className="text-xs text-gray-500 hover:text-gray-700"
+                  className="text-xs text-muted-foreground hover:text-foreground"
                 >
                   Dismiss
                 </Button>
@@ -281,8 +280,8 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
                       onMouseLeave={() => setHoveredStep(null)}
                       className={`flex-shrink-0 w-32 mx-1 flex flex-col items-center p-3 rounded-lg transition-all duration-200 ${
                         isCompleted 
-                          ? 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200' 
-                          : 'bg-white hover:shadow border border-gray-100'
+                          ? 'bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 dark:from-green-900/20 dark:to-emerald-900/20 dark:border-green-800' 
+                          : 'bg-card hover:shadow border border-border'
                       } ${hoveredStep === step.id && !isCompleted ? 'ring-1 ring-blue-200 scale-105' : ''}`}
                     >
                       <div className={`w-10 h-10 rounded-full flex items-center justify-center mb-2 ${
@@ -297,12 +296,12 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
                         )}
                       </div>
                       <p className={`text-xs font-medium text-center leading-tight ${
-                        isCompleted ? 'text-green-700' : 'text-gray-800'
+                        isCompleted ? 'text-green-700 dark:text-green-400' : 'text-card-foreground'
                       }`}>
                         {step.label}
                       </p>
                       {isCompleted && (
-                        <span className="text-[10px] text-green-600 mt-1">✓ Completed</span>
+                        <span className="text-[10px] text-green-600 dark:text-green-500 mt-1">✓ Completed</span>
                       )}
                     </button>
                   );
@@ -312,44 +311,11 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
           </Card>
         )}
 
-        {/* Health Summary Card - Only show for users with health data */}
-        {upcomingAppointments.length > 0 && (
-          <Card className="shadow-md" style={{
-            background: 'linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)'
-          }}>
-            <CardContent className="p-6 text-white">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <h3 className="text-lg font-medium opacity-90">Health Summary</h3>
-                  <p className="text-sm opacity-75">Last updated: Today</p>
-                </div>
-                <Heart className="h-8 w-8 opacity-80" />
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Activity className="h-4 w-4" />
-                    <span className="text-xs opacity-90">Blood Pressure</span>
-                  </div>
-                  <p className="text-xl font-semibold">120/80</p>
-                </div>
-                
-                <div className="bg-white/20 backdrop-blur-sm rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Heart className="h-4 w-4" />
-                    <span className="text-xs opacity-90">Heart Rate</span>
-                  </div>
-                  <p className="text-xl font-semibold">72 bpm</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
+        {/* DigiBot AI Chat Assistant - Floating - REMOVED */}
+        
         {/* Quick Actions */}
         <div>
-          <h3 className="font-semibold mb-3">Quick Actions</h3>
+          <h3 className="font-semibold mb-3 text-foreground">Quick Actions</h3>
           <div className="grid grid-cols-2 gap-4">
             {quickActions.map((action) => {
               const Icon = action.icon;
@@ -357,12 +323,12 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
                 <button
                   key={action.id}
                   onClick={() => handleQuickAction(action.id)}
-                  className="flex flex-col items-center justify-center p-4 bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow"
+                  className="flex flex-col items-center justify-center p-4 bg-card rounded-xl shadow-sm hover:shadow-md transition-shadow border border-border"
                 >
                   <div className={`w-16 h-16 rounded-full flex items-center justify-center mb-2 bg-gradient-to-r ${action.color}`}>
                     <Icon className="h-8 w-8 text-white" />
                   </div>
-                  <span className="text-sm font-medium">{action.label}</span>
+                  <span className="text-sm font-medium text-card-foreground">{action.label}</span>
                 </button>
               );
             })}
@@ -372,7 +338,7 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
         {/* Upcoming Appointments */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h3 className="font-semibold">Upcoming Appointments</h3>
+            <h3 className="font-semibold text-foreground">Upcoming Appointments</h3>
             <Button 
               variant="link" 
               className="px-0 h-auto"
@@ -386,8 +352,8 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
             <Card className="shadow-sm">
               <CardContent className="p-8 text-center">
                 <div className="animate-pulse space-y-3">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                  <div className="h-4 bg-muted rounded w-3/4 mx-auto"></div>
+                  <div className="h-4 bg-muted rounded w-1/2 mx-auto"></div>
                 </div>
               </CardContent>
             </Card>
@@ -409,7 +375,7 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
                       <div className="flex-1">
                         <div className="flex items-start justify-between">
                           <div>
-                            <p className="font-semibold">{appointment.doctorName}</p>
+                            <p className="font-semibold text-foreground">{appointment.doctorName}</p>
                             <p className="text-sm text-muted-foreground">{appointment.specialization}</p>
                           </div>
                           <Badge variant="secondary" className="text-xs">
@@ -461,7 +427,7 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
 
         {/* Recent Activity */}
         <div>
-          <h3 className="font-semibold mb-3">Recent Activity</h3>
+          <h3 className="font-semibold mb-3 text-foreground">Recent Activity</h3>
           {recentActivities.length > 0 ? (
             <Card className="shadow-sm animate-fadeIn">
               <CardContent className="p-4">
@@ -496,19 +462,19 @@ export function PatientDashboard({ patient, onNavigate, onLogout }: PatientDashb
           ) : (
             <Card className="shadow-sm">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                   </svg>
                 </div>
                 <p className="text-muted-foreground mb-2">No recent activity</p>
-                <p className="text-xs text-gray-500 mb-4">
+                <p className="text-xs text-muted-foreground mb-4">
                   Your activity will appear here after you start using DigiHealth
                 </p>
                 <Button 
                   variant="outline"
                   onClick={() => onNavigate('search')}
-                  className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50 dark:text-blue-400 dark:border-blue-800 dark:hover:bg-blue-950/30"
                 >
                   Start Exploring
                 </Button>

@@ -219,23 +219,23 @@ export function PatientBookAppointment({ doctor, patient, onBack, onComplete }: 
 
   const renderProgressBar = () => (
     <div className="flex items-center justify-center gap-2 mb-6">
-      <div className={`w-2 h-2 rounded-full ${step >= 1 ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]' : 'bg-gray-300'}`} />
-      <div className={`w-8 h-1 ${step >= 2 ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]' : 'bg-gray-300'}`} />
-      <div className={`w-2 h-2 rounded-full ${step >= 2 ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]' : 'bg-gray-300'}`} />
-      <div className={`w-8 h-1 ${step >= 3 ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]' : 'bg-gray-300'}`} />
-      <div className={`w-2 h-2 rounded-full ${step >= 3 ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]' : 'bg-gray-300'}`} />
+      <div className={`w-2 h-2 rounded-full ${step >= 1 ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]' : 'bg-muted'}`} />
+      <div className={`w-8 h-1 ${step >= 2 ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]' : 'bg-muted'}`} />
+      <div className={`w-2 h-2 rounded-full ${step >= 2 ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]' : 'bg-muted'}`} />
+      <div className={`w-8 h-1 ${step >= 3 ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]' : 'bg-muted'}`} />
+      <div className={`w-2 h-2 rounded-full ${step >= 3 ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]' : 'bg-muted'}`} />
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <div className="bg-white border-b sticky top-0 z-10">
+      <div className="bg-card border-b sticky top-0 z-10">
         <div className="max-w-md mx-auto px-4 py-3 flex items-center gap-3">
           <Button variant="ghost" size="sm" onClick={onBack}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <h1 className="text-lg font-semibold">Book Appointment</h1>
+          <h1 className="text-lg font-semibold text-foreground">Book Appointment</h1>
         </div>
       </div>
 

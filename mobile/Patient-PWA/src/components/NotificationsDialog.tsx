@@ -49,7 +49,7 @@ export function NotificationsDialog({
               <Bell className="h-5 w-5 text-primary" />
               <DialogTitle>Notifications</DialogTitle>
               {notifications.some(n => !n.isRead) && (
-                <Badge variant="secondary" className="bg-blue-100 text-blue-700 hover:bg-blue-200">
+                <Badge variant="secondary" className="bg-primary/10 text-primary hover:bg-primary/20">
                   {notifications.filter(n => !n.isRead).length} new
                 </Badge>
               )}
@@ -58,7 +58,7 @@ export function NotificationsDialog({
               <Button 
                 variant="ghost" 
                 size="sm" 
-                className="h-8 text-xs"
+                className="h-8 text-xs text-muted-foreground hover:text-foreground"
                 onClick={onMarkAllAsRead}
               >
                 <Check className="h-3 w-3 mr-1" />
@@ -74,23 +74,23 @@ export function NotificationsDialog({
         <ScrollArea className="flex-1">
           {notifications.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full py-12 text-center text-muted-foreground">
-              <div className="h-12 w-12 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                <Bell className="h-6 w-6 text-gray-400" />
+              <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-4">
+                <Bell className="h-6 w-6 text-muted-foreground" />
               </div>
-              <p className="text-lg font-medium text-gray-900">No notifications</p>
+              <p className="text-lg font-medium text-foreground">No notifications</p>
               <p className="text-sm">You're all caught up!</p>
             </div>
           ) : (
-            <div className="divide-y">
+            <div className="divide-y divide-border">
               {notifications.map((notification) => (
                 <div 
                   key={notification.id} 
-                  className={`p-4 hover:bg-gray-50 transition-colors ${!notification.isRead ? 'bg-blue-50/50' : ''}`}
+                  className={`p-4 hover:bg-accent/50 transition-colors ${!notification.isRead ? 'bg-primary/5' : ''}`}
                 >
                   <div className="flex gap-3">
-                    <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${!notification.isRead ? 'bg-blue-500' : 'bg-transparent'}`} />
+                    <div className={`mt-1 h-2 w-2 rounded-full shrink-0 ${!notification.isRead ? 'bg-primary' : 'bg-transparent'}`} />
                     <div className="flex-1 space-y-1">
-                      <p className={`text-sm leading-snug ${!notification.isRead ? 'font-medium text-gray-900' : 'text-gray-700'}`}>
+                      <p className={`text-sm leading-snug ${!notification.isRead ? 'font-medium text-foreground' : 'text-muted-foreground'}`}>
                         {notification.message}
                       </p>
                       <p className="text-xs text-muted-foreground">

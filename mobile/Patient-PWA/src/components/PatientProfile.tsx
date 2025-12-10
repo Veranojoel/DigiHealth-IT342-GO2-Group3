@@ -8,9 +8,10 @@ import { Label } from './ui/label';
 import { Textarea } from './ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './ui/select';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { User, Mail, Phone, Calendar, Heart, Shield, Bell, ChevronRight, LogOut, Camera, Edit2, Save } from 'lucide-react';
+import { User, Mail, Phone, Calendar, Heart, Shield, Bell, ChevronRight, LogOut, Camera, Edit2, Save, Moon, Sun } from 'lucide-react';
 import { toast } from 'sonner';
 import { Switch } from './ui/switch';
+import { useTheme } from './theme-provider';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -30,6 +31,13 @@ interface PatientProfileProps {
 }
 
 export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfileProps) {
+  const { setTheme, theme } = useTheme();
+
+  // Helper to safely toggle theme
+  const handleThemeToggle = (checked: boolean) => {
+    const newTheme = checked ? 'dark' : 'light';
+    setTheme(newTheme);
+  };
   const [currentScreen] = useState<'dashboard' | 'appointments' | 'records' | 'search' | 'profile'>('profile');
   const [isEditing, setIsEditing] = useState(false);
   const [activeSection, setActiveSection] = useState<'personal' | 'medical' | 'settings' | null>(null);
@@ -63,8 +71,8 @@ export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfile
   const [emergencyPhone, setEmergencyPhone] = useState('+63 912 345 6780');
 
   // Notification Settings
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [smsNotifications, setSmsNotifications] = useState(true);
+  const [emailNotifications, setEmailNotifications] = useState(false);
+  const [smsNotifications, setSmsNotifications] = useState(false);
   const [appointmentReminders, setAppointmentReminders] = useState(true);
   const [marketingEmails, setMarketingEmails] = useState(false);
 
@@ -352,9 +360,31 @@ export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfile
 
   const renderSettings = () => (
     <div className="space-y-6">
+      {/* Appearance Settings */}
+      <div>
+        <h4 className="font-medium mb-4 flex items-center text-foreground">
+          {theme === 'dark' ? <Moon className="h-4 w-4 mr-2" /> : <Sun className="h-4 w-4 mr-2" />}
+          Appearance
+        </h4>
+        <Card>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="font-medium text-foreground">Dark Mode</p>
+                <p className="text-sm text-muted-foreground">Switch between light and dark themes</p>
+              </div>
+              <Switch
+                  checked={theme === 'dark'}
+                  onCheckedChange={handleThemeToggle}
+                />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
       {/* Notification Settings */}
       <div>
-        <h4 className="font-medium mb-4 flex items-center">
+        <h4 className="font-medium mb-4 flex items-center text-foreground">
           <Bell className="h-4 w-4 mr-2" />
           Notifications
         </h4>
@@ -363,29 +393,31 @@ export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfile
           <CardContent className="p-4 space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Email Notifications</p>
-                <p className="text-sm text-muted-foreground">Receive updates via email</p>
+                <p className="font-medium text-muted-foreground">Email Notifications</p>
+                <p className="text-sm text-muted-foreground">Receive updates via email (Unavailable)</p>
               </div>
               <Switch
                 checked={emailNotifications}
                 onCheckedChange={setEmailNotifications}
+                disabled
               />
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">SMS Notifications</p>
-                <p className="text-sm text-muted-foreground">Receive updates via SMS</p>
+                <p className="font-medium text-muted-foreground">SMS Notifications</p>
+                <p className="text-sm text-muted-foreground">Receive updates via SMS (Unavailable)</p>
               </div>
               <Switch
                 checked={smsNotifications}
                 onCheckedChange={setSmsNotifications}
+                disabled
               />
             </div>
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Appointment Reminders</p>
+                <p className="font-medium text-foreground">Appointment Reminders</p>
                 <p className="text-sm text-muted-foreground">24h before appointment</p>
               </div>
               <Switch
@@ -396,7 +428,7 @@ export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfile
 
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">Marketing Emails</p>
+                <p className="font-medium text-foreground">Marketing Emails</p>
                 <p className="text-sm text-muted-foreground">Health tips and offers</p>
               </div>
               <Switch
@@ -417,18 +449,27 @@ export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfile
         
         <Card>
           <CardContent className="p-4 space-y-3">
-            <button className="w-full flex items-center justify-between py-2">
-              <span className="font-medium">Change Password</span>
+            <button 
+              className="w-full flex items-center justify-between py-2 hover:bg-accent rounded px-2 transition-colors"
+              onClick={() => toast.info('Change Password functionality coming soon')}
+            >
+              <span className="font-medium text-foreground">Change Password</span>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </button>
             
-            <button className="w-full flex items-center justify-between py-2">
-              <span className="font-medium">Privacy Policy</span>
+            <button 
+              className="w-full flex items-center justify-between py-2 hover:bg-accent rounded px-2 transition-colors"
+              onClick={() => toast.info('Privacy Policy coming soon')}
+            >
+              <span className="font-medium text-foreground">Privacy Policy</span>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </button>
             
-            <button className="w-full flex items-center justify-between py-2">
-              <span className="font-medium">Terms of Service</span>
+            <button 
+              className="w-full flex items-center justify-between py-2 hover:bg-accent rounded px-2 transition-colors"
+              onClick={() => toast.info('Terms of Service coming soon')}
+            >
+              <span className="font-medium text-foreground">Terms of Service</span>
               <ChevronRight className="h-5 w-5 text-muted-foreground" />
             </button>
           </CardContent>
@@ -437,7 +478,7 @@ export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfile
 
       {/* Danger Zone */}
       <div>
-        <Card className="border-red-200">
+        <Card className="border-destructive/50">
           <CardContent className="p-4">
             <AlertDialog>
               <AlertDialogTrigger asChild>
@@ -454,7 +495,10 @@ export function PatientProfile({ patient, onNavigate, onLogout }: PatientProfile
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction className="bg-red-600 hover:bg-red-700">
+                  <AlertDialogAction 
+                    className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+                    onClick={() => toast.error('Account deletion is restricted in this demo.')}
+                  >
                     Yes, Delete My Account
                   </AlertDialogAction>
                 </AlertDialogFooter>

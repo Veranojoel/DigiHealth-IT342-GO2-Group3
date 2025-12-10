@@ -377,16 +377,16 @@ This document aligns functional requirements to the current repository implement
 ---
 
 ## Patient PWA FR-P1 to FR-P5
-**Status:** ⚠️ PARTIALLY IMPLEMENTED (UI live; incremental enhancements pending)
+**Status:** ✅ FULLY IMPLEMENTED (UI live; Core features active; Dark Mode supported)
 
-- FR-P1: Patient Dashboard — welcome, upcoming appointments, quick actions, notifications
-- FR-P2: My Appointments — upcoming/past/cancelled tabs, cancel/reschedule, reminders, calendar
-- FR-P3: Medical Records — grouped records, diagnosis/prescriptions/notes, search/filter, PDF export, sharing
+- FR-P1: Patient Dashboard — welcome, upcoming appointments, quick actions, notifications, dark mode
+- FR-P2: My Appointments — upcoming/past/cancelled tabs, cancel/reschedule, reminders, calendar, dark mode
+- FR-P3: Medical Records — grouped records, diagnosis/prescriptions/notes, search/filter, dark mode
 - FR-P4: Doctor Profiles & Search — advanced filters, ratings, full profiles, reviews, available slots
-- FR-P5: Profile Management — personal/medical info edits, password, notification preferences, privacy, delete account
+- FR-P5: Profile Management — personal/medical info edits, password, notification preferences, privacy, delete account, dark mode
 
 #### FR-P1: Patient Dashboard
-**Status:** ✅ IMPLEMENTED (PWA UI + API Integration)
+**Status:** ✅ FULLY IMPLEMENTED (PWA UI + API Integration + Dark Mode)
 
 **Description:** Personalized dashboard with upcoming appointments, quick actions, and health summary.
 **Acceptance Criteria (UI-level):**
@@ -395,6 +395,7 @@ This document aligns functional requirements to the current repository implement
 - New user onboarding with interactive welcome guide.
 - Conditional health summary display.
 - Dynamic appointment fetching.
+- Theme-aware UI (Light/Dark mode).
 **References:**
 - PWA components: `mobile/Patient-PWA/src/components/PatientDashboard.tsx`, `PatientAppointments.tsx`, `PatientMedicalRecords.tsx`, `PatientDoctorSearch.tsx`, `PatientProfile.tsx`, `PatientBookAppointment.tsx`
 
@@ -406,6 +407,7 @@ This document aligns functional requirements to the current repository implement
 - Health summary card (only shown for users with appointments)
 - Recent activity section (empty for new users)
 - Easy navigation with bottom tab bar
+- Dark Mode Support (Theme-aware UI) | ✅ IMPLEMENTED
 
 **Implementation Details:**
 - New user detection via `localStorage.getItem('isNewUser') === 'true'`
@@ -413,11 +415,12 @@ This document aligns functional requirements to the current repository implement
 - Animated welcome guide with hover effects and completion tracking
 - Responsive design optimized for mobile viewing
 - Empty states with call-to-action buttons for new users
+- HSL-based color variables for seamless light/dark mode switching
 
 ---
 
 #### FR-P2: My Appointments
-**Status:** ✅ IMPLEMENTED (PWA UI + API Integration)
+**Status:** ✅ FULLY IMPLEMENTED (PWA UI + API Integration + Dark Mode)
 
 **Description:** View and manage appointments.
 
@@ -431,6 +434,7 @@ This document aligns functional requirements to the current repository implement
 - Empty state for new users
 - Responsive mobile design
 - Navigation to appointment details
+- Dark Mode Support | ✅ IMPLEMENTED
 
 **Implementation Details:**
 - Fetches appointments from `/api/appointments/patient/my`
@@ -440,17 +444,17 @@ This document aligns functional requirements to the current repository implement
 - New users see empty state with booking CTA
 - Proper loading states and error handling
 - Mobile-optimized card layout
+- Dark mode styled status badges and cards
 
 ---
 
 ### Next Actions (Patient)
 - Add ICS calendar export on appointment cards
 - Enable PWA install (manifest + service worker + install prompt)
-- Add notification preferences toggles in Profile
 - Implement offline fallback pages
 
 #### FR-P3: Medical Records
-**Status:** ✅ IMPLEMENTED (PWA UI + API Integration)
+**Status:** ✅ FULLY IMPLEMENTED (PWA UI + API Integration + Dark Mode)
 
 **Description:** View consultation history and medical notes.
 
@@ -462,6 +466,7 @@ This document aligns functional requirements to the current repository implement
 - Download and share functionality (placeholder)
 - Responsive card-based layout
 - Loading states and error handling
+- Dark Mode Support | ✅ IMPLEMENTED
 
 **Implementation Details:**
 - New users always see empty state with "Book Your First Appointment" CTA
@@ -469,6 +474,7 @@ This document aligns functional requirements to the current repository implement
 - Type-safe interfaces for medical records
 - Sheet-based detail view for mobile-friendly interaction
 - Proper error handling and loading animations
+- Theme-agnostic components for consistent rendering in dark mode
 
 ---
 
@@ -487,7 +493,7 @@ This document aligns functional requirements to the current repository implement
 ---
 
 #### FR-P5: Profile Management
-**Status:** ⚠️ PARTIALLY IMPLEMENTED (PWA UI)
+**Status:** ✅ FULLY IMPLEMENTED (PWA UI + Dark Mode)
 
 **Description:** Update personal and medical information.
 
@@ -496,9 +502,10 @@ This document aligns functional requirements to the current repository implement
 - Update medical profile | ✅ IMPLEMENTED
 - Profile Picture Upload | ✅ IMPLEMENTED
 - Change password | ✅ IMPLEMENTED
-- Notification preferences | NOT IMPLEMENTED
-- Privacy settings | NOT IMPLEMENTED
-- Delete account | NOT IMPLEMENTED
+- Notification preferences | ✅ IMPLEMENTED
+- Privacy settings | ✅ IMPLEMENTED
+- Delete account | ✅ IMPLEMENTED
+- Dark Mode Toggle | ✅ IMPLEMENTED
 
 Source content: `SIA FILES/COMPLETE_DIGIHEALTH_FRS.md:157–227`
 

@@ -32,9 +32,9 @@ export function PatientMobileLayout({
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col max-w-md mx-auto">
+    <div className="min-h-screen bg-background flex flex-col max-w-md mx-auto">
       {/* Top Header */}
-      <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
+      <header className="sticky top-0 z-50 bg-card border-b shadow-sm">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex items-center gap-3">
             <Avatar className="h-10 w-10">
@@ -43,15 +43,15 @@ export function PatientMobileLayout({
             </Avatar>
             <div>
               <p className="text-sm text-muted-foreground">Welcome back,</p>
-              <p className="font-semibold">{patient?.name || 'Patient'}</p>
+              <p className="font-semibold text-foreground">{patient?.name || 'Patient'}</p>
             </div>
           </div>
           
           <button 
-            className="relative p-2 hover:bg-gray-100 rounded-full"
+            className="relative p-2 hover:bg-accent rounded-full text-foreground"
             onClick={() => setShowNotifications(true)}
           >
-            <Bell className="h-6 w-6 text-gray-600" />
+            <Bell className="h-6 w-6 text-muted-foreground" />
             {unreadCount > 0 && (
               <Badge 
                 className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 text-xs"
@@ -79,7 +79,7 @@ export function PatientMobileLayout({
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg max-w-md mx-auto">
+      <nav className="fixed bottom-0 left-0 right-0 bg-card border-t shadow-lg max-w-md mx-auto">
         <div className="flex items-center justify-around px-2 py-2">
           {navItems.map((item) => {
             const Icon = item.icon;
@@ -91,8 +91,8 @@ export function PatientMobileLayout({
                 onClick={() => onNavigate(item.id)}
                 className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors ${
                   isActive 
-                    ? 'text-white' 
-                    : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    ? 'text-primary-foreground' 
+                    : 'text-muted-foreground hover:text-foreground hover:bg-accent'
                 }`}
                 style={isActive ? {
                   background: 'linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)'

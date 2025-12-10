@@ -166,9 +166,9 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
           {/* Diagnosis */}
           <div>
             <p className="text-sm text-muted-foreground mb-2">Diagnosis</p>
-            <Card className="bg-blue-50 border-blue-200">
+            <Card className="bg-blue-50/50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800">
               <CardContent className="p-3">
-                <p className="font-medium text-blue-900">{selectedRecord.diagnosis}</p>
+                <p className="font-medium text-blue-900 dark:text-blue-300">{selectedRecord.diagnosis}</p>
               </CardContent>
             </Card>
           </div>
@@ -181,8 +181,8 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
                 <CardContent className="p-3 space-y-3">
                   {selectedRecord.prescription.map((med: any, index: number) => (
                     <div key={index} className="flex gap-3 pb-3 border-b last:border-0">
-                      <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0">
-                        <Pill className="h-4 w-4 text-green-600" />
+                      <div className="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center flex-shrink-0">
+                        <Pill className="h-4 w-4 text-green-600 dark:text-green-400" />
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">{med.medicine}</p>
@@ -233,9 +233,9 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
           {/* Follow-up */}
           <div>
             <p className="text-sm text-muted-foreground mb-2">Follow-up Instructions</p>
-            <Card className="bg-orange-50 border-orange-200">
+            <Card className="bg-orange-50/50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800">
               <CardContent className="p-3">
-                <p className="text-sm text-orange-900">{selectedRecord.followUp}</p>
+                <p className="text-sm text-orange-900 dark:text-orange-300">{selectedRecord.followUp}</p>
               </CardContent>
             </Card>
           </div>
@@ -297,8 +297,8 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
             <Card className="shadow-sm">
               <CardContent className="p-8 text-center">
                 <div className="animate-pulse space-y-3">
-                  <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
-                  <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
+                  <div className="h-4 bg-muted rounded w-3/4 mx-auto"></div>
+                  <div className="h-4 bg-muted rounded w-1/2 mx-auto"></div>
                 </div>
               </CardContent>
             </Card>
@@ -307,7 +307,7 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
               <Sheet key={record.id}>
                 <SheetTrigger asChild>
                   <div
-                    className="bg-white shadow-sm hover:shadow-md transition-shadow cursor-pointer rounded-lg border"
+                    className="bg-card shadow-sm hover:shadow-md transition-shadow cursor-pointer rounded-lg border"
                     onClick={() => setSelectedRecord(record)}
                   >
                     <div className="p-4">
@@ -347,13 +347,13 @@ export function PatientMedicalRecords({ patient, onNavigate, onLogout }: Patient
           ) : (
             <Card className="shadow-sm">
               <CardContent className="p-8 text-center">
-                <div className="w-16 h-16 rounded-full bg-blue-50 flex items-center justify-center mx-auto mb-4">
-                  <FileText className="h-8 w-8 text-blue-500" />
+                <div className="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center mx-auto mb-4">
+                  <FileText className="h-8 w-8 text-blue-500 dark:text-blue-400" />
                 </div>
                 <p className="text-muted-foreground mb-2">
                   {searchQuery ? 'No records found matching your search' : 'No medical records yet'}
                 </p>
-                <p className="text-xs text-gray-500 mb-4">
+                <p className="text-xs text-muted-foreground mb-4">
                   {searchQuery ? 'Try a different search term' : 'Your medical records will appear here after appointments'}
                 </p>
                 {!searchQuery && (

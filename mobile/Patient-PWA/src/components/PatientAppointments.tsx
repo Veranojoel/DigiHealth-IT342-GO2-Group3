@@ -270,10 +270,10 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
 
   const renderAppointmentCard = (appointment: any, showActions: boolean = true) => {
     const statusColors: Record<string, string> = {
-      confirmed: 'bg-green-100 text-green-700',
-      pending: 'bg-yellow-100 text-yellow-700',
-      completed: 'bg-blue-100 text-blue-700',
-      cancelled: 'bg-red-100 text-red-700',
+      confirmed: 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400',
+      pending: 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400',
+      completed: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400',
+      cancelled: 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400',
     };
     const statusKey = String(appointment.status || '').toLowerCase();
 
@@ -289,10 +289,10 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
             <div className="flex-1">
               <div className="flex items-start justify-between mb-1">
                 <div>
-                  <p className="font-semibold">{appointment.doctorName}</p>
+                  <p className="font-semibold text-foreground">{appointment.doctorName}</p>
                   <p className="text-sm text-muted-foreground">{appointment.specialization}</p>
                 </div>
-                <Badge className={statusColors[statusKey] || 'bg-gray-100 text-gray-700'}>
+                <Badge className={statusColors[statusKey] || 'bg-muted text-muted-foreground'}>
                   {appointment.status}
                 </Badge>
               </div>
@@ -357,7 +357,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
           )}
 
           {appointment.status === 'Cancelled' && appointment.cancelledBy && (
-            <div className="text-xs text-muted-foreground bg-gray-50 p-2 rounded">
+            <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
               Cancelled by {appointment.cancelledBy} on {new Date(appointment.cancelledAt).toLocaleDateString()}
             </div>
           )}
@@ -483,7 +483,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
                 value={cancelReason}
                 onChange={(e) => setCancelReason(e.target.value)}
                 placeholder="Reason for cancellation"
-                className="w-full mt-2 border rounded p-2"
+                className="w-full mt-2 border-input rounded p-2 bg-background text-foreground"
                 rows={3}
               />
               <br /><br />
@@ -494,7 +494,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
             <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmCancelAppointment}
-              className="bg-red-600 hover:bg-red-700"
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
             >
               Yes, Cancel
             </AlertDialogAction>
