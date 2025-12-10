@@ -160,6 +160,47 @@ public class AdminController {
     }
 
     /**
+     * Update basic patient details (admin-only, HIPAA-compliant)
+     * PUT /api/admin/patients/{patientId}
+     * Allowed fields: firstName, lastName, phoneNumber
+     */
+    @PutMapping("/patients/{patientId}")
+    public ResponseEntity<?> updatePatientBasic(@PathVariable UUID patientId, @RequestBody java.util.Map<String, Object> payload) {
+        User patient = userRepository.findById(patientId)
+                .orElseThrow(() -> new RuntimeException("Patient not found"));
+
+        if (!patient.getRole().name().equals("PATIENT")) {
+            return ResponseEntity.badRequest().body("User is not a patient");
+        }
+
+        Object firstName = payload.get("firstName");
+        Object lastName = payload.get("lastName");
+        Object phoneNumber = payload.get("phoneNumber");
+
+        if ((firstName instanceof String) || (lastName instanceof String)) {
+            String f = firstName instanceof String ? (String) firstName : null;
+            String l = lastName instanceof String ? (String) lastName : null;
+            String next = ((f != null ? f : "") + " " + (l != null ? l : "")).trim();
+            if (!next.isBlank()) {
+                patient.setFullName(next);
+            }
+        }
+        if (phoneNumber instanceof String) patient.setPhoneNumber((String) phoneNumber);
+
+        userRepository.save(patient);
+
+        AuditLog log = new AuditLog();
+        log.setOperation("UPDATE_PATIENT_BASIC");
+        log.setActorUserEmail(org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName());
+        log.setResourceType("User");
+        log.setResourceId(patient.getId().toString());
+        log.setCreatedAt(java.time.LocalDateTime.now());
+        auditLogRepository.save(log);
+
+        return ResponseEntity.ok(patient);
+    }
+
+    /**
      * Get all appointments (admin view)
      * GET /api/admin/appointments
      */
@@ -179,6 +220,60 @@ public class AdminController {
                 .filter(user -> user.getRole().name().equals("DOCTOR"))
                 .toList();
         return ResponseEntity.ok(doctors);
+    }
+
+    @GetMapping("/doctors/{doctorId}")
+    public ResponseEntity<?> getDoctor(@PathVariable UUID doctorId) {
+        User doctor = userRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        if (!doctor.getRole().name().equals("DOCTOR")) {
+            return ResponseEntity.badRequest().body("User is not a doctor");
+        }
+        return ResponseEntity.ok(doctor);
+    }
+
+    @PutMapping("/doctors/{doctorId}")
+    public ResponseEntity<?> updateDoctorBasic(@PathVariable UUID doctorId, @RequestBody java.util.Map<String, Object> payload) {
+        User doctor = userRepository.findById(doctorId)
+                .orElseThrow(() -> new RuntimeException("Doctor not found"));
+        if (!doctor.getRole().name().equals("DOCTOR")) {
+            return ResponseEntity.badRequest().body("User is not a doctor");
+        }
+
+        Object specialization = payload.get("specialization");
+        Object phoneNumber = payload.get("phoneNumber");
+        if (specialization instanceof String) doctor.setSpecialization((String) specialization);
+        if (phoneNumber instanceof String) doctor.setPhoneNumber((String) phoneNumber);
+
+        userRepository.save(doctor);
+
+        AuditLog log = new AuditLog();
+        log.setOperation("UPDATE_DOCTOR_BASIC");
+        log.setActorUserEmail(org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName());
+        log.setResourceType("User");
+        log.setResourceId(doctor.getId().toString());
+        log.setCreatedAt(java.time.LocalDateTime.now());
+        auditLogRepository.save(log);
+
+        return ResponseEntity.ok(doctor);
+    }
+
+    /**
+     * List audit logs (latest first)
+     * GET /api/admin/logs?limit=100
+     */
+    @GetMapping("/logs")
+    public ResponseEntity<List<AuditLog>> getAuditLogs(@RequestParam(name = "limit", required = false) Integer limit) {
+        int max = (limit == null || limit <= 0 || limit > 500) ? 100 : limit;
+        List<AuditLog> all = auditLogRepository.findAll();
+        List<AuditLog> sorted = all.stream()
+                .sorted(java.util.Comparator.comparing(
+                        com.digihealth.backend.entity.AuditLog::getCreatedAt,
+                        java.util.Comparator.nullsLast(java.util.Comparator.naturalOrder())
+                ).reversed())
+                .limit(max)
+                .collect(java.util.stream.Collectors.toList());
+        return ResponseEntity.ok(sorted);
     }
 
     /**
