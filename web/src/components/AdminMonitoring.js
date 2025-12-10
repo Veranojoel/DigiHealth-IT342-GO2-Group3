@@ -18,6 +18,7 @@ const AdminMonitoring = () => {
   const [status, setStatus] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [logs, setLogs] = useState([]);
 
   useEffect(() => {
     if (!authLoading && (!isAuthenticated || currentUser?.role !== 'ADMIN')) {
@@ -38,11 +39,25 @@ const AdminMonitoring = () => {
     }
   };
 
+  const fetchLogs = async () => {
+    try {
+      const res = await apiClient.get('/api/admin/logs?limit=100');
+      setLogs(res.data || []);
+    } catch (e) {
+      // silently ignore
+    }
+  };
+
   useEffect(() => {
     if (isAuthenticated && currentUser?.role === 'ADMIN') {
       fetchStatus();
+      fetchLogs();
       const id = setInterval(fetchStatus, 15000);
-      return () => clearInterval(id);
+      const lid = setInterval(fetchLogs, 30000);
+      return () => {
+        clearInterval(id);
+        clearInterval(lid);
+      };
     }
   }, [isAuthenticated, currentUser]);
 
@@ -196,10 +211,38 @@ const AdminMonitoring = () => {
             </div>
           )}
         </section>
+
+        <section className="content-section">
+          <div className="section-header">
+            <h2>Audit Logs</h2>
+            <p className="section-description">Recent administrative and system actions</p>
+          </div>
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Operation</th>
+                  <th>Actor</th>
+                  <th>Resource</th>
+                </tr>
+              </thead>
+              <tbody>
+                {(logs || []).map((log) => (
+                  <tr key={log.id}>
+                    <td>{log.createdAt ? new Date(log.createdAt).toLocaleString() : '—'}</td>
+                    <td>{log.operation}</td>
+                    <td>{log.actorUserEmail}</td>
+                    <td>{`${log.resourceType || ''} ${log.resourceId || ''}`.trim()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </div>
   );
 };
 
 export default AdminMonitoring;
-

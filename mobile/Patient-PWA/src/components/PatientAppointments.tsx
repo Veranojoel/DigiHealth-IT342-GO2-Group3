@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react';
 import type { Screen } from '../App';
 import { PatientMobileLayout } from './PatientMobileLayout';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
-import { Calendar, Clock, MapPin, Phone, Video, X, RefreshCw, ChevronRight, Plus } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, MapPin, Phone, Video, X, RefreshCw, ChevronRight, Plus } from 'lucide-react';
+import { Calendar } from './ui/calendar';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -30,6 +31,13 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
   const [selectedAppointment, setSelectedAppointment] = useState<any>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [cancelReason, setCancelReason] = useState('');
+  const [showRescheduleDialog, setShowRescheduleDialog] = useState(false);
+  const [rescheduleDate, setRescheduleDate] = useState<Date | undefined>(undefined);
+  const [rescheduleTime, setRescheduleTime] = useState<string>('');
+  const [rescheduleReason, setRescheduleReason] = useState('');
+  const [rescheduleWorkDays, setRescheduleWorkDays] = useState<string[]>([]);
+  const [rescheduleTimeSlots, setRescheduleTimeSlots] = useState<string[]>([]);
+  const [rescheduleSlotsLoading, setRescheduleSlotsLoading] = useState(false);
   const [reloadFlag, setReloadFlag] = useState<number>(0);
   const [upcomingAppointments, setUpcomingAppointments] = useState<any[]>([]);
   const [pastAppointments, setPastAppointments] = useState<any[]>([]);
@@ -51,47 +59,48 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
   };
 
   const fetchAppointments = async () => {
-      setLoading(true);
-      setError(null);
-      const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
-      const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
-      const token = localStorage.getItem('accessToken');
-      try {
-        const res = await fetch(`${API_BASE}/api/appointments/patient/my`, {
-          headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {}),
-          },
-        });
-        if (!res.ok) {
-          const payload = await res.json().catch(() => null);
-          throw new Error((payload && (payload.message || payload.error)) || 'Failed to load appointments');
-        }
-        const data = await res.json();
-        const mapped = (data || []).map((a: any) => ({
-          id: a.appointmentId,
-          doctorName: a.doctor?.user?.fullName || 'Doctor',
-          specialization: a.doctor?.user?.specialization || 'General Physician',
-          date: a.appointmentDate,
-          time: a.appointmentTime,
-          type: 'Consultation',
-          status: a.status || 'Scheduled',
-          location: a.doctor?.hospitalAffiliation || 'Clinic',
-          reason: a.notes || a.symptoms || '',
-          doctorImage: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(a.doctor?.user?.fullName || 'Doctor')}`,
-        }));
-        const todayStr = new Date().toLocaleDateString('en-CA');
-        const upcoming = mapped.filter((m: any) => m.date >= todayStr && m.status !== 'Cancelled' && m.status !== 'CANCELLED' && m.status !== 'COMPLETED');
-        const past = mapped.filter((m: any) => m.date < todayStr && (m.status === 'Completed' || m.status === 'COMPLETED'));
-        const cancelled = mapped.filter((m: any) => m.status === 'Cancelled' || m.status === 'CANCELLED');
-        setUpcomingAppointments(upcoming);
-        setPastAppointments(past);
-        setCancelledAppointments(cancelled);
-      } catch (e: any) {
-        setError(e.message);
-      } finally {
-        setLoading(false);
+    setLoading(true);
+    setError(null);
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
+    const token = localStorage.getItem('accessToken');
+    try {
+      const res = await fetch(`${API_BASE}/api/appointments/patient/my`, {
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+      });
+      if (!res.ok) {
+        const payload = await res.json().catch(() => null);
+        throw new Error((payload && (payload.message || payload.error)) || 'Failed to load appointments');
       }
+      const data = await res.json();
+      const mapped = (data || []).map((a: any) => ({
+        id: a.appointmentId,
+        doctorId: a.doctor?.user?.id,
+        doctorName: a.doctor?.user?.fullName || 'Doctor',
+        specialization: a.doctor?.user?.specialization || 'General Physician',
+        date: a.appointmentDate,
+        time: a.appointmentTime,
+        type: 'Consultation',
+        status: a.status || 'Scheduled',
+        location: a.doctor?.hospitalAffiliation || 'Clinic',
+        reason: a.notes || a.symptoms || '',
+        doctorImage: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(a.doctor?.user?.fullName || 'Doctor')}`,
+      }));
+      const todayStr = new Date().toLocaleDateString('en-CA');
+      const upcoming = mapped.filter((m: any) => m.date >= todayStr && m.status !== 'Cancelled' && m.status !== 'CANCELLED' && m.status !== 'COMPLETED');
+      const past = mapped.filter((m: any) => m.date < todayStr && (m.status === 'Completed' || m.status === 'COMPLETED'));
+      const cancelled = mapped.filter((m: any) => m.status === 'Cancelled' || m.status === 'CANCELLED');
+      setUpcomingAppointments(upcoming);
+      setPastAppointments(past);
+      setCancelledAppointments(cancelled);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
   useEffect(() => { fetchAppointments(); }, [reloadFlag]);
 
@@ -129,13 +138,138 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
     });
   };
 
-  const handleReschedule = (appointment: any) => {
-    toast.info('Reschedule feature - Coming soon!');
-    // onNavigate('reschedule-appointment', appointment);
+  const handleReschedule = async (appointment: any) => {
+    setSelectedAppointment(appointment);
+    setRescheduleDate(undefined);
+    setRescheduleTime('');
+    setRescheduleReason('');
+    setRescheduleTimeSlots([]);
+    setShowRescheduleDialog(true);
+
+    // Fetch doctor's work days
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
+    const token = localStorage.getItem('accessToken');
+    const doctorId = appointment.doctorId || appointment.doctor?.user?.id;
+
+    if (doctorId) {
+      try {
+        const res = await fetch(`${API_BASE}/api/appointments/doctors/${doctorId}/work-days`, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        const payload = await res.json().catch(() => null);
+        if (res.ok && payload?.workDays) {
+          const days: string[] = payload.workDays.map((d: string) => d.toUpperCase());
+          setRescheduleWorkDays(days);
+        } else {
+          setRescheduleWorkDays([]);
+        }
+      } catch {
+        setRescheduleWorkDays([]);
+      }
+    }
+  };
+
+  const fetchRescheduleSlots = async (date: Date) => {
+    if (!selectedAppointment) return;
+
+    setRescheduleSlotsLoading(true);
+    setRescheduleTimeSlots([]);
+
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
+    const token = localStorage.getItem('accessToken');
+    const doctorId = selectedAppointment.doctorId || selectedAppointment.doctor?.user?.id;
+    const currentAppointmentTime = selectedAppointment.time;
+    const currentAppointmentDate = selectedAppointment.date;
+    const dateStr = date.toLocaleDateString('en-CA'); // YYYY-MM-DD
+
+    if (doctorId) {
+      try {
+        const res = await fetch(`${API_BASE}/api/appointments/doctors/${doctorId}/available-slots?date=${dateStr}`, {
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
+          },
+        });
+        const data = await res.json().catch(() => []);
+        let slots: string[] = Array.isArray(data) ? data : [];
+
+        // If same date as current appointment, add the current time to show it as disabled
+        // The backend excludes booked slots, but we want to show the patient's own slot as disabled
+        if (dateStr === currentAppointmentDate && currentAppointmentTime) {
+          if (!slots.includes(currentAppointmentTime)) {
+            slots = [...slots, currentAppointmentTime].sort();
+          }
+        }
+
+        setRescheduleTimeSlots(slots);
+      } catch (e) {
+        console.error('Error fetching reschedule slots:', e);
+        setRescheduleTimeSlots([]);
+      }
+    }
+
+    setRescheduleSlotsLoading(false);
+  };
+
+  const handleRescheduleDateSelect = (date: Date | undefined) => {
+    setRescheduleDate(date);
+    setRescheduleTime('');
+    if (date) {
+      fetchRescheduleSlots(date);
+    } else {
+      setRescheduleTimeSlots([]);
+    }
+  };
+
+  const confirmRescheduleAppointment = () => {
+    const host = typeof window !== 'undefined' ? window.location.hostname : 'localhost';
+    const API_BASE = (import.meta as any).env.VITE_API_BASE_URL || `http://${host}:8080`;
+    const token = localStorage.getItem('accessToken');
+    const id = selectedAppointment?.id || selectedAppointment?.appointmentId;
+
+    if (!id || !rescheduleDate || !rescheduleTime) {
+      toast.error('Please select a date and time');
+      return;
+    }
+
+    const body = {
+      appointmentDate: rescheduleDate.toLocaleDateString('en-CA'),
+      appointmentTime: rescheduleTime,
+      reason: rescheduleReason || undefined,
+    };
+
+    fetch(`${API_BASE}/api/appointments/${id}/reschedule`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify(body)
+    }).then(async (res) => {
+      const payload = await res.json().catch(() => null);
+      if (!res.ok) {
+        toast.error((payload && (payload.message || payload.error)) || 'Failed to reschedule');
+        return;
+      }
+      toast.success('Appointment rescheduled successfully');
+      setShowRescheduleDialog(false);
+      setSelectedAppointment(null);
+      setRescheduleReason('');
+      setRescheduleDate(undefined);
+      setRescheduleTime('');
+      setReloadFlag(Date.now());
+    }).catch(() => {
+      toast.error('Network error rescheduling appointment');
+    });
   };
 
   const renderAppointmentCard = (appointment: any, showActions: boolean = true) => {
-    const statusColors: Record<string,string> = {
+    const statusColors: Record<string, string> = {
       confirmed: 'bg-green-100 text-green-700',
       pending: 'bg-yellow-100 text-yellow-700',
       completed: 'bg-blue-100 text-blue-700',
@@ -151,18 +285,18 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
               <AvatarImage src={appointment.doctorImage} alt={appointment.doctorName} />
               <AvatarFallback>{appointment.doctorName.charAt(0)}</AvatarFallback>
             </Avatar>
-            
+
             <div className="flex-1">
               <div className="flex items-start justify-between mb-1">
                 <div>
                   <p className="font-semibold">{appointment.doctorName}</p>
                   <p className="text-sm text-muted-foreground">{appointment.specialization}</p>
                 </div>
-              <Badge className={statusColors[statusKey] || 'bg-gray-100 text-gray-700'}>
+                <Badge className={statusColors[statusKey] || 'bg-gray-100 text-gray-700'}>
                   {appointment.status}
                 </Badge>
               </div>
-              
+
               <div className="flex items-center gap-1 mt-2 text-sm">
                 <Badge variant="outline" className="text-xs">
                   {appointment.type}
@@ -173,15 +307,15 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
 
           <div className="space-y-2 text-sm mb-4">
             <div className="flex items-center gap-2 text-muted-foreground">
-              <Calendar className="h-4 w-4" />
+              <CalendarIcon className="h-4 w-4" />
               <span>{new Date(appointment.date).toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
             </div>
-            
+
             <div className="flex items-center gap-2 text-muted-foreground">
               <Clock className="h-4 w-4" />
               <span>{formatTime12h(appointment.time)}</span>
             </div>
-            
+
             {appointment.location && (
               <div className="flex items-center gap-2 text-muted-foreground">
                 <MapPin className="h-4 w-4" />
@@ -192,16 +326,16 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
 
           {showActions && (appointment.status === 'Confirmed' || appointment.status === 'CONFIRMED') && (
             <div className="flex gap-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex-1"
                 onClick={() => handleCancelAppointment(appointment)}
               >
                 <X className="h-4 w-4 mr-2" />
                 Cancel
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="flex-1"
                 onClick={() => handleReschedule(appointment)}
               >
@@ -212,8 +346,8 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
           )}
 
           {appointment.status === 'Completed' && (
-            <Button 
-              variant="outline" 
+            <Button
+              variant="outline"
               className="w-full"
               onClick={() => onNavigate('patient-records', appointment)}
             >
@@ -227,7 +361,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
               Cancelled by {appointment.cancelledBy} on {new Date(appointment.cancelledAt).toLocaleDateString()}
             </div>
           )}
-      </CardContent>
+        </CardContent>
       </Card>
     );
   };
@@ -239,7 +373,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
       const mm = parseInt(m || '0', 10);
       const ampm = hh >= 12 ? 'PM' : 'AM';
       const h12 = hh % 12 === 0 ? 12 : hh % 12;
-      return `${h12}:${String(mm).padStart(2,'0')} ${ampm}`;
+      return `${h12}:${String(mm).padStart(2, '0')} ${ampm}`;
     } catch { return time; }
   };
 
@@ -290,9 +424,9 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
             ) : (
               <Card className="shadow-sm">
                 <CardContent className="p-8 text-center">
-                  <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                  <CalendarIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
                   <p className="text-muted-foreground mb-4">No upcoming appointments</p>
-                  <Button 
+                  <Button
                     onClick={() => onNavigate('search')}
                     style={{
                       background: 'linear-gradient(135deg, #0093E9 0%, #80D0C7 100%)'
@@ -312,7 +446,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
             ) : (
               <Card className="shadow-sm">
                 <CardContent className="p-8 text-center">
-                  <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                  <CalendarIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
                   <p className="text-muted-foreground">No past appointments</p>
                 </CardContent>
               </Card>
@@ -325,7 +459,7 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
             ) : (
               <Card className="shadow-sm">
                 <CardContent className="p-8 text-center">
-                  <Calendar className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
+                  <CalendarIcon className="h-12 w-12 mx-auto mb-3 text-muted-foreground" />
                   <p className="text-muted-foreground">No cancelled appointments</p>
                 </CardContent>
               </Card>
@@ -336,37 +470,144 @@ export function PatientAppointments({ patient, onNavigate, onLogout }: PatientAp
 
       {/* Cancel Confirmation Dialog */}
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Cancel Appointment?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to cancel your appointment with {selectedAppointment?.doctorName} on{' '}
-                  {selectedAppointment && new Date(selectedAppointment.date).toLocaleDateString()}?
-                  <br /><br />
-                  Please provide a reason for cancellation (optional):
-                  <br />
-                  <textarea
-                    value={cancelReason}
-                    onChange={(e) => setCancelReason(e.target.value)}
-                    placeholder="Reason for cancellation"
-                    className="w-full mt-2 border rounded p-2"
-                    rows={3}
-                  />
-                  <br /><br />
-                  This action cannot be undone. Please note our cancellation policy requires 24 hours notice.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={confirmCancelAppointment}
-                  className="bg-red-600 hover:bg-red-700"
-                >
-                  Yes, Cancel
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Appointment?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel your appointment with {selectedAppointment?.doctorName} on{' '}
+              {selectedAppointment && new Date(selectedAppointment.date).toLocaleDateString()}?
+              <br /><br />
+              Please provide a reason for cancellation (optional):
+              <br />
+              <textarea
+                value={cancelReason}
+                onChange={(e) => setCancelReason(e.target.value)}
+                placeholder="Reason for cancellation"
+                className="w-full mt-2 border rounded p-2"
+                rows={3}
+              />
+              <br /><br />
+              This action cannot be undone. Please note our cancellation policy requires 24 hours notice.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Keep Appointment</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmCancelAppointment}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Yes, Cancel
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={showRescheduleDialog} onOpenChange={setShowRescheduleDialog}>
+        <AlertDialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reschedule Appointment</AlertDialogTitle>
+            <AlertDialogDescription>
+              Select a new date and time for your appointment with {selectedAppointment?.doctorName}.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <div className="space-y-4">
+            {/* Calendar for date selection */}
+            <Card className="shadow-sm">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <CalendarIcon className="h-4 w-4" />
+                  Select New Date
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="pt-0">
+                <Calendar
+                  mode="single"
+                  selected={rescheduleDate}
+                  onSelect={handleRescheduleDateSelect}
+                  disabled={(date) => {
+                    const today = new Date();
+                    if (date < new Date(today.getFullYear(), today.getMonth(), today.getDate())) return true;
+                    const abbr = date.toLocaleDateString('en-US', { weekday: 'short' }).toUpperCase().slice(0, 3);
+                    return rescheduleWorkDays.length > 0 && !rescheduleWorkDays.includes(abbr);
+                  }}
+                  className="rounded-md border"
+                />
+              </CardContent>
+            </Card>
+
+            {/* Time slots */}
+            {rescheduleDate && (
+              <Card className="shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-sm flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Available Time Slots
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-0">
+                  {rescheduleSlotsLoading ? (
+                    <p className="text-sm text-muted-foreground py-4 text-center">Loading available slots...</p>
+                  ) : rescheduleTimeSlots.length > 0 ? (
+                    <div className="grid grid-cols-3 gap-2">
+                      {rescheduleTimeSlots.map((time) => {
+                        // Check if this is the patient's current appointment time on the same date
+                        const isCurrentSlot = rescheduleDate &&
+                          rescheduleDate.toLocaleDateString('en-CA') === selectedAppointment?.date &&
+                          time === selectedAppointment?.time;
+
+                        return (
+                          <Button
+                            key={time}
+                            variant={rescheduleTime === time ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => !isCurrentSlot && setRescheduleTime(time)}
+                            disabled={isCurrentSlot}
+                            className={
+                              isCurrentSlot
+                                ? 'opacity-50 cursor-not-allowed bg-gray-200 text-gray-500'
+                                : rescheduleTime === time
+                                  ? 'bg-gradient-to-r from-[#0093E9] to-[#80D0C7]'
+                                  : ''
+                            }
+                          >
+                            {formatTime12h(time)}
+                          </Button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="text-sm text-muted-foreground py-4 text-center">No available slots for this date</p>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Reason */}
+            <div>
+              <label className="text-sm text-muted-foreground">Reason (optional)</label>
+              <textarea
+                value={rescheduleReason}
+                onChange={(e) => setRescheduleReason(e.target.value)}
+                className="w-full border rounded px-2 py-1 mt-1"
+                placeholder="Provide a reason for rescheduling"
+                rows={2}
+              />
+            </div>
+          </div>
+
+          <AlertDialogFooter className="mt-4">
+            <AlertDialogCancel onClick={() => setShowRescheduleDialog(false)}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmRescheduleAppointment}
+              className="bg-gradient-to-r from-[#0093E9] to-[#80D0C7]"
+              disabled={!rescheduleDate || !rescheduleTime}
+            >
+              Confirm Reschedule
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </PatientMobileLayout>
   );
 }

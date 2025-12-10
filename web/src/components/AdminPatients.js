@@ -22,6 +22,10 @@ const AdminPatients = ({
   const [patients, setPatients] = useState(initialPatients);
   const [loading, setLoading] = useState(!initialPatients.length);
   const [error, setError] = useState('');
+  const [selectedPatientId, setSelectedPatientId] = useState(null);
+  const [patientDetails, setPatientDetails] = useState(null);
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
 
   // Use parent state if provided, otherwise use internal state
   const searchTerm = setParentSearchTerm ? initialSearchTerm : internalSearchTerm;
@@ -71,36 +75,36 @@ const AdminPatients = ({
 
   // Fetch patients from API if not provided as prop
   useEffect(() => {
-        const fetchPatients = async () => {
-          if (!isAuthenticated || currentUser?.role !== 'ADMIN' || initialPatients.length) return;
+    const fetchPatients = async () => {
+      if (!isAuthenticated || currentUser?.role !== 'ADMIN' || initialPatients.length) return;
 
-          try {
-            setLoading(true);
-            const response = await apiClient.get('/api/admin/patients');
-            const patientsData = response.data.map(user => ({
-              id: user.id,
-              name: `${user.firstName || ''} ${user.lastName || user.fullName || ''}`.trim() || 'N/A',
-              email: user.email,
-              phone: user.phoneNumber || 'N/A',
-              age: calculateAge(user.patient?.birthDate),
-              gender: user.patient?.gender || 'N/A',
-              isActive: user.isActive !== undefined ? user.isActive : true,
-              status: user.isActive ? 'Active' : 'Inactive',
-              lastVisit: 'N/A', // TODO: Calculate from appointments
-              registeredDate: new Date(user.createdAt || Date.now()).toLocaleDateString(),
-              appointmentsCount: 0 // TODO: Get from appointments
-            }));
-            setPatients(patientsData);
-          } catch (err) {
-            setError('Failed to load patients data');
-            console.error('Error fetching patients:', err);
-          } finally {
-            setLoading(false);
-          }
-        };
+      try {
+        setLoading(true);
+        const response = await apiClient.get('/api/admin/patients');
+        const patientsData = response.data.map(user => ({
+          id: user.id,
+          name: `${user.firstName || ''} ${user.lastName || user.fullName || ''}`.trim() || 'N/A',
+          email: user.email,
+          phone: user.phoneNumber || 'N/A',
+          age: calculateAge(user.patient?.birthDate),
+          gender: user.patient?.gender || 'N/A',
+          isActive: user.isActive !== undefined ? user.isActive : true,
+          status: user.isActive ? 'Active' : 'Inactive',
+          lastVisit: 'N/A', // TODO: Calculate from appointments
+          registeredDate: new Date(user.createdAt || Date.now()).toLocaleDateString(),
+          appointmentsCount: 0 // TODO: Get from appointments
+        }));
+        setPatients(patientsData);
+      } catch (err) {
+        setError('Failed to load patients data');
+        console.error('Error fetching patients:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-        fetchPatients();
-      }, [isAuthenticated, currentUser, initialPatients.length]);
+    fetchPatients();
+  }, [isAuthenticated, currentUser, initialPatients.length]);
 
   const calculateAge = (birthDate) => {
     if (!birthDate) return 'N/A';
@@ -119,8 +123,46 @@ const AdminPatients = ({
     navigate('/admin/login');
   };
 
-  const handlePatientView = (patientId) => {
-    console.log('View patient details:', patientId);
+  const handlePatientView = async (patientId) => {
+    try {
+      setSelectedPatientId(patientId);
+      const res = await apiClient.get(`/api/admin/patients/${patientId}`);
+      const user = res.data;
+      const basic = {
+        id: user.id,
+        fullName: user.fullName || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+        email: user.email,
+        phoneNumber: user.phoneNumber || '',
+        registeredDate: new Date(user.createdAt || Date.now()).toLocaleDateString(),
+        isActive: user.isActive,
+      };
+      setPatientDetails(basic);
+      setShowViewModal(true);
+    } catch (e) {
+      setError('Failed to load patient details');
+    }
+  };
+
+  const handlePatientEdit = async (patientId) => {
+    await handlePatientView(patientId);
+    setShowEditModal(true);
+    setShowViewModal(false);
+  };
+
+  const handleSavePatient = async () => {
+    try {
+      const payload = {
+        firstName: undefined,
+        lastName: undefined,
+        phoneNumber: patientDetails?.phoneNumber || '',
+      };
+      await apiClient.put(`/api/admin/patients/${selectedPatientId}`, payload);
+      setShowEditModal(false);
+      setSelectedPatientId(null);
+      if (onRefresh) onRefresh();
+    } catch (e) {
+      setError('Failed to save patient details');
+    }
   };
 
   const handleStatusChange = (patientId, newStatus) => {
@@ -138,24 +180,24 @@ const AdminPatients = ({
       setLoading(true);
       const endpoint = isActive ? '/deactivate' : '/reactivate';
       await apiClient.put(`/api/admin/users/${patientId}${endpoint}`);
-      
+
       // Optimistic update
       setPatients(patients.map(patient =>
-        patient.id === patientId 
+        patient.id === patientId
           ? { ...patient, status: isActive ? 'Inactive' : 'Active', isActive: !isActive }
           : patient
       ));
-      
+
       // Refresh parent if provided
       if (onRefresh) {
         onRefresh();
       }
-      
+
       setError('');
     } catch (err) {
       console.error('Failed to toggle patient status:', err);
       setError(err.response?.data?.error || 'Failed to toggle patient status. Please try again.');
-      
+
       // Revert optimistic update on error
       if (onRefresh) {
         onRefresh();
@@ -169,7 +211,7 @@ const AdminPatients = ({
     const nameField = (patient && patient.name) ? patient.name : (patient && patient.fullName) ? patient.fullName : '';
     const emailField = (patient && patient.email) ? patient.email : '';
     const matchesSearch = nameField.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         emailField.toLowerCase().includes(searchTerm.toLowerCase());
+      emailField.toLowerCase().includes(searchTerm.toLowerCase());
     const statusField = (patient && patient.status) ? patient.status : (patient && patient.isActive ? 'Active' : 'Inactive');
     const matchesStatus = statusFilter === 'all' || statusField.toLowerCase() === statusFilter.toLowerCase();
     return matchesSearch && matchesStatus;
@@ -245,17 +287,17 @@ const AdminPatients = ({
               className="search-input"
             />
           </div>
-        <div className="filter-container">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="status-filter"
-          >
-            <option value="all">All Statuses</option>
-            <option value="active">Active</option>
-            <option value="inactive">Inactive</option>
-          </select>
-        </div>
+          <div className="filter-container">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="status-filter"
+            >
+              <option value="all">All Statuses</option>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
           {handleExportPatients && (
             <button className="export-btn" onClick={handleExportPatients}>
               Export Data
@@ -305,7 +347,13 @@ const AdminPatients = ({
                     >
                       👁️ View
                     </button>
-                    <button 
+                    <button
+                      className="action-btn"
+                      onClick={() => handlePatientEdit(patient.id)}
+                    >
+                      ✎ Edit
+                    </button>
+                    <button
                       className={`action-btn ${patient.isActive ? 'deactivate' : 'reactivate'}`}
                       onClick={() => handleTogglePatientStatus(patient.id, patient.isActive)}
                       disabled={loading}
@@ -326,7 +374,44 @@ const AdminPatients = ({
             <p>No patients match your current search criteria.</p>
           </div>
         )}
+
+        {showViewModal && patientDetails && (
+          <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+            <div className="modal" style={{ background: '#fff', borderRadius: 12, padding: 20, width: 520, boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
+              <h3 style={{ margin: 0, marginBottom: 8 }}>Patient Details</h3>
+              <p style={{ color: '#6b7280', marginTop: 0 }}>Basic information only (HIPAA-compliant)</p>
+              <div style={{ marginTop: 12 }}>
+                <p><strong>Name:</strong> {patientDetails.fullName}</p>
+                <p><strong>Email:</strong> {patientDetails.email}</p>
+                <p><strong>Phone:</strong> {patientDetails.phoneNumber || '—'}</p>
+                <p><strong>Registered:</strong> {patientDetails.registeredDate}</p>
+                <p><strong>Status:</strong> {patientDetails.isActive ? 'Active' : 'Inactive'}</p>
+              </div>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
+                <button className="action-btn" onClick={() => setShowViewModal(false)}>Close</button>
+                <button className="action-btn" onClick={() => { setShowViewModal(false); setShowEditModal(true); }}>Edit Basics</button>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {showEditModal && patientDetails && (
+          <div className="modal-overlay" style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)', backdropFilter: 'blur(4px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+            <div className="modal" style={{ background: '#fff', borderRadius: 12, padding: 20, width: 520, boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
+              <h3 style={{ margin: 0, marginBottom: 8 }}>Edit Patient Basics</h3>
+              <div className="form-field" style={{ marginTop: 12 }}>
+                <label className="form-label">Phone</label>
+                <input className="form-input" value={patientDetails.phoneNumber || ''} onChange={(e) => setPatientDetails({ ...patientDetails, phoneNumber: e.target.value })} />
+              </div>
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 16 }}>
+                <button className="action-btn" onClick={() => setShowEditModal(false)}>Cancel</button>
+                <button className="action-btn" onClick={handleSavePatient}>Save</button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
     );
   }
 

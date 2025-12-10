@@ -45,6 +45,10 @@ const AdminDashboardSettings = () => {
 
   return (
     <div className="settings-container">
+      <div className="settings-header" style={{ marginBottom: 12 }}>
+        <h2 className="settings-title">Settings</h2>
+        <p className="settings-subtitle">Configure clinic, appointments, notifications, and system</p>
+      </div>
       <AdminTabs />
 
       {success && <div className="success-banner">{success}</div>}
