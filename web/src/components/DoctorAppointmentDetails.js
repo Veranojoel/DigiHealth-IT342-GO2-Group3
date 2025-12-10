@@ -121,9 +121,18 @@ const DoctorAppointmentDetails = ({ appointment, onClose, onEdit, onStatusUpdate
           <div className="row">
             <div className="col">
               <label>Reason for Visit</label>
-              <div className="value">{appointment.notes || appointment.symptoms || '—'}</div>
+              <div className="value">{appointment.symptoms || '—'}</div>
             </div>
           </div>
+
+          {appointment.notes && (
+          <div className="row">
+            <div className="col">
+              <label>{appointment.status === 'CANCELLED' ? 'Cancellation Reason' : 'Notes'}</label>
+              <div className="value">{appointment.notes}</div>
+            </div>
+          </div>
+          )}
       </div>
 
       <div className="dialog-footer">

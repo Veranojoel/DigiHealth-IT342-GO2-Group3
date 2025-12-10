@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import "./PageStyling.css";
 import NewAppointmentModal from "./NewAppointmentModal";
 import DoctorAppointmentDetails from "./DoctorAppointmentDetails";
@@ -20,6 +21,7 @@ const Appointments = () => {
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [viewMode, setViewMode] = useState('list');
+  const location = useLocation();
 
   const APPOINTMENTS_URL = "/api/doctors/me/appointments";
 
@@ -38,6 +40,24 @@ const Appointments = () => {
   useEffect(() => {
     loadAppointments();
   }, []);
+
+  useEffect(() => {
+    if (location.state && appointments.length > 0) {
+      const { date, appointmentId } = location.state;
+      if (date) {
+        const parts = date.split('-');
+        const d = new Date(parseInt(parts[0]), parseInt(parts[1]) - 1, parseInt(parts[2]));
+        setSelectedDate(d);
+      }
+      if (appointmentId) {
+        const appt = appointments.find(a => (a.appointmentId === appointmentId || a.id === appointmentId));
+        if (appt) {
+          setSelected(appt);
+          setShowDetails(true);
+        }
+      }
+    }
+  }, [location.state, appointments]);
 
   const onLiveUpdate = (appt) => {
     try {

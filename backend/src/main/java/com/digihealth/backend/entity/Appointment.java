@@ -56,6 +56,9 @@ public class Appointment {
 
     private LocalDate followUpDate;
 
+    @Column(nullable = false)
+    private Boolean isRescheduled = false;
+
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

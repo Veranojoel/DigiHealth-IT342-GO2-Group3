@@ -17,8 +17,9 @@ import com.digihealth.backend.repository.DoctorWorkDayRepository;
 import com.digihealth.backend.repository.AdminSettingsRepository;
 import com.digihealth.backend.entity.AdminSettings;
 import com.digihealth.backend.security.JwtTokenProvider;
-import com.digihealth.backend.service.AppointmentNotificationService;
+import com.digihealth.backend.service.NotificationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -47,19 +48,16 @@ public class AppointmentController {
     private PatientRepository patientRepository;
 
     @Autowired
-    private AppointmentNotificationService appointmentNotificationService;
+    private NotificationService notificationService;
 
-  @Autowired
-  private DoctorWorkDayRepository doctorWorkDayRepository;
+    @Autowired
+    private DoctorWorkDayRepository doctorWorkDayRepository;
 
-  @Autowired
-  private AdminSettingsRepository adminSettingsRepository;
+    @Autowired
+    private AdminSettingsRepository adminSettingsRepository;
 
-  @Autowired
-  private com.digihealth.backend.repository.AuditLogRepository auditLogRepository;
-
-  @Autowired
-  private com.digihealth.backend.service.EmailService emailService;
+    @Autowired
+    private com.digihealth.backend.repository.AuditLogRepository auditLogRepository;
 
 
 
@@ -118,7 +116,7 @@ public class AppointmentController {
       }
 
       boolean allowSameDay = settings == null || Boolean.TRUE.equals(settings.getAllowSameDayBooking());
-      Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 24;
+      Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 0;
       Integer maxAdvanceDays = settings != null && settings.getMaxAdvanceDays() != null ? settings.getMaxAdvanceDays() : 90;
       Integer slotMinutes = settings != null && settings.getAppointmentSlotMinutes() != null ? settings.getAppointmentSlotMinutes() : 30;
       boolean autoConfirm = settings != null && Boolean.TRUE.equals(settings.getAutoConfirmAppointments());
@@ -181,6 +179,8 @@ public class AppointmentController {
 
       Appointment saved = appointmentRepository.save(appointment);
 
+      notificationService.notifyNewAppointment(saved);
+
       return ResponseEntity.ok(saved);
     } catch (Exception e) {
       return ResponseEntity.badRequest().body("Error booking appointment: " + e.getMessage());
@@ -232,7 +232,7 @@ public class AppointmentController {
 
     @GetMapping("/doctors/{doctorId}/available-slots")
     @PreAuthorize("hasAnyRole('PATIENT','DOCTOR')")
-  public ResponseEntity<?> getAvailableSlots(@PathVariable UUID doctorId, @RequestParam("date") java.time.LocalDate date) {
+  public ResponseEntity<?> getAvailableSlots(@PathVariable UUID doctorId, @RequestParam("date") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) java.time.LocalDate date) {
     try {
             User doctorUser = userRepository.findById(doctorId)
                     .orElseThrow(() -> new RuntimeException("Doctor not found"));
@@ -275,7 +275,7 @@ public class AppointmentController {
       AdminSettings settings = adminSettingsRepository.findById(1L).orElse(null);
       int slotMinutes = settings != null && settings.getAppointmentSlotMinutes() != null ? settings.getAppointmentSlotMinutes() : 30;
       boolean allowSameDay = settings == null || Boolean.TRUE.equals(settings.getAllowSameDayBooking());
-      Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 24;
+      Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 0;
 
       java.time.LocalDate today = java.time.LocalDate.now();
       java.time.LocalDateTime now = java.time.LocalDateTime.now();
@@ -369,7 +369,7 @@ public class AppointmentController {
 
             AdminSettings settings = adminSettingsRepository.findById(1L).orElse(null);
             int slotMinutes = settings != null && settings.getAppointmentSlotMinutes() != null ? settings.getAppointmentSlotMinutes() : 30;
-            Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 24;
+            Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 0;
             boolean allowSameDay = settings == null || Boolean.TRUE.equals(settings.getAllowSameDayBooking());
 
             Map<String, Object> payload = new java.util.HashMap<>();
@@ -409,7 +409,7 @@ public class AppointmentController {
             }
             Appointment updated = appointmentRepository.save(appointment);
     
-        appointmentNotificationService.notifyAppointmentStatusChange(updated);
+        notificationService.notifyAppointmentStatusChange(updated);
 
         return ResponseEntity.ok(updated);
     } catch (Exception e) {
@@ -457,7 +457,7 @@ public class AppointmentController {
             }
 
             AdminSettings settings = adminSettingsRepository.findById(1L).orElse(null);
-            Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 24;
+            Integer minAdvanceHours = settings != null && settings.getMinAdvanceHours() != null ? settings.getMinAdvanceHours() : 0;
             boolean allowSameDay = settings == null || Boolean.TRUE.equals(settings.getAllowSameDayBooking());
             int slotMinutes = settings != null && settings.getAppointmentSlotMinutes() != null ? settings.getAppointmentSlotMinutes() : 30;
 
@@ -511,6 +511,7 @@ public class AppointmentController {
                 String combined = (existing != null && !existing.isBlank()) ? (existing + "\n\nReschedule Reason: " + r) : ("Reschedule Reason: " + r);
                 appointment.setNotes(combined);
             }
+            appointment.setIsRescheduled(true);
 
             Appointment updated = appointmentRepository.save(appointment);
 
@@ -522,10 +523,7 @@ public class AppointmentController {
             log.setCreatedAt(java.time.LocalDateTime.now());
             auditLogRepository.save(log);
 
-            appointmentNotificationService.notifyAppointmentStatusChange(updated);
-            try {
-                emailService.sendRescheduleEmails(updated, oldDate, oldTime);
-            } catch (Exception ignored) {}
+            notificationService.notifyAppointmentRescheduled(updated, oldDate, oldTime);
 
             return ResponseEntity.ok(updated);
         } catch (Exception e) {
